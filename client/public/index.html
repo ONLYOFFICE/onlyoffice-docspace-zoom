@@ -334,20 +334,28 @@
     </div>
 
     <script src="https://appssdk.zoom.us/sdk.min.js"></script>
-    <script src="/js/api.js"></script>
     <script src="/js/signalr.js"></script>
     <script>
         (async () => {
-            let home = "apisystem";
+            function loadJS(uri) {
+                const script = document.createElement("script");
+
+                script.setAttribute("src", uri);
+                script.setAttribute("type", "text/javascript");
+
+                document.body.appendChild(script);
+
+                return new Promise((res, rej) => {
+                    script.addEventListener("load", res);
+                    script.addEventListener("error", rej);
+                });
+            }
+
+            let home = "zoomservice";
 
             let docSpaceFrame;
             let docSpaceAuthFrame;
-            let docSpaceLoaderFrame = window.DocSpace.SDK.initSystem({
-                frameId: "zoom-ds-loader-frame",
-                name: "zoomDsLoaderFrame",
-                mode: "system",
-                theme: "Base"
-            });
+            let docSpaceLoaderFrame;
 
             let payload;
 
@@ -437,6 +445,15 @@
                 changeElementDisplay(document.getElementById("zoom-ds-frame"), "none");
                 changeElementDisplay(document.getElementById("zoom-ds-loader-frame"), "none");
                 changeElementDisplay(document.getElementById("filePickerBox"), "none");
+            }
+
+            async function initLoader() {
+                docSpaceLoaderFrame = window.DocSpace.SDK.initSystem({
+                    frameId: "zoom-ds-loader-frame",
+                    name: "zoomDsLoaderFrame",
+                    mode: "system",
+                    theme: "Base"
+                });
             }
 
             async function initSignalR(meetingUUID) {
@@ -935,6 +952,10 @@
                 }
 
                 home = payload["Home"] ? payload["Home"] : home;
+                if (payload["DocSpaceUrl"]) {
+                    await loadJS(`${payload["DocSpaceUrl"]}/static/scripts/api.js`);
+                    initLoader();
+                }
 
                 const configResponse = await initZoomSdk();
 
