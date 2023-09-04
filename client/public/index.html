@@ -22,7 +22,7 @@
         body {
             font-family: system-ui;
             color: #333333;
-            background-image: url("/static/images/zoom.integration.background.svg");
+            background-image: url("/images/zoom.integration.background.svg");
             background-position: center center;
             background-size: cover;
         }
@@ -251,7 +251,7 @@
     <div class="container">
         <div id="messageBox">
             <div class="messageHeader">
-                <img src="/static/icon.svg" />
+                <img src="/images/icon.svg" />
                 <span><b>ONLYOFFICE</b> DocSpace</span>
             </div>
             <div class="messageBody">
@@ -288,17 +288,17 @@
                     <div class="formats">
                         <label class="active">
                             <input class="selectable-label" type="radio" hidden name="document-format" value="docx" checked />
-                            <img src="/static/images/icons/32/docx.svg" />
+                            <img src="/images/icons/64/docx.svg" />
                             <span>Document</span>
                         </label>
                         <label>
                             <input class="selectable-label" type="radio" hidden name="document-format" value="xlsx" />
-                            <img src="/static/images/icons/32/xlsx.svg" />
+                            <img src="/images/icons/64/xlsx.svg" />
                             <span>Spreadsheet</span>
                         </label>
                         <label>
                             <input class="selectable-label" type="radio" hidden name="document-format" value="pptx" />
-                            <img src="/static/images/icons/32/pptx.svg" />
+                            <img src="/images/icons/64/pptx.svg" />
                             <span>Presentation</span>
                         </label>
                     </div>
@@ -334,8 +334,8 @@
     </div>
 
     <script src="https://appssdk.zoom.us/sdk.min.js"></script>
-    <script src="/static/scripts/api.js"></script>
-    <script src="/static/scripts/signalr.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/signalr.js"></script>
     <script>
         (async () => {
             let home = "apisystem";
@@ -419,7 +419,7 @@
                     const fileIcon = document.createElement("img");
                     const fileSpan = document.createElement("span");
                     fileSpan.innerText = fileInfo.title;
-                    fileIcon.src = fileInfo.icon ? fileInfo.icon : "/static/images/icons/64/file.svg";
+                    fileIcon.src = fileInfo.icon ? fileInfo.icon : "/images/icons/64/file.svg";
                     fileRow.append(fileIcon, fileSpan);
                     fileInfoElement.append(fileRow);
                 }
