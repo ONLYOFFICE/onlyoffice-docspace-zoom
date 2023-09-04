@@ -35,7 +35,7 @@ var options = new WebApplicationOptions
 var builder = WebApplication.CreateBuilder(options);
 
 builder.Configuration.AddDefaultConfiguration(builder.Environment)
-                     .AddApiSystemConfiguration(builder.Environment)
+                     .AddZoomServiceConfiguration(builder.Environment)
                      .AddEnvironmentVariables()
                      .AddCommandLine(args);
 

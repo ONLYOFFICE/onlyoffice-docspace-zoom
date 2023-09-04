@@ -24,17 +24,6 @@
 // content are licensed under the terms of the Creative Commons Attribution-ShareAlike 4.0
 // International. See the License terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
 
-global using System.ComponentModel.DataAnnotations;
-global using System.Diagnostics;
-global using System.Globalization;
-global using System.Net;
-global using System.Net.Http.Headers;
-global using System.Text;
-global using System.Text.Json.Serialization;
-global using System.Text.RegularExpressions;
-global using System.Web;
-global using System.Web.Http.Filters;
-
 global using ASC.Api.Core;
 global using ASC.Api.Core.Auth;
 global using ASC.Api.Core.Core;
@@ -59,28 +48,24 @@ global using ASC.Core.Users;
 global using ASC.EventBus.Extensions.Logger;
 global using ASC.Feed.Context;
 global using ASC.MessagingSystem.EF.Context;
-global using ASC.Security.Cryptography;
 global using ASC.Web.Core.Helpers;
 global using ASC.Web.Core.PublicResources;
 global using ASC.Web.Core.Users;
-global using ASC.Web.Core.Utility;
-global using ASC.Web.Core.Utility.Settings;
 global using ASC.Web.Studio.Utility;
 global using ASC.Webhooks.Core;
 global using ASC.Webhooks.Core.EF.Context;
-
 global using Autofac;
-
 global using HealthChecks.UI.Client;
-
 global using Microsoft.AspNetCore.Authentication;
 global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 global using Microsoft.AspNetCore.Mvc;
-global using Microsoft.Extensions.Caching.Memory;
 global using Microsoft.Extensions.DependencyInjection.Extensions;
 global using Microsoft.Extensions.Hosting.WindowsServices;
-
-global using Newtonsoft.Json.Linq;
-
 global using NLog;
+global using System.Globalization;
+global using System.Net;
+global using System.Text;
+global using System.Text.Json.Serialization;
+global using System.Web;
+global using System.Web.Http.Filters;

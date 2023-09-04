@@ -24,10 +24,6 @@
 // content are licensed under the terms of the Creative Commons Attribution-ShareAlike 4.0
 // International. See the License terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
 
-using System.Security.Cryptography;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-
 using ASC.ApiSystem.Helpers;
 using ASC.ApiSystem.Hubs;
 using ASC.Core.Common.Security;
@@ -41,11 +37,10 @@ using ASC.Web.Core.Files;
 using ASC.Web.Files.Classes;
 using ASC.Web.Files.Services.WCFService;
 using ASC.Web.Files.Utils;
-
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
-
-using static Dropbox.Api.TeamLog.ActorLogInfo;
+using System.Security.Cryptography;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace ASC.ApiSystem.Controllers;
 
@@ -70,7 +65,6 @@ public class ZoomController : ControllerBase
     private AccountLinker AccountLinker { get; }
     private UserManagerWrapper UserManagerWrapper { get; }
     private RequestHelper RequestHelper { get; }
-    private IHubContext<ZoomHub> ZoomHubContext { get; }
     private FileStorageService<int> FileStorageService { get; }
     private SettingsManager SettingsManager { get; }
     private FileUploader FileUploader { get; }
@@ -97,7 +91,6 @@ public class ZoomController : ControllerBase
         AccountLinker accountLinker,
         UserManagerWrapper userManagerWrapper,
         RequestHelper requestHelper,
-        IHubContext<ZoomHub> zoomHubContext,
         FileStorageService<int> fileStorageService,
         SettingsManager settingsManager,
         FileUploader fileUploader,
@@ -122,7 +115,6 @@ public class ZoomController : ControllerBase
         AccountLinker = accountLinker;
         UserManagerWrapper = userManagerWrapper;
         RequestHelper = requestHelper;
-        ZoomHubContext = zoomHubContext;
         FileStorageService = fileStorageService;
         SettingsManager = settingsManager;
         FileUploader = fileUploader;
