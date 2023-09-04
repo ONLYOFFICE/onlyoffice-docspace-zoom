@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ONLYOFFICE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body,
+        .container {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            font-family: system-ui;
+            color: #333333;
+            background-image: url("/static/images/zoom.integration.background.svg");
+            background-position: center center;
+            background-size: cover;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #zoom-ds-frame
+        #zoom-ds-loader-frame,
+        #spinner-holder {
+            flex: 1;
+        }
+
+        #zoom-ds-auth-frame,
+        #zoom-ds-frame,
+        #messageBox,
+        #messageHelp,
+        #messageButton,
+        #permissionBox,
+        #filePickerBox {
+            display: none;
+        }
+
+        .messageHeader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-top: 5rem;
+        }
+
+        .messageHeader img {
+            height: 5rem;
+        }
+
+        #messageHelp, .messageBody {
+            text-align: center;
+            padding: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .messageBody {
+            padding: 2rem;
+            font-size: 1.4rem;
+            margin: 1.5rem 1.5rem 0 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0px 5px 20px 0px rgba(4, 15, 27, 0.07);
+        }
+
+        .button {
+            padding: 1rem;
+            background: rgba(82, 153, 224, 1);
+            color: white;
+            margin-top: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        #filePickerBox {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        #filePickerBox > div {
+            display: flex;
+            flex-direction: row;
+            border-bottom: 1px solid #A3A9AE;
+            padding: 5px;
+            align-items: center;
+        }
+
+        .filePickerHeader {
+            font-weight: bold;
+            font-size: larger;
+        }
+
+        .filePickerButtons {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+            justify-content: end;
+        }
+
+        .filePickerButtons div {
+            border: 1px solid rgba(208, 213, 218, 1);
+            border-radius: 3px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: rgba(163, 169, 174, 1);
+            margin-left: 5px;
+        }
+
+        .filePickerButtons div svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .filePickerButtons div.primary {
+            border: 1px solid transparent;
+            background: rgba(82, 153, 224, 1);
+            color: white;
+        }
+
+        #permissionBox {
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        #fileInfo > div {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        #fileInfo > div > img {
+            height: 2rem;
+            margin-right: 0.5rem;
+        }
+
+        #permissionForm {
+            margin-top: 1.5rem;
+        }
+
+        .optionBox {
+            margin-top: 0.5rem;
+        }
+
+        .optionBox > label {
+            display: flex;
+            align-items: baseline;
+        }
+
+        .optionBox > label > div {
+            display: flex;
+            flex-direction: column;
+            margin-left: 5px;
+        }
+
+        .optionBox .help {
+            color: #A3A9AE;
+            font-size: 0.9rem;
+        }
+
+        #fileCreateInfo {
+            padding: 5px;
+        }
+
+        #fileCreateInfo .label {
+            font-weight: 500;
+        }
+
+        #fileCreateInfo input {
+            width: calc(100% - 18px);
+            margin: 5px;
+            padding: 6px 3px;
+            border-radius: 6px;
+            border: 1px solid #A3A9AE;
+        }
+
+        #fileCreateInfo .formats {
+            display: flex;
+        }
+
+        #fileCreateInfo .formats > label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-weight: 500;
+            padding: 5px;
+            margin: 5px;
+            border-radius: 6px;
+            border: 1px solid #A3A9AE;
+            flex: 1;
+            min-width: 105px;
+        }
+
+        #fileCreateInfo .formats > label.active {
+            background-color: rgba(223, 226, 227, 1);
+        }
+
+        #fileCreateInfo .formats > label > img {
+            width: 32px;
+            height: 32px;
+        }
+
+        #dragZone {
+            display: none;
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            background: white;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        #dragZone > div {
+            border: 3px dashed #A3A9AE;
+            width: 100%;
+            height: 100%;
+            border-radius: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        @media screen and (max-width: 415px) {
+            #fileCreateInfo .formats {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="dragZone"><div>Drag&amp;Drop file here</div></div>
+    <div class="container">
+        <div id="messageBox">
+            <div class="messageHeader">
+                <img src="/static/icon.svg" />
+                <span><b>ONLYOFFICE</b> DocSpace</span>
+            </div>
+            <div class="messageBody">
+                <div id="message"></div>
+                <div class="button" id="messageButton"></div>
+            </div>
+        </div>
+        <div id="messageHelp"></div>
+        <div id="filePickerBox">
+            <div>
+                <span class="filePickerHeader">ONLYOFFICE</span>
+                <div class="filePickerButtons">
+                    <input id="uploadNewFileInput" hidden type="file" name="file" accept=".docx,.xlsx,.pptx" />
+                    <div id="uploadNewFileButton">
+                        <svg width="17" height="16" viewBox="0 0 17 16" fill="none">
+                            <path d="M6.49384 12V9H2.5L8.5 2L14.5 9H10.494V12M1.5 14H15.5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="primary" id="createNewFileButton">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M9 7V1H7V7H1V9H7V15H9V9H15V7H9Z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="permissionBox">
+            <form id="additionalInfoForm">
+                <div id="fileCreateInfo">
+                    <div>
+                        <div class="label">Title</div>
+                        <input name="document-title" value="New Document" />
+                    </div>
+                    <div class="formats">
+                        <label class="active">
+                            <input class="selectable-label" type="radio" hidden name="document-format" value="docx" checked />
+                            <img src="/static/images/icons/32/docx.svg" />
+                            <span>Document</span>
+                        </label>
+                        <label>
+                            <input class="selectable-label" type="radio" hidden name="document-format" value="xlsx" />
+                            <img src="/static/images/icons/32/xlsx.svg" />
+                            <span>Spreadsheet</span>
+                        </label>
+                        <label>
+                            <input class="selectable-label" type="radio" hidden name="document-format" value="pptx" />
+                            <img src="/static/images/icons/32/pptx.svg" />
+                            <span>Presentation</span>
+                        </label>
+                    </div>
+                </div>
+                <div id="fileInfo"></div>
+                <div id="permissionForm">
+                    <span><b>Please set access rights of Zoom participants:</b></span>
+                    <div class="optionBox">
+                        <label>
+                            <input type="radio" name="permission" value="1" checked />
+                            <div>
+                                <b>Edit</b>
+                                <span class="help">All participants will edit the document with you</span>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="optionBox">
+                        <label>
+                            <input type="radio" name="permission" value="0" />
+                            <div>
+                                <b>LiveView</b>
+                                <span class="help">All participants will see your screen</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <div class="button" id="additionalSubmit">Open</div>
+            </form>
+        </div>
+        <div id="zoom-ds-frame"></div>
+        <div id="zoom-ds-auth-frame"></div>
+        <div id="zoom-ds-loader-frame"></div>
+    </div>
+
+    <script src="https://appssdk.zoom.us/sdk.min.js"></script>
+    <script src="/static/scripts/api.js"></script>
+    <script src="/static/scripts/signalr.js"></script>
+    <script>
+        (async () => {
+            let home = "apisystem";
+
+            let docSpaceFrame;
+            let docSpaceAuthFrame;
+            let docSpaceLoaderFrame = window.DocSpace.SDK.initSystem({
+                frameId: "zoom-ds-loader-frame",
+                name: "zoomDsLoaderFrame",
+                mode: "system",
+                theme: "Base"
+            });
+
+            let payload;
+
+            let connection;
+
+            let currentCollaborationId = null;
+            let currentMeetingId = null;
+            let currentFileId = null;
+
+            let collaborationHost = false;
+
+            const messageBox = document.getElementById("messageBox");
+            const messageText = document.getElementById("message");
+            const messageHelp = document.getElementById("messageHelp");
+            const messageButton = document.getElementById("messageButton");
+            const permissionBox = document.getElementById("permissionBox");
+            const permissionForm = document.getElementById("permissionForm");
+            const fileCreateInfo = document.getElementById("fileCreateInfo");
+            const additionalInfoForm = document.getElementById("additionalInfoForm");
+            function showMessage(msg, options) {
+                if (!options) options = {};
+
+                changeElementDisplay(messageBox, "none");
+                messageText.innerText = null;
+                messageButton.onclick = null;
+                changeElementDisplay(messageButton, "none");
+
+                if (options.button) {
+                    messageButton.innerText = options.button.text;
+                    changeElementDisplay(messageButton, "block");
+                    messageButton.onclick = options.button.action;
+                }
+
+                if (options.help) {
+                    messageHelp.innerText = msg;
+                    changeElementDisplay(messageHelp, "block");
+                } else {
+                    messageText.innerText = msg;
+                    hideAll();
+                    changeElementDisplay(messageBox, "block");
+                }
+            }
+
+            function changeElementDisplay(element, display) {
+                element.style.display = display;
+            }
+
+            function showLoader() {
+                hideAll();
+                changeElementDisplay(document.getElementById("zoom-ds-loader-frame"), "block");
+            }
+
+            function showDocSpace() {
+                hideAll();
+                changeElementDisplay(document.getElementById("zoom-ds-frame"), "block");
+            }
+
+            function showFilePickerHeader() {
+                changeElementDisplay(document.getElementById("filePickerBox"), "block");
+            }
+
+            function showAdditionalInfoBox(fileInfo, showPermissions = true, showCreate = false) {
+                hideAll();
+
+                const fileInfoElement = document.getElementById("fileInfo");
+                fileInfoElement.textContent = "";
+                if (fileInfo) {
+                    const fileRow = document.createElement("div");
+                    const fileIcon = document.createElement("img");
+                    const fileSpan = document.createElement("span");
+                    fileSpan.innerText = fileInfo.title;
+                    fileIcon.src = fileInfo.icon ? fileInfo.icon : "/static/images/icons/64/file.svg";
+                    fileRow.append(fileIcon, fileSpan);
+                    fileInfoElement.append(fileRow);
+                }
+
+                additionalSubmit.onclick = OnAdditionalInfoSubmit;
+                changeElementDisplay(fileCreateInfo, showCreate ? "block" : "none");
+                changeElementDisplay(permissionForm, showPermissions ? "block" : "none");
+                changeElementDisplay(permissionBox, "block");
+            }
+
+            function hideAll() {
+                changeElementDisplay(messageBox, "none");
+                changeElementDisplay(messageHelp, "none");
+                changeElementDisplay(permissionBox, "none");
+                changeElementDisplay(document.getElementById("zoom-ds-frame"), "none");
+                changeElementDisplay(document.getElementById("zoom-ds-loader-frame"), "none");
+                changeElementDisplay(document.getElementById("filePickerBox"), "none");
+            }
+
+            async function initSignalR(meetingUUID) {
+                const appContext = await zoomSdk.getAppContext();
+
+                connection = new signalR.HubConnectionBuilder()
+                    .withUrl(`/${home}/hubs/zoom?meetingId=${encodeURIComponent(meetingUUID.meetingUUID)}&zoomAppContextToken=${appContext.context}`)
+                    .withAutomaticReconnect()
+                    .configureLogging(signalR.LogLevel.Information)
+                    .build();
+
+                    connection.on("OnCollaboration", onCollaboration);
+                    connection.on("OnCollaborationStarting", onCollaborationStarting);
+                    connection.on("OnCollaborationChanging", onCollaborationChanging);
+                try {
+                    await connection.start();
+                } catch (e) {
+                    console.log("SignalR error", e);
+                }
+            }
+
+            async function initZoomSdk() {
+                console.debug("Initing ZoomSdk");
+                const configResponse = await zoomSdk.config({
+                    size: { width: 480, height: 360 },
+                    capabilities: [
+                        'getRunningContext',
+                        'getUserContext',
+                        'getAppContext',
+                        'getMeetingUUID',
+
+                        'openUrl',
+
+                        'authorize',
+                        'promptAuthorize',
+                        'onAuthorized',
+
+                        'startCollaborate',
+                        'joinCollaborate',
+                        'onCollaborateChange'
+                    ],
+                });
+
+                zoomSdk.onAuthorized(onZoomAuthorized);
+                zoomSdk.onCollaborateChange(onZoomCollaborateChange);
+
+                return configResponse;
+            }
+
+            async function onCollaboration(collaboration) {
+                console.log("Collaboration changed", collaboration);
+                handleCollaborationPayload({
+                    RoomId: collaboration["roomId"],
+                    FileId: collaboration["fileId"],
+                    Status: collaboration["status"],
+                });
+            }
+
+            async function onCollaborationStarting() {
+                console.log("Someone pressed collaborate");
+                await promptJoinCollaborate();
+            }
+
+            async function onCollaborationChanging() {
+                showMessage("Collaboration host is changing a document, please wait");
+                destroyFrame();
+            }
+
+            async function getCollaboration() {
+                await connection.invoke("GetCollaboration");
+            }
+
+            async function onZoomCollaborateChange(res) {
+                try {
+                    switch (res.action) {
+                        case "start":
+                            clearTimeout(checkCollaborationTimeout);
+                            if (currentFileId) {
+                                showLoader();
+                            }
+                            collaborationHost = true;
+                            currentCollaborationId = res.collaborateUUID;
+                            await connection.invoke("CollaborateStart", res.collaborateUUID, getCollaborationChangePayload());
+                            break;
+
+                        case "end":
+                            firstPick = true;
+                            collaborationHost = false;
+                            currentFileId = null;
+                            showLoader();
+                            destroyLoginFrameAndInitFilePicker();
+                            await connection.invoke("CollaborateEnd");
+                            currentCollaborationId = null;
+                            break;
+
+                        case "join":
+                            clearTimeout(checkCollaborationTimeout);
+                            collaborationHost = false;
+                            currentCollaborationId = null;
+                            break;
+
+                        case "leave":
+                            firstPick = true;
+                            currentFileId = null;
+                            destroyLoginFrameAndInitFilePicker(true);
+                            break;
+                    }
+                } catch (e) {
+                    console.log("SignalR error", e);
+                }
+            }
+
+            async function onZoomAuthorized(res) {
+                console.debug('Zoom JS SDK onAuthorized', res);
+
+                if (!res.result) {
+                    console.debug(`User was not authorized. Reason: ${res.reason}`);
+                    return;
+                }
+
+                res.challenge = payload["Challenge"];
+
+                const homeResponse = await fetch(res.redirectUri, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(res)
+                });
+
+                console.debug('Api System Payload Home Response', homeResponse);
+
+                try {
+                    const link = await homeResponse.text();
+                    window.location = link;
+                } catch {
+                    // handle error
+                }
+            }
+
+            async function proccessConfirmLink(confirmLink) {
+                const url = new URL(confirmLink);
+                const docSpaceInitConfig = {
+                    src: url.origin,
+                    rootPath: url.href.substring(url.origin.length),
+                    frameId: "zoom-ds-auth-frame",
+                    name: "zoomDsAuthFrame",
+                    mode: "custom",
+                    theme: "Base"
+                };
+                console.debug("Proccessing DocSpace ConfirmLink");
+                docSpaceAuthFrame = window.DocSpace.SDK.initFrame(docSpaceInitConfig);
+                await waitForLogin();
+            }
+
+            async function waitForLogin() {
+                return new Promise((resolve, reject) => {
+                    docSpaceAuthFrame.contentWindow.console.oldLog = docSpaceAuthFrame.contentWindow.console.log;
+                    docSpaceAuthFrame.contentWindow.console.log = async function (...args) {
+                        if (args[0] === "Login with confirm key success") {
+                            // we are successfully logged in
+                            docSpaceAuthFrame.contentWindow.console.log = docSpaceAuthFrame.contentWindow.console.oldLog;
+                            resolve();
+                        }
+                        console.log.apply(console, args);
+                    }
+                });
+            }
+
+            async function destroyLoginFrame() {
+                console.debug("Destroying old frame");
+                const frame = DocSpace.SDK.frames["zoom-ds-auth-frame"];
+                if (frame) {
+                    DocSpace.SDK.frames["zoom-ds-auth-frame"].destroyFrame();
+                }
+                docSpaceAuthFrame = null;
+            }
+
+            async function destroyFrame() {
+                console.debug("Destroying frame");
+                const frame = DocSpace.SDK.frames["zoom-ds-frame"];
+                if (frame) {
+                    DocSpace.SDK.frames["zoom-ds-frame"].destroyFrame();
+                }
+                docSpaceFrame = null;
+            }
+
+            async function destroyLoginFrameAndInitManager(id, checkRights) {
+                if (checkRights) {
+                    await connection.invoke("CheckRights");
+                }
+
+                destroyLoginFrame();
+                const docSpaceInitConfig = {
+                    frameId: "zoom-ds-frame",
+                    name: "zoomDsFrame",
+                    mode: "manager",
+                    theme: "Base",
+                    showHeader: !id,
+                    showTitle: true,
+                    showMenu: !id,
+                    showFilter: !id,
+                    id: id
+                };
+                console.debug("Opening DocSpace Manager");
+                docSpaceFrame = window.DocSpace.SDK.initFrame(docSpaceInitConfig);
+                showDocSpace();
+            }
+
+            async function destroyLoginFrameAndInitEditor(id, checkRights = false, goBack = false) {
+                if (checkRights) {
+                    await connection.invoke("CheckRights");
+                }
+
+                destroyLoginFrame();
+                const docSpaceInitConfig = {
+                    frameId: "zoom-ds-frame",
+                    name: "zoomDsFrame",
+                    mode: "editor",
+                    editorType: "desktop",
+                    theme: "Base",
+                    showHeader: !id,
+                    showTitle: true,
+                    showMenu: !id,
+                    showFilter: !id,
+                    id: id
+                };
+
+                if (goBack) {
+                    if (typeof goBack === "function") {
+                        docSpaceInitConfig.editorGoBack = true;
+                        docSpaceInitConfig.events = { onEditorCloseCallback: goBack };
+                    }
+                } else {
+                    docSpaceInitConfig.editorGoBack = goBack;
+                }
+                console.debug("Opening DocSpace Editor");
+                docSpaceFrame = window.DocSpace.SDK.initFrame(docSpaceInitConfig);
+                showDocSpace();
+            }
+            
+            let checkCollaborationTimeout;
+            async function destroyLoginFrameAndInitFilePicker(checkCollaboration = false, promptJoin = true) {
+                destroyLoginFrame();
+
+                if (checkCollaboration) {
+                    const result = await connection.invoke("CheckCollaboration");
+                    if (result) {
+                        checkCollaborationTimeout = setTimeout(() => destroyLoginFrameAndInitFilePicker(true, false), 1000);
+                        if (promptJoin) {
+                            await promptJoinCollaborate();
+                        }
+                        return;
+                    }
+                }
+
+                const docSpaceInitConfig = {
+                    frameId: "zoom-ds-frame",
+                    name: "zoomDsFrame",
+                    mode: "file-selector",
+                    selectorType: "userFolderOnly",
+                    editorType: "desktop",
+                    theme: "Base",
+                    showHeader: false,
+                    showTitle: true,
+                    showMenu: false,
+                    showFilter: false,
+                    events: {
+                        onSelectCallback: OnFileSelected
+                    }
+                };
+                console.debug("Opening DocSpace File Picker");
+                docSpaceFrame = window.DocSpace.SDK.initFrame(docSpaceInitConfig);
+                docSpaceFrame.style.maxWidth = "480px"; // fix for old picker
+                showDocSpace();
+                showMessage("Choose file from DocSpace to collaborate with other Zoom meeting participants", { help: true });
+                showFilePickerHeader();
+            }
+
+            async function OnAdditionalInfoSubmit() {
+                if (collaborationHost) {
+                    showLoader();
+                    await connection.invoke("CollaborateChange", getCollaborationChangePayload());
+                } else {
+                    const zoomUser = await zoomSdk.getUserContext();
+                    if (zoomUser.role === "host" || zoomUser.role === "coHost") {
+                        showLoader();
+                        await zoomSdk.startCollaborate({ shareScreen: true });
+                    } else {
+                        showMessage("You're not host or coHost, please press 'Collaborate' button manually");
+                    }
+                }
+            }
+
+            let firstPick = true;
+            async function OnFileSelected(event) {
+                currentFileId = event ? event.id : -1;
+                destroyFrame();
+                if (collaborationHost && !firstPick) {
+                    if (currentFileId == -1) {
+                        showAdditionalInfoBox(event, false, true);
+                    } else {
+                        showLoader();
+                        await connection.invoke("CollaborateChange", getCollaborationChangePayload());
+                    }
+                } else {
+                    firstPick = false;
+                    showAdditionalInfoBox(event, true, currentFileId == -1);
+                }
+            }
+
+            async function openDocSpace(confirmLink, collaboration) {
+                console.debug("Authenticating user in DocSpace");
+                await proccessConfirmLink(confirmLink);
+                console.debug("DocSpace Authentication complete");
+
+                const runningContext = await zoomSdk.getRunningContext();
+                if (runningContext === "inMeeting" || runningContext === "inCollaborate") {
+                    const meetingUUID = await zoomSdk.getMeetingUUID();
+                    currentMeetingId = meetingUUID.meetingUUID;
+                    await initSignalR(meetingUUID);
+
+                    if (collaboration) {
+                        console.log("Collaboration payload recieved", collaboration);
+                        handleCollaborationPayload(collaboration);
+                        return;
+                    }
+
+                    destroyLoginFrameAndInitFilePicker(true);
+                    return;
+                }
+                destroyLoginFrameAndInitManager(null);
+            }
+
+            async function promptJoinCollaborate() {
+                if (!collaborationHost) {
+                    showMessage("Meeting participant started editing session", { button: {
+                        text: "Join",
+                        action: async () => {
+                            await zoomSdk.joinCollaborate();
+                        }
+                    }});
+                }
+            }
+
+            async function handleCollaborationPayload(collaboration) {
+                if (collaborationHost) {
+                    openByCollaborationPayload(collaboration);
+                } else {
+                    const runningContext = await zoomSdk.getRunningContext();
+                    if (runningContext === "inMeeting") {
+                        await promptJoinCollaborate();
+                    } else if (runningContext === "inCollaborate") {
+                        openByCollaborationPayload(collaboration);
+                    }
+                }
+            }
+
+            let getCollaborationTimeout;
+            async function openByCollaborationPayload(collaboration) {
+                let handled = false;
+                try {
+                    if (getCollaborationTimeout != null) {
+                        clearTimeout(getCollaborationTimeout);
+                        getCollaborationTimeout = null;
+                    }
+                    switch(collaboration["Status"]) {
+                        case 0: // pending
+                            if (!collaborationHost) {
+                                showMessage("Collaboration host is changing a document, please wait");
+                                getCollaborationTimeout = setTimeout(getCollaboration, 1000);
+                            }
+                            handled = true;
+                            break;
+                        case 1: // inRoom
+                            if (collaboration["RoomId"]) {
+                                destroyLoginFrameAndInitManager(collaboration["RoomId"], true);
+                            }
+                            handled = true;
+                            break;
+                        case 2: // inFile
+                            if (collaboration["FileId"]) {
+                                if (collaborationHost) {
+                                    destroyLoginFrameAndInitEditor(collaboration["FileId"], false, async () => {
+                                        await connection.invoke("CollaborateChanging");
+                                        await destroyLoginFrameAndInitFilePicker();
+                                    });
+                                } else {
+                                    destroyLoginFrameAndInitEditor(collaboration["FileId"], true);
+                                }
+                            }
+                            handled = true;
+                            break;
+                    }
+                } catch {
+                    handled = false;
+                }
+
+                if (handled) return;
+
+                console.info("Failed to process collaboration object", collaboration);
+            }
+
+            function getCollaborationChangePayload() {
+                const formData = new FormData(additionalInfoForm);
+                const title = formData.get("document-title") + "." + formData.get("document-format");
+                return {
+                    fileId: currentFileId ? currentFileId.toString() : null,
+                    collaborationType: parseInt(formData.get("permission")),
+                    title: currentFileId && currentFileId == -1 ? title : null
+                }
+            }
+
+            function selectLabels() {
+                const inputs = document.getElementsByClassName("selectable-label");
+                for(let i = 0; i < inputs.length; i++) {
+                    const input = inputs[i];
+                    if (input.checked) {
+                        input.parentElement.classList.add("active");
+                    } else {
+                        input.parentElement.classList.remove("active");
+                    }
+                }
+            }
+
+            let dragTimeout;
+            function hookEvents() {
+                const inputs = document.getElementsByClassName("selectable-label");
+                for(let i = 0; i < inputs.length; i++) {
+                    const input = inputs[i];
+                    input.onchange = selectLabels;
+                }
+
+                document.getElementById("createNewFileButton").onclick = function() {
+                    OnFileSelected(null);
+                }
+
+                document.getElementById("uploadNewFileButton").onclick = function() {
+                    document.getElementById("uploadNewFileInput").click();
+                }
+
+                document.getElementById("uploadNewFileInput").onchange = async function() {
+                    const input = document.getElementById("uploadNewFileInput");
+
+                    if (input.files.length != 1) return;
+
+                    const data = new FormData();
+                    data.append("file", input.files[0]);
+
+                    const appContext = await zoomSdk.getAppContext();
+                    try {
+                        showLoader();
+                        const response = await fetch(`/${home}/zoom/upload`, {
+                            method: 'POST',
+                            body: data,
+                            headers: {
+                                "x-zoom-app-context": appContext.context
+                            }
+                        });
+                        const json = await response.json();
+                        console.log("Uploaded file", json);
+                        OnFileSelected(json);
+                    } catch (ex) {
+                        console.log("Couldn't upload a file", ex);
+                        destroyLoginFrameAndInitFilePicker(false, false);
+                    }
+                }
+
+                window.addEventListener("dragover", function(e) {
+                    if (document.getElementById("filePickerBox").style.display == "none") return;
+
+                    e.preventDefault()
+                    changeElementDisplay(document.getElementById("dragZone"), "block");
+                    clearTimeout(dragTimeout);
+                    dragTimeout = setTimeout(() => changeElementDisplay(document.getElementById("dragZone"), "none"), 500);
+                });
+                window.addEventListener("drop", function(e) {
+                    if (document.getElementById("filePickerBox").style.display == "none") return;
+
+                    e.preventDefault();
+                    changeElementDisplay(document.getElementById("dragZone"), "none");
+                });
+            }
+
+            hookEvents();
+
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                payload = JSON.parse(decodeURIComponent(urlParams.get("payload")));
+                console.debug('Api System Payload', payload);
+
+                if (!payload) {
+                    // ToDo: request did not came from api system, handle error
+                }
+
+                home = payload["Home"] ? payload["Home"] : home;
+
+                const configResponse = await initZoomSdk();
+
+                if (payload["ConfirmLink"]) {
+                    openDocSpace(payload["ConfirmLink"], payload["Collaboration"]);
+                } else {
+                    // we are not authorized
+
+                    // check if we are authorized in zoom or not
+                    // authorizePrompt if we are guest
+                    // else authorize
+
+                    await zoomSdk.authorize({
+                        state: payload["State"],
+                        codeChallenge: payload["Challenge"]
+                    });
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        })();
+    </script>
+    <noscript>Javascript must be enabled to use this application</noscript>
+</body>
+
+</html>
