@@ -29,12 +29,23 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Document Templates -->
     <Content Include="..\..\DocStore\new\**">
       <Link>DocStore\new\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
     <Content Include="..\..\DocStore\sample\**">
       <Link>DocStore\sample\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+
+    <!-- Configuration -->
+    <Content Include="..\..\DocSpace\config\**">
+      <Link>config\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\config\**">
+      <Link>config\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
