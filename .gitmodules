@@ -1,0 +1,6 @@
+[submodule "DocStore"]
+	path = DocStore
+	url = https://github.com/ONLYOFFICE/document-templates.git
+[submodule "DocSpace"]
+	path = DocSpace
+	url = https://github.com/ONLYOFFICE/DocSpace.git
