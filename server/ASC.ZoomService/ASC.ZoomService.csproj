@@ -30,12 +30,8 @@
 
   <ItemGroup>
     <!-- Document Templates -->
-    <Content Include="..\..\DocStore\new\**">
+    <Content Include="..\..\DocStore\**">
       <Link>DocStore\new\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</Content>
-    <Content Include="..\..\DocStore\sample\**">
-      <Link>DocStore\sample\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
 
