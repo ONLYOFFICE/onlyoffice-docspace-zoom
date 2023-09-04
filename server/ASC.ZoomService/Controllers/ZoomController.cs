@@ -42,6 +42,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using static System.Net.WebRequestMethods;
 
 namespace ASC.ApiSystem.Controllers;
 
@@ -361,8 +362,10 @@ public class ZoomController : ControllerBase
     {
         var portalName = GenerateAlias(accountNumber);
         var tenant = HostedSolution.GetTenant(portalName);
+        payload.DocSpaceUrl = $"https{Uri.SchemeDelimiter}{tenant.GetTenantDomain(CoreSettings)}";
         var serialized = JsonSerializer.Serialize(payload);
-        var link = $"https{Uri.SchemeDelimiter}{tenant.GetTenantDomain(CoreSettings)}/zoom-ds/?payload={HttpUtility.UrlEncode(serialized)}";
+
+        var link = $"https{Uri.SchemeDelimiter}{Configuration["zoom:zoom-domain"]}/?payload={HttpUtility.UrlEncode(serialized)}";
         Log.LogDebug($"PostHome(): Generated confirmLink ({link})");
         return link;
     }
@@ -559,7 +562,8 @@ public class ZoomController : ControllerBase
     {
         public string ConfirmLink { get; set; }
         public string Error { get; set; }
-        public string Home { get; set; } = "apisystem";
+        public string Home { get; set; } = "zoomservice";
+        public string DocSpaceUrl { get; set; }
 
         public ZoomCollaborationRoom Collaboration { get; set; }
     }

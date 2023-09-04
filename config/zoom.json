@@ -1,5 +1,6 @@
 {
-    "zoom": {
-        "gate-secret": "123-super-secret-key"
-    }
+  "zoom": {
+    "gate-secret": "123-super-secret-key",
+    "zoom-domain": ""
+  }
 }

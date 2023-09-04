@@ -18,7 +18,7 @@ namespace ASC.ZoomService.Extensions
         public static ZoomCollaborationCachedRoom GetCollaboration(this IDistributedCache cache, string meetingId)
         {
             var json = cache.GetString(GetCacheKeyFromMeetingId(meetingId));
-            return JsonSerializer.Deserialize<ZoomCollaborationCachedRoom>(json);
+            return string.IsNullOrWhiteSpace(json) ? null : JsonSerializer.Deserialize<ZoomCollaborationCachedRoom>(json);
         }
 
         public static void SetCollaboration(this IDistributedCache cache, string meetingId, ZoomCollaborationCachedRoom collaboration)
