@@ -31,10 +31,10 @@ public static class ConfigurationManagerExtension
     public static ConfigurationManager AddZoomServiceConfiguration(this ConfigurationManager config, IHostEnvironment env)
     {
         config
-          .AddJsonFile($"zoom.json")
-          .AddJsonFile($"zoom.{env.EnvironmentName}.json", true)
           .AddJsonFile($"apisystem.json")
           .AddJsonFile($"apisystem.{env.EnvironmentName}.json", true)
+          .AddJsonFile($"zoom.json")
+          .AddJsonFile($"zoom.{env.EnvironmentName}.json", true)
           .AddJsonFile("notify.json")
           .AddJsonFile($"notify.{env.EnvironmentName}.json", true);
 
