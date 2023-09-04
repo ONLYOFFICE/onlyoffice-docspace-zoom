@@ -594,15 +594,17 @@
 
             async function waitForLogin() {
                 return new Promise((resolve, reject) => {
-                    docSpaceAuthFrame.contentWindow.console.oldLog = docSpaceAuthFrame.contentWindow.console.log;
-                    docSpaceAuthFrame.contentWindow.console.log = async function (...args) {
-                        if (args[0] === "Login with confirm key success") {
-                            // we are successfully logged in
-                            docSpaceAuthFrame.contentWindow.console.log = docSpaceAuthFrame.contentWindow.console.oldLog;
-                            resolve();
-                        }
-                        console.log.apply(console, args);
-                    }
+                    setTimeout(resolve, 5000);
+
+                    // docSpaceAuthFrame.contentWindow.console.oldLog = docSpaceAuthFrame.contentWindow.console.log;
+                    // docSpaceAuthFrame.contentWindow.console.log = async function (...args) {
+                    //     if (args[0] === "Login with confirm key success") {
+                    //         // we are successfully logged in
+                    //         docSpaceAuthFrame.contentWindow.console.log = docSpaceAuthFrame.contentWindow.console.oldLog;
+                    //         resolve();
+                    //     }
+                    //     console.log.apply(console, args);
+                    // }
                 });
             }
 
