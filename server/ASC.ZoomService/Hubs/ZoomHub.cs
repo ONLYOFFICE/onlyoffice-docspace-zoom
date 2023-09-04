@@ -24,8 +24,6 @@
 // content are licensed under the terms of the Creative Commons Attribution-ShareAlike 4.0
 // International. See the License terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
 
-using System.Text.Json;
-
 using ASC.ApiSystem.Helpers;
 using ASC.Files.Core;
 using ASC.Files.Core.ApiModels;
@@ -33,15 +31,17 @@ using ASC.Files.Core.ApiModels.RequestDto;
 using ASC.Files.Core.VirtualRooms;
 using ASC.Web.Files.Classes;
 using ASC.Web.Files.Services.WCFService;
-
+using ASC.ZoomService.Extensions;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text.Json;
 
 namespace ASC.ApiSystem.Hubs;
 
 [Authorize(AuthenticationSchemes = ZoomAuthHandler.ZOOM_AUTH_SCHEME_QUERY)]
 public class ZoomHub : Hub
 {
-    private readonly ICache _cache;
+    private readonly IDistributedCache _cache;
     private readonly FileStorageService<int> _fileStorageService;
     private readonly CustomTagsService<int> _tagsService;
     private readonly GlobalFolderHelper _globalFolderHelper;
@@ -49,7 +49,7 @@ public class ZoomHub : Hub
     private readonly SecurityContext _securityContext;
     private readonly UserManager _userManager;
 
-    public ZoomHub(ICache cache, FileStorageService<int> fileStorageService, CustomTagsService<int> tagsService, GlobalFolderHelper globalFolderHelper, ZoomAccountHelper zoomAccountHelper, SecurityContext securityContext, UserManager userManager)
+    public ZoomHub(IDistributedCache cache, FileStorageService<int> fileStorageService, CustomTagsService<int> tagsService, GlobalFolderHelper globalFolderHelper, ZoomAccountHelper zoomAccountHelper, SecurityContext securityContext, UserManager userManager)
     {
         _cache = cache;
         _fileStorageService = fileStorageService;
@@ -80,8 +80,7 @@ public class ZoomHub : Hub
     {
         var meetingId = GetMidClaim();
 
-        var cachedCollaboration = _cache
-                .Get<ZoomCollaborationCachedRoom>(GetCacheKeyFromMeetingId(meetingId));
+        var cachedCollaboration = _cache.GetCollaboration(meetingId);
 
         return cachedCollaboration != null;
     }
@@ -90,8 +89,7 @@ public class ZoomHub : Hub
     {
         var meetingId = GetMidClaim();
 
-        var cachedCollaboration = _cache
-                .Get<ZoomCollaborationCachedRoom>(GetCacheKeyFromMeetingId(meetingId));
+        var cachedCollaboration = _cache.GetCollaboration(meetingId);
 
         await Clients.Caller.SendAsync("OnCollaboration", new ZoomCollaborationRoom()
         {
@@ -107,8 +105,7 @@ public class ZoomHub : Hub
         {
             var userId = GetUidClaim();
             var meetingId = GetMidClaim();
-            var cachedCollaboration = _cache
-                    .Get<ZoomCollaborationCachedRoom>(GetCacheKeyFromMeetingId(meetingId));
+            var cachedCollaboration = _cache.GetCollaboration(meetingId);
 
             if (cachedCollaboration != null && cachedCollaboration.RoomId != null)
             {
@@ -173,7 +170,7 @@ public class ZoomHub : Hub
                 CollaborationType = (ZoomCollaborationType)changePayload.CollaborationType,
                 Status = ZoomCollaborationStatus.Pending
             };
-            _cache.Insert(GetCacheKeyFromMeetingId(meetingId), collaboration, TimeSpan.FromMinutes(10));
+            _cache.SetCollaboration(meetingId, collaboration);
 
             await Clients.Group(GetGroupNameFromMeetingId(meetingId)).SendAsync("OnCollaboration", new ZoomCollaborationRoom()
             {
@@ -196,15 +193,14 @@ public class ZoomHub : Hub
     {
         var meetingId = GetMidClaim();
 
-        var cachedCollaboration = _cache
-                .Get<ZoomCollaborationCachedRoom>(GetCacheKeyFromMeetingId(meetingId));
+        var cachedCollaboration = _cache.GetCollaboration(meetingId);
 
         ThrowIfNotCollaborationInitiator(cachedCollaboration);
 
         cachedCollaboration.Status = ZoomCollaborationStatus.Pending;
         cachedCollaboration.FileId = null;
 
-        _cache.Insert(GetCacheKeyFromMeetingId(meetingId), cachedCollaboration, TimeSpan.FromMinutes(10));
+        _cache.SetCollaboration(meetingId, cachedCollaboration);
 
         await Clients.Group(GetGroupNameFromMeetingId(meetingId)).SendAsync("OnCollaborationChanging");
     }
@@ -220,8 +216,7 @@ public class ZoomHub : Hub
             _securityContext.AuthenticateMeWithoutCookie(guid);
 
             var meetingId = GetMidClaim();
-            var cachedCollaboration = _cache
-                .Get<ZoomCollaborationCachedRoom>(GetCacheKeyFromMeetingId(meetingId));
+            var cachedCollaboration = _cache.GetCollaboration(meetingId);
 
             ThrowIfNotCollaborationInitiator(cachedCollaboration);
 
@@ -231,7 +226,7 @@ public class ZoomHub : Hub
             cachedCollaboration.FileId = collabFileId.ToString();
             cachedCollaboration.Status = ZoomCollaborationStatus.InFile;
             cachedCollaboration.CollaborationType = (ZoomCollaborationType)changePayload.CollaborationType;
-            _cache.Insert(GetCacheKeyFromMeetingId(meetingId), cachedCollaboration, TimeSpan.FromMinutes(10));
+            _cache.SetCollaboration(meetingId, cachedCollaboration);
 
             await Clients.Group(GetGroupNameFromMeetingId(meetingId)).SendAsync("OnCollaboration", new ZoomCollaborationRoom()
             {
@@ -249,12 +244,11 @@ public class ZoomHub : Hub
     public async Task CollaborateEnd()
     {
         var meetingId = GetMidClaim();
-        var cachedCollaboration = _cache
-            .Get<ZoomCollaborationCachedRoom>(GetCacheKeyFromMeetingId(meetingId));
+        var cachedCollaboration = _cache.GetCollaboration(meetingId);
 
         ThrowIfNotCollaborationInitiator(cachedCollaboration);
 
-        _cache.Remove(GetCacheKeyFromMeetingId(meetingId));
+        _cache.RemoveCollaboration(meetingId);
         await MoveFilesToBackup(cachedCollaboration);
     }
 
@@ -342,11 +336,6 @@ public class ZoomHub : Hub
         {
             throw new UnauthorizedAccessException("Not collaboration initiator");
         }
-    }
-
-    public static string GetCacheKeyFromMeetingId(string meetingId)
-    {
-        return $"zoom-collab-{meetingId}";
     }
 
     private static string GetGroupNameFromMeetingId(string meetingId)

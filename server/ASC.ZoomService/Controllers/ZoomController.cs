@@ -25,7 +25,6 @@
 // International. See the License terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
 
 using ASC.ApiSystem.Helpers;
-using ASC.ApiSystem.Hubs;
 using ASC.Core.Common.Security;
 using ASC.FederatedLogin;
 using ASC.FederatedLogin.Helpers;
@@ -37,6 +36,8 @@ using ASC.Web.Core.Files;
 using ASC.Web.Files.Classes;
 using ASC.Web.Files.Services.WCFService;
 using ASC.Web.Files.Utils;
+using ASC.ZoomService.Extensions;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -71,9 +72,7 @@ public class ZoomController : ControllerBase
     private SocketManager SocketManager { get; }
     private FileDtoHelper FileDtoHelper { get; }
     private GlobalFolderHelper GlobalFolderHelper { get; }
-
-    // ToDo: ?
-    private ICache Cache { get; }
+    private IDistributedCache Cache { get; }
 
     public ZoomController(
         CommonMethods commonMethods,
@@ -97,7 +96,7 @@ public class ZoomController : ControllerBase
         SocketManager socketManager,
         FileDtoHelper fileDtoHelper,
         GlobalFolderHelper globalFolderHelper,
-        ICache cache
+        IDistributedCache cache
         )
     {
         CommonMethods = commonMethods;
@@ -162,8 +161,7 @@ public class ZoomController : ControllerBase
                 Log.LogDebug("GetState(): CollaborationId is not null, getting collaboration from cache");
                 ZoomCollaborationCachedRoom collaboration = null;
 
-                collaboration = Cache
-                        .Get<ZoomCollaborationCachedRoom>(ZoomHub.GetCacheKeyFromMeetingId(mid));
+                collaboration = Cache.GetCollaboration(mid);
 
                 integrationPayload.Collaboration = new ZoomCollaborationRoom()
                 {
@@ -221,7 +219,7 @@ public class ZoomController : ControllerBase
         var verifier = GenerateCodeVerifier();
         var challenge = GenerateCodeChallenge(verifier);
 
-        Cache.Insert(challenge, verifier, TimeSpan.FromMinutes(5));
+        Cache.PutOauthVerifier(challenge, verifier);
 
         var payload = JsonSerializer.Serialize(new ZoomAuthPayload()
         {
@@ -276,7 +274,7 @@ public class ZoomController : ControllerBase
             var stateJson = JsonWebToken.Decode(model.State, jwtSecret);
             var state = JsonSerializer.Deserialize<ZoomStateModel>(stateJson, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
 
-            var codeVerifier = Cache.Get<string>(model.Challenge);
+            var codeVerifier = Cache.GetOauthVerifier(model.Challenge);
             if (codeVerifier == null)
             {
                 Log.LogDebug("PostHome(): Incorrect ouath state");
