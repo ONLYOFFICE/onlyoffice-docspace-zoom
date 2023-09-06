@@ -42,7 +42,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using static System.Net.WebRequestMethods;
 
 namespace ASC.ApiSystem.Controllers;
 
@@ -241,7 +240,7 @@ public class ZoomController : ControllerBase
         {
             var loginProvider = ZoomAccountHelper.GetLoginProvider();
             Log.LogDebug("GetHome(): Exchanging code for AccessToken");
-            var token = loginProvider.GetAccessToken(code, loginProvider.ApiRedirectUri);
+            var token = loginProvider.GetAccessToken(code, Configuration["zoom:zoom-redirect-uri"]);
             Log.LogDebug("GetHome(): Requesting profile info");
             var (profile, raw) = loginProvider.GetLoginProfileAndRaw(token.AccessToken);
             Log.LogDebug("GetHome(): Creating user and/or tenant");
