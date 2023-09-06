@@ -502,7 +502,7 @@ public class ZoomController : ControllerBase
         }
 
         var cspSettings = SettingsManager.Load<CspSettings>();
-        cspSettings.SetDefaultIfEmpty = true;
+        cspSettings.Domains = new List<string>() { $"https://{portalName}.{Configuration["zoom:zoom-domain"]}" };
         SettingsManager.Save(cspSettings);
 
         return tenant;
