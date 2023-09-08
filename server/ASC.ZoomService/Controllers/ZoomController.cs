@@ -42,6 +42,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using static System.Net.WebRequestMethods;
 
 namespace ASC.ApiSystem.Controllers;
 
@@ -228,7 +229,7 @@ public class ZoomController : ControllerBase
         });
 
         Log.LogDebug("GetState(): New user, returning OAuth challenge");
-        return Redirect($"/zoom-ds/?payload={HttpUtility.UrlEncode(payload)}");
+        return Redirect($"https{Uri.SchemeDelimiter}{Configuration["zoom:zoom-domain"]}/?payload={HttpUtility.UrlEncode(payload)}");
     }
 
     [HttpGet("home")]
@@ -364,7 +365,7 @@ public class ZoomController : ControllerBase
         payload.DocSpaceUrl = $"https{Uri.SchemeDelimiter}{tenant.GetTenantDomain(CoreSettings)}";
         var serialized = JsonSerializer.Serialize(payload);
 
-        var link = $"https{Uri.SchemeDelimiter}{Configuration["zoom:zoom-domain"]}/?payload={HttpUtility.UrlEncode(serialized)}";
+        var link = $"https{Uri.SchemeDelimiter}{tenant.Alias}.{Configuration["zoom:zoom-domain"]}/?payload={HttpUtility.UrlEncode(serialized)}";
         Log.LogDebug($"PostHome(): Generated confirmLink ({link})");
         return link;
     }
