@@ -117,6 +117,16 @@ public class ZoomHub : Hub
                         ZoomCollaborationType.Edit => Files.Core.Security.FileShare.Collaborator,
                         _ => Files.Core.Security.FileShare.Read,
                     };
+                    if (Context.ConnectionId == cachedCollaboration.ConnectionId)
+                    {
+                        // always add collaboration initiator as collaborator
+                        access = Files.Core.Security.FileShare.Collaborator;
+                    }
+                    var userDocspaceId = _zoomAccountHelper.GetUserIdFromZoomUid(userId).Value;
+                    var adminId = GetAdminUser().Id;
+                    if (userDocspaceId == adminId) {
+                        return true;
+                    }
                     await _fileStorageService.SetAceObjectAsync(new AceCollection<int>()
                     {
                         Message = string.Empty,
@@ -126,7 +136,7 @@ public class ZoomHub : Hub
                     {
                         new()
                         {
-                            Id = _zoomAccountHelper.GetUserIdFromZoomUid(userId).Value,
+                            Id = userDocspaceId,
                             Access = access,
                         }
                     }
@@ -153,11 +163,9 @@ public class ZoomHub : Hub
         var meetingId = GetMidClaim();
         await Clients.Group(GetGroupNameFromMeetingId(meetingId)).SendAsync("OnCollaborationStarting");
 
-        var uid = GetUidClaim();
-        var guid = _zoomAccountHelper.GetUserIdFromZoomUid(uid).Value;
         try
         {
-            _securityContext.AuthenticateMeWithoutCookie(guid);
+            _securityContext.AuthenticateMeWithoutCookie(GetAdminUser().Id);
             var room = await _fileStorageService.CreateRoomAsync($"Zoom Collaboration: {DateTime.Now:MM/dd/yy hh:mm tt}", RoomType.CustomRoom, false, Array.Empty<FileShareParams>(), false, string.Empty);
 
             var collaboration = new ZoomCollaborationCachedRoom()
@@ -254,10 +262,9 @@ public class ZoomHub : Hub
 
     private async Task MoveFilesToBackup(ZoomCollaborationCachedRoom cachedCollaboration)
     {
-        var admin = _userManager.GetUsersByGroup(Constants.GroupAdmin.ID, EmployeeStatus.Active).FirstOrDefault();
         try
         {
-            _securityContext.AuthenticateMeWithoutCookie(admin.Id);
+            _securityContext.AuthenticateMeWithoutCookie(GetAdminUser().Id);
 
             var parentId = await _globalFolderHelper.GetFolderVirtualRooms<int>();
             var found = await _fileStorageService.GetFolderItemsAsync(parentId, 0, 1, FilterType.CustomRooms, false, null, null, false, false,
@@ -318,6 +325,11 @@ public class ZoomHub : Hub
         }
 
         return collabFileId;
+    }
+
+    private UserInfo GetAdminUser()
+    {
+        return _userManager.GetUsersByGroup(Constants.GroupAdmin.ID, EmployeeStatus.Active).FirstOrDefault();
     }
 
     private string GetUidClaim()

@@ -323,7 +323,6 @@ public class ZoomController : ControllerBase
             return Unauthorized();
         }
 
-
         try
         {
             SecurityContext.AuthenticateMeWithoutCookie(userId.Value);
@@ -344,6 +343,7 @@ public class ZoomController : ControllerBase
             }
             catch (FileNotFoundException e)
             {
+                Log.LogWarning(e, "Uploading file failed");
                 return BadRequest();
             }
 
@@ -451,7 +451,7 @@ public class ZoomController : ControllerBase
             ActivationStatus = EmployeeActivationStatus.Activated,
             Status = EmployeeStatus.Active,
         };
-        return await UserManagerWrapper.AddUser(userInfo, UserManagerWrapper.GeneratePassword(), afterInvite: true);
+        return await UserManagerWrapper.AddUser(userInfo, UserManagerWrapper.GeneratePassword(), type: EmployeeType.User, afterInvite: true);
     }
 
     private async Task<Tenant> CreateTenant(string portalName, LoginProfile profile)

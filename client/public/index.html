@@ -833,7 +833,7 @@
                         case 2: // inFile
                             if (collaboration["FileId"]) {
                                 if (collaborationHost) {
-                                    destroyLoginFrameAndInitEditor(collaboration["FileId"], false, async () => {
+                                    destroyLoginFrameAndInitEditor(collaboration["FileId"], true, async () => {
                                         await connection.invoke("CollaborateChanging");
                                         await destroyLoginFrameAndInitFilePicker();
                                     });
