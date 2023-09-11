@@ -188,6 +188,7 @@ public class ZoomHub : Hub
 
             if (changePayload.FileId != null)
             {
+                await CheckRights();
                 await CollaborateChange(changePayload);
             }
         }
