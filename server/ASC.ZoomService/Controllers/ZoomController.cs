@@ -32,6 +32,7 @@ using ASC.FederatedLogin.LoginProviders;
 using ASC.FederatedLogin.Profile;
 using ASC.Files.Core.ApiModels.ResponseDto;
 using ASC.Files.Core.VirtualRooms;
+using ASC.Web.Api.Core;
 using ASC.Web.Core.Files;
 using ASC.Web.Files.Classes;
 using ASC.Web.Files.Services.WCFService;
@@ -42,7 +43,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using static System.Net.WebRequestMethods;
 
 namespace ASC.ApiSystem.Controllers;
 
@@ -74,6 +74,7 @@ public class ZoomController : ControllerBase
     private FileDtoHelper FileDtoHelper { get; }
     private GlobalFolderHelper GlobalFolderHelper { get; }
     private IDistributedCache Cache { get; }
+    private CspSettingsHelper CspSettingsHelper { get; }
 
     public ZoomController(
         CommonMethods commonMethods,
@@ -97,7 +98,8 @@ public class ZoomController : ControllerBase
         SocketManager socketManager,
         FileDtoHelper fileDtoHelper,
         GlobalFolderHelper globalFolderHelper,
-        IDistributedCache cache
+        IDistributedCache cache,
+        CspSettingsHelper cspSettingsHelper
         )
     {
         CommonMethods = commonMethods;
@@ -122,6 +124,7 @@ public class ZoomController : ControllerBase
         FileDtoHelper = fileDtoHelper;
         GlobalFolderHelper = globalFolderHelper;
         Cache = cache;
+        CspSettingsHelper = cspSettingsHelper;
     }
 
     #region For TEST api
@@ -501,9 +504,7 @@ public class ZoomController : ControllerBase
             }
         }
 
-        var cspSettings = SettingsManager.Load<CspSettings>();
-        cspSettings.Domains = new List<string>() { $"https://{portalName}.{Configuration["zoom:zoom-domain"]}" };
-        SettingsManager.Save(cspSettings);
+        await CspSettingsHelper.Save(new List<string>() { $"https://{portalName}.{Configuration["zoom:zoom-domain"]}" }, false);
 
         return tenant;
     }
