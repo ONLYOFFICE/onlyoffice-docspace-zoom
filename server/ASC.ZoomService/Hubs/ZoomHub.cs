@@ -114,13 +114,13 @@ public class ZoomHub : Hub
                     _securityContext.AuthenticateMeWithoutCookie(Core.Configuration.Constants.CoreSystem);
                     var access = cachedCollaboration.CollaborationType switch
                     {
-                        ZoomCollaborationType.Edit => Files.Core.Security.FileShare.Collaborator,
+                        ZoomCollaborationType.Edit => Files.Core.Security.FileShare.Editing,
                         _ => Files.Core.Security.FileShare.Read,
                     };
                     if (Context.ConnectionId == cachedCollaboration.ConnectionId)
                     {
                         // always add collaboration initiator as collaborator
-                        access = Files.Core.Security.FileShare.Collaborator;
+                        access = Files.Core.Security.FileShare.Editing;
                     }
                     var userDocspaceId = _zoomAccountHelper.GetUserIdFromZoomUid(userId).Value;
                     var adminId = GetAdminUser().Id;
