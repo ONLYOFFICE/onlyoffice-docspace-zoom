@@ -47,6 +47,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.ElasticSearch", "DocSpa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.EventBus.RabbitMQ", "DocSpace\common\ASC.EventBus.RabbitMQ\ASC.EventBus.RabbitMQ.csproj", "{5C5B79C6-F63D-427A-A943-4B46DC384835}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Web.Api", "DocSpace\web\ASC.Web.Api\ASC.Web.Api.csproj", "{D65E12BD-CF6C-43EA-92AE-6112F4EF9A61}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -137,6 +139,10 @@ Global
 		{5C5B79C6-F63D-427A-A943-4B46DC384835}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C5B79C6-F63D-427A-A943-4B46DC384835}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C5B79C6-F63D-427A-A943-4B46DC384835}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D65E12BD-CF6C-43EA-92AE-6112F4EF9A61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D65E12BD-CF6C-43EA-92AE-6112F4EF9A61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D65E12BD-CF6C-43EA-92AE-6112F4EF9A61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D65E12BD-CF6C-43EA-92AE-6112F4EF9A61}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -162,6 +168,7 @@ Global
 		{EA18B236-5AC3-4C8A-B681-9CB31F178C18} = {00A132A5-9CDA-4104-9C1F-D13A9F74A3A1}
 		{AE1A0E06-6CD4-4E1D-8209-22BBBD6D5652} = {00A132A5-9CDA-4104-9C1F-D13A9F74A3A1}
 		{5C5B79C6-F63D-427A-A943-4B46DC384835} = {00A132A5-9CDA-4104-9C1F-D13A9F74A3A1}
+		{D65E12BD-CF6C-43EA-92AE-6112F4EF9A61} = {00A132A5-9CDA-4104-9C1F-D13A9F74A3A1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3C7B881C-3799-444A-9460-09D6037FEABB}

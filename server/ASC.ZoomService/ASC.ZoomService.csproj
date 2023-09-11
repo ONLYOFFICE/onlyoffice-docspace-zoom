@@ -25,6 +25,7 @@
     <ProjectReference Include="..\..\DocSpace\common\ASC.Common\ASC.Common.csproj" />
     <ProjectReference Include="..\..\DocSpace\common\ASC.Core.Common\ASC.Core.Common.csproj" />
     <ProjectReference Include="..\..\DocSpace\products\ASC.Files\Core\ASC.Files.Core.csproj" />
+    <ProjectReference Include="..\..\DocSpace\web\ASC.Web.Api\ASC.Web.Api.csproj" />
     <ProjectReference Include="..\..\DocSpace\web\ASC.Web.Core\ASC.Web.Core.csproj" />
   </ItemGroup>
 
