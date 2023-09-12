@@ -169,6 +169,7 @@ public class ZoomHub : Hub
             var user = GetAdminUser();
             _securityContext.AuthenticateMeWithoutCookie(user.Id);
             var room = await _fileStorageService.CreateRoomAsync($"Zoom Collaboration: {DateTime.Now:MM/dd/yy hh:mm tt}", RoomType.CustomRoom, false, Array.Empty<FileShareParams>(), false, string.Empty);
+            await CheckRights();
 
             var collaboration = new ZoomCollaborationCachedRoom()
             {
@@ -191,7 +192,6 @@ public class ZoomHub : Hub
 
             if (changePayload.FileId != null)
             {
-                await CheckRights();
                 await CollaborateChange(changePayload);
             }
         }
