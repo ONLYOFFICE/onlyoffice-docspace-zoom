@@ -524,7 +524,7 @@ public class ZoomController : ControllerBase
     {
         var info = new TenantRegistrationInfo
         {
-            Name = portalName,
+            Name = "Zoom",
             Address = portalName,
             Culture = GetCultureFromLocale(profile.Locale),
             FirstName = string.IsNullOrEmpty(profile.FirstName) ? UserControlsCommonResource.UnknownFirstName : profile.FirstName,
