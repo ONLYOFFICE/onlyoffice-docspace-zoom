@@ -62,6 +62,30 @@ public class ZoomAccountHelper
         return userId;
     }
 
+    public UserInfo GetAdminUserIfNeeded(string uid)
+    {
+        var guid = GetUserIdFromZoomUid(uid).Value;
+        return GetAdminUserIfNeeded(guid);
+    }
+
+    public UserInfo GetAdminUserIfNeeded(Guid guid)
+    {
+        var userInfo = _userManager.GetUsers(guid);
+        if (_userManager.IsUser(userInfo))
+        {
+            return GetAdminUser();
+        }
+        else
+        {
+            return userInfo;
+        }
+    }
+
+    public UserInfo GetAdminUser()
+    {
+        return _userManager.GetUsersByGroup(Constants.GroupAdmin.ID, EmployeeStatus.Active).FirstOrDefault();
+    }
+
     // AuthenticationController.TryGetUserByHash()
     private bool TryGetUserByHash(string hashId, out Guid userId)
     {

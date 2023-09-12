@@ -123,7 +123,7 @@ public class ZoomHub : Hub
                         access = Files.Core.Security.FileShare.Editing;
                     }
                     var userDocspaceId = _zoomAccountHelper.GetUserIdFromZoomUid(userId).Value;
-                    var adminId = GetAdminUser().Id;
+                    var adminId = _zoomAccountHelper.GetAdminUser().Id;
                     if (userDocspaceId == adminId)
                     {
                         return true;
@@ -166,7 +166,7 @@ public class ZoomHub : Hub
 
         try
         {
-            var user = GetAdminUser();
+            var user = _zoomAccountHelper.GetAdminUserIfNeeded(GetUidClaim());
             _securityContext.AuthenticateMeWithoutCookie(user.Id);
             var room = await _fileStorageService.CreateRoomAsync($"Zoom Collaboration: {DateTime.Now:MM/dd/yy hh:mm tt}", RoomType.CustomRoom, false, Array.Empty<FileShareParams>(), false, string.Empty);
             await CheckRights();
@@ -268,7 +268,7 @@ public class ZoomHub : Hub
     {
         try
         {
-            _securityContext.AuthenticateMeWithoutCookie(GetAdminUser().Id);
+            _securityContext.AuthenticateMeWithoutCookie(_zoomAccountHelper.GetAdminUser().Id);
 
             var parentId = await _globalFolderHelper.GetFolderVirtualRooms<int>();
             var found = await _fileStorageService.GetFolderItemsAsync(parentId, 0, 1, FilterType.CustomRooms, false, null, null, false, false,
@@ -329,11 +329,6 @@ public class ZoomHub : Hub
         }
 
         return collabFileId;
-    }
-
-    private UserInfo GetAdminUser()
-    {
-        return _userManager.GetUsersByGroup(Constants.GroupAdmin.ID, EmployeeStatus.Active).FirstOrDefault();
     }
 
     private string GetUidClaim()
