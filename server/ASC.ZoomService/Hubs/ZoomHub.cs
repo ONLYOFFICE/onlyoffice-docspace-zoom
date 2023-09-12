@@ -114,9 +114,10 @@ public class ZoomHub : Hub
                     _securityContext.AuthenticateMeWithoutCookie(Core.Configuration.Constants.CoreSystem);
                     var access = cachedCollaboration.CollaborationType switch
                     {
-                        ZoomCollaborationType.Edit => Files.Core.Security.FileShare.Collaborator,
+                        ZoomCollaborationType.Edit => Files.Core.Security.FileShare.Editing,
                         _ => Files.Core.Security.FileShare.Read,
                     };
+
                     await _fileStorageService.SetAceObjectAsync(new AceCollection<int>()
                     {
                         Message = string.Empty,
