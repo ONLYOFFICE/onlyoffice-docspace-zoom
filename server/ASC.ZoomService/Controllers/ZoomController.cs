@@ -25,7 +25,8 @@
 // International. See the License terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
 
 using ASC.ApiSystem.Helpers;
-using ASC.Core.Common.Security;
+using ASC.Core.Common.Quota.Features;
+using ASC.Core.Common.Quota;
 using ASC.FederatedLogin;
 using ASC.FederatedLogin.Helpers;
 using ASC.FederatedLogin.LoginProviders;
@@ -75,6 +76,7 @@ public class ZoomController : ControllerBase
     private GlobalFolderHelper GlobalFolderHelper { get; }
     private IDistributedCache Cache { get; }
     private CspSettingsHelper CspSettingsHelper { get; }
+    private TenantQuotaFeatureCheckerCount<CountPaidUserFeature> CountPaidUserChecker { get; }
 
     public ZoomController(
         CommonMethods commonMethods,
@@ -99,7 +101,8 @@ public class ZoomController : ControllerBase
         FileDtoHelper fileDtoHelper,
         GlobalFolderHelper globalFolderHelper,
         IDistributedCache cache,
-        CspSettingsHelper cspSettingsHelper
+        CspSettingsHelper cspSettingsHelper,
+        TenantQuotaFeatureCheckerCount<CountPaidUserFeature> countPaidUserChecker
         )
     {
         CommonMethods = commonMethods;
@@ -125,6 +128,7 @@ public class ZoomController : ControllerBase
         GlobalFolderHelper = globalFolderHelper;
         Cache = cache;
         CspSettingsHelper = cspSettingsHelper;
+        CountPaidUserChecker = countPaidUserChecker;
     }
 
     #region For TEST api
@@ -149,7 +153,27 @@ public class ZoomController : ControllerBase
     {
         var uid = User.Claims.FirstOrDefault(c => c.Type == ZoomAuthHandler.ZOOM_CLAIM_UID)?.Value;
         var mid = User.Claims.FirstOrDefault(c => c.Type == ZoomAuthHandler.ZOOM_CLAIM_MID)?.Value;
-        var confirmLink = GetConfirmLink(model.AccountNumber, uid);
+        model.TenantId = null;
+
+        ZoomCollaborationCachedRoom collaboration = null;
+        var collaborationIsActive = !string.IsNullOrWhiteSpace(model.CollaborationId) && !"none".Equals(model.CollaborationId);
+        if (collaborationIsActive)
+        {
+            Log.LogDebug($"GetState(): Got CollaborationId, getting collaboration from cache");
+            collaboration = Cache.GetCollaboration(mid);
+        }
+
+        string confirmLink;
+        if (collaboration != null)
+        {
+            confirmLink = GetConfirmLinkByTenantId(collaboration.TenantId, uid);
+            model.TenantId = collaboration.TenantId;
+        }
+        else
+        {
+            confirmLink = GetConfirmLinkByAccountNumber(model.AccountNumber, uid);
+        }
+
         if (confirmLink != null)
         {
             Log.LogDebug($"GetState(): Got request from Zoom App; Found portal and user, redirecting with auth; AccountNumber: {model.AccountNumber}; UserId: {uid}");
@@ -160,12 +184,9 @@ public class ZoomController : ControllerBase
                 Home = Configuration["zoom:home"]
             };
 
-            if (!string.IsNullOrWhiteSpace(model.CollaborationId) && !"none".Equals(model.CollaborationId))
+            if (collaborationIsActive)
             {
-                Log.LogDebug("GetState(): CollaborationId is not null, getting collaboration from cache");
-                ZoomCollaborationCachedRoom collaboration = null;
-
-                collaboration = Cache.GetCollaboration(mid);
+                Log.LogDebug("GetState(): Collaboration is active");
 
                 integrationPayload.Collaboration = new ZoomCollaborationRoom()
                 {
@@ -213,7 +234,9 @@ public class ZoomController : ControllerBase
                 }
             }
 
-            return Redirect(GetPayloadRedirectLink(model.AccountNumber, integrationPayload));
+            return Redirect(collaboration != null
+                ? GetPayloadRedirectLinkByTenantId(collaboration.TenantId, integrationPayload)
+                : GetPayloadRedirectLinkByAccountNumber(model.AccountNumber, integrationPayload));
         }
 
         // proceed to oauth
@@ -294,7 +317,7 @@ public class ZoomController : ControllerBase
             var profile = loginProvider.GetLoginProfile(token);
 
             Log.LogDebug("PostHome(): Creating user and/or tenant");
-            var (_, tenant) = await CreateUserAndTenant(profile, state.AccountNumber);
+            var (_, tenant) = await CreateUserAndTenant(profile, state.AccountNumber, state.TenantId);
 
             response.ConfirmLink = GetTenantRedirectUri(tenant, profile.EMail);
             response.Collaboration = new ZoomCollaborationRoom()
@@ -303,7 +326,7 @@ public class ZoomController : ControllerBase
             };
 
             Log.LogDebug("PostHome(): Returning user with confirmLink");
-            return Ok(GetPayloadRedirectLink(state.AccountNumber, response));
+            return Ok(GetPayloadRedirectLink(tenant, response));
         }
         catch (Exception ex)
         {
@@ -361,10 +384,21 @@ public class ZoomController : ControllerBase
 
     #region private methods
 
-    private string GetPayloadRedirectLink(long accountNumber, ZoomIntegrationPayload payload)
+    private string GetPayloadRedirectLinkByTenantId(int tenantId, ZoomIntegrationPayload payload)
+    {
+        var tenant = HostedSolution.GetTenant(tenantId);
+        return GetPayloadRedirectLink(tenant, payload);
+    }
+
+    private string GetPayloadRedirectLinkByAccountNumber(long accountNumber, ZoomIntegrationPayload payload)
     {
         var portalName = GenerateAlias(accountNumber);
         var tenant = HostedSolution.GetTenant(portalName);
+        return GetPayloadRedirectLink(tenant, payload);
+    }
+
+    private string GetPayloadRedirectLink(Tenant tenant, ZoomIntegrationPayload payload)
+    {
         payload.DocSpaceUrl = $"https{Uri.SchemeDelimiter}{tenant.GetTenantDomain(CoreSettings)}";
         var serialized = JsonSerializer.Serialize(payload);
 
@@ -386,10 +420,24 @@ public class ZoomController : ControllerBase
         return JsonNode.Parse(json)["deeplink"].GetValue<string>();
     }
 
-    private async Task<(UserInfo, Tenant)> CreateUserAndTenant(LoginProfile profile, long accountNumber)
+    private async Task<(UserInfo, Tenant)> CreateUserAndTenant(LoginProfile profile, long accountNumber, int? tenantId = null)
     {
         var portalName = GenerateAlias(accountNumber);
         var tenant = HostedSolution.GetTenant(portalName);
+        bool guest = false;
+        if (tenantId.HasValue)
+        {
+            if (tenant.Id == tenantId.Value)
+            {
+                Log.LogDebug($"CreateUserAndTenant(): TenantId equals accountNumber, no additional actions needed");
+            }
+            else
+            {
+                Log.LogDebug($"CreateUserAndTenant(): TenantId not equals accountNumber, adding user as a guest");
+                guest = true;
+                tenant = HostedSolution.GetTenant(tenantId.Value);
+            }
+        }
 
         var newTenant = false;
         if (tenant == null)
@@ -410,7 +458,7 @@ public class ZoomController : ControllerBase
             if (!UserManager.UserExists(userInfo.Id))
             {
                 Log.LogDebug($"CreateUserAndTenant(): Creating new user for portal '{portalName}'; UserId: {profile.UniqueId}");
-                userInfo = await CreateUser(profile);
+                userInfo = await CreateUser(profile, guest);
                 Log.LogInformation($"CreateUserAndTenant(): Created new user for '{portalName}'; UserId: {profile.UniqueId}");
                 shouldLink = true;
             }
@@ -440,9 +488,8 @@ public class ZoomController : ControllerBase
         return culture;
     }
 
-    private async Task<UserInfo> CreateUser(LoginProfile profile)
+    private async Task<UserInfo> CreateUser(LoginProfile profile, bool guest)
     {
-
         var userInfo = new UserInfo
         {
             FirstName = string.IsNullOrEmpty(profile.FirstName) ? UserControlsCommonResource.UnknownFirstName : profile.FirstName,
@@ -454,7 +501,23 @@ public class ZoomController : ControllerBase
             ActivationStatus = EmployeeActivationStatus.Activated,
             Status = EmployeeStatus.Active,
         };
-        return await UserManagerWrapper.AddUser(userInfo, UserManagerWrapper.GeneratePassword(), type: EmployeeType.User, afterInvite: true);
+        EmployeeType employeeType = EmployeeType.RoomAdmin;
+        if (guest)
+        {
+            employeeType = EmployeeType.User;
+        }
+        else
+        {
+            try
+            {
+                await CountPaidUserChecker.CheckAppend();
+            }
+            catch (TenantQuotaException)
+            {
+                employeeType = EmployeeType.User;
+            }
+        }
+        return await UserManagerWrapper.AddUser(userInfo, UserManagerWrapper.GeneratePassword(), type: employeeType, afterInvite: true);
     }
 
     private async Task<Tenant> CreateTenant(string portalName, LoginProfile profile)
@@ -514,13 +577,27 @@ public class ZoomController : ControllerBase
         return $"zoom-{accountNumber}";
     }
 
-    private string GetConfirmLink(long accountNumber, string uid)
+    private string GetConfirmLinkByTenantId(int tenantId, string uid)
+    {
+        ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(uid, nameof(uid));
+
+        var tenant = HostedSolution.GetTenant(tenantId);
+
+        return GetConfirmLink(tenant, uid);
+    }
+
+    private string GetConfirmLinkByAccountNumber(long accountNumber, string uid)
     {
         ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(uid, nameof(uid));
 
         var portalName = GenerateAlias(accountNumber);
         var tenant = HostedSolution.GetTenant(portalName);
 
+        return GetConfirmLink(tenant, uid);
+    }
+
+    private string GetConfirmLink(Tenant tenant, string uid)
+    {
         if (tenant == null)
         {
             return null;

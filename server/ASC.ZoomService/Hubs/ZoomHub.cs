@@ -124,7 +124,8 @@ public class ZoomHub : Hub
                     }
                     var userDocspaceId = _zoomAccountHelper.GetUserIdFromZoomUid(userId).Value;
                     var adminId = GetAdminUser().Id;
-                    if (userDocspaceId == adminId) {
+                    if (userDocspaceId == adminId)
+                    {
                         return true;
                     }
                     await _fileStorageService.SetAceObjectAsync(new AceCollection<int>()
@@ -165,7 +166,8 @@ public class ZoomHub : Hub
 
         try
         {
-            _securityContext.AuthenticateMeWithoutCookie(GetAdminUser().Id);
+            var user = GetAdminUser();
+            _securityContext.AuthenticateMeWithoutCookie(user.Id);
             var room = await _fileStorageService.CreateRoomAsync($"Zoom Collaboration: {DateTime.Now:MM/dd/yy hh:mm tt}", RoomType.CustomRoom, false, Array.Empty<FileShareParams>(), false, string.Empty);
 
             var collaboration = new ZoomCollaborationCachedRoom()
@@ -176,7 +178,8 @@ public class ZoomHub : Hub
                 RoomId = room.Id.ToString(),
                 FileId = null,
                 CollaborationType = (ZoomCollaborationType)changePayload.CollaborationType,
-                Status = ZoomCollaborationStatus.Pending
+                Status = ZoomCollaborationStatus.Pending,
+                TenantId = user.Tenant
             };
             _cache.SetCollaboration(meetingId, collaboration);
 
