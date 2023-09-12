@@ -353,8 +353,7 @@ public class ZoomController : ControllerBase
         {
             SecurityContext.AuthenticateMeWithoutCookie(userId.Value);
 
-            // add limit
-            if (file.Length > long.MaxValue)
+            if (file.Length > GetUploadLimit())
             {
                 return BadRequest();
             }
@@ -383,6 +382,19 @@ public class ZoomController : ControllerBase
     #endregion
 
     #region private methods
+
+    private long GetUploadLimit()
+    {
+        var limitString = Configuration["zoom-upload-limit"];
+        if (!string.IsNullOrEmpty(limitString))
+        {
+            if (long.TryParse(limitString, out var limit))
+            {
+                return limit;
+            }
+        }
+        return 10 * 1024 * 1024;
+    }
 
     private string GetPayloadRedirectLinkByTenantId(int tenantId, ZoomIntegrationPayload payload)
     {
