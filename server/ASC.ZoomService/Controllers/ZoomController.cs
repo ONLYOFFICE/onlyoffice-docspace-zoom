@@ -323,7 +323,6 @@ public class ZoomController : ControllerBase
             return Unauthorized();
         }
 
-
         try
         {
             SecurityContext.AuthenticateMeWithoutCookie(userId.Value);
@@ -344,6 +343,7 @@ public class ZoomController : ControllerBase
             }
             catch (FileNotFoundException e)
             {
+                Log.LogWarning(e, "Uploading file failed");
                 return BadRequest();
             }
 
