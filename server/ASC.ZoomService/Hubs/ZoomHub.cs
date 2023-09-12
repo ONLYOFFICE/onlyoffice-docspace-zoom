@@ -259,10 +259,9 @@ public class ZoomHub : Hub
 
     private async Task MoveFilesToBackup(ZoomCollaborationCachedRoom cachedCollaboration)
     {
-        var admin = _userManager.GetUsersByGroup(Constants.GroupAdmin.ID, EmployeeStatus.Active).FirstOrDefault();
         try
         {
-            _securityContext.AuthenticateMeWithoutCookie(admin.Id);
+            _securityContext.AuthenticateMeWithoutCookie(_zoomAccountHelper.GetAdminUser().Id);
 
             var parentId = await _globalFolderHelper.GetFolderVirtualRooms<int>();
             var found = await _fileStorageService.GetFolderItemsAsync(parentId, 0, 1, FilterType.CustomRooms, false, null, null, false, false,

@@ -62,6 +62,11 @@ public class ZoomAccountHelper
         return userId;
     }
 
+    public UserInfo GetAdminUser()
+    {
+        return _userManager.GetUsersByGroup(Constants.GroupAdmin.ID, EmployeeStatus.Active).FirstOrDefault();
+    }
+
     // AuthenticationController.TryGetUserByHash()
     private bool TryGetUserByHash(string hashId, out Guid userId)
     {
