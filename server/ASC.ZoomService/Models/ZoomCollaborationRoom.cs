@@ -39,6 +39,7 @@ public class ZoomCollaborationCachedRoom : ZoomCollaborationRoom
     public string ConnectionId { get; set; }
     public string CollaborationId { get; set; }
     public string MeetingId { get; set; }
+    public int TenantId { get; set; }
     public ZoomCollaborationType CollaborationType { get; set; }
 }
 

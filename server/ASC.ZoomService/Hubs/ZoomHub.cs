@@ -156,9 +156,11 @@ public class ZoomHub : Hub
 
         var uid = GetUidClaim();
         var guid = _zoomAccountHelper.GetUserIdFromZoomUid(uid).Value;
+        var user = _userManager.GetUsers(guid);
         try
         {
             _securityContext.AuthenticateMeWithoutCookie(guid);
+
             var room = await _fileStorageService.CreateRoomAsync($"Zoom Collaboration: {DateTime.Now:MM/dd/yy hh:mm tt}", RoomType.CustomRoom, false, Array.Empty<FileShareParams>(), false, string.Empty);
 
             var collaboration = new ZoomCollaborationCachedRoom()
@@ -169,7 +171,8 @@ public class ZoomHub : Hub
                 RoomId = room.Id.ToString(),
                 FileId = null,
                 CollaborationType = (ZoomCollaborationType)changePayload.CollaborationType,
-                Status = ZoomCollaborationStatus.Pending
+                Status = ZoomCollaborationStatus.Pending,
+                TenantId = user.Tenant
             };
             _cache.SetCollaboration(meetingId, collaboration);
 
