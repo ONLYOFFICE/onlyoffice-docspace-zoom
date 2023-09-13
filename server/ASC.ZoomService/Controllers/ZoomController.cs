@@ -282,8 +282,8 @@ public class ZoomController : ControllerBase
         }
         catch (Exception ex)
         {
-            Log.LogDebug($"GetHome(): Error: {ex.Message}");
-            return BadRequest(ex.Message);
+            Log.LogDebug(ex, $"GetHome(): Error while processing install link");
+            return BadRequest();
         }
     }
 
@@ -569,29 +569,37 @@ public class ZoomController : ControllerBase
 
         TenantManager.SetCurrentTenant(tenant);
 
-        Log.LogDebug($"CreateTenant(): Setting tariff for tenant {tenant.Id}.");
-        var trialQuota = Configuration["quota:id"];
-        if (!string.IsNullOrEmpty(trialQuota))
+        try
         {
-            if (int.TryParse(trialQuota, out var trialQuotaId))
+            Log.LogDebug($"CreateTenant(): Setting tariff for tenant {tenant.Id}.");
+            var trialQuota = Configuration["quota:id"];
+            if (!string.IsNullOrEmpty(trialQuota))
             {
-                var dueDate = DateTime.MaxValue;
-                if (int.TryParse(Configuration["quota:due"], out var dueTrial))
+                if (int.TryParse(trialQuota, out var trialQuotaId))
                 {
-                    dueDate = DateTime.UtcNow.AddDays(dueTrial);
+                    var dueDate = DateTime.MaxValue;
+                    if (int.TryParse(Configuration["quota:due"], out var dueTrial))
+                    {
+                        dueDate = DateTime.UtcNow.AddDays(dueTrial);
+                    }
+
+                    var tariff = new Tariff
+                    {
+                        Quotas = new List<Quota> { new Quota(trialQuotaId, 1) },
+                        DueDate = dueDate
+                    };
+                    HostedSolution.SetTariff(tenant.Id, tariff);
                 }
-
-                var tariff = new Tariff
-                {
-                    Quotas = new List<Quota> { new Quota(trialQuotaId, 1) },
-                    DueDate = dueDate
-                };
-                HostedSolution.SetTariff(tenant.Id, tariff);
             }
-        }
 
-        Log.LogDebug($"CreateTenant(): Setting csp settings to allow '{$"https://{portalName}.{Configuration["zoom:zoom-domain"]}"}'.");
-        await CspSettingsHelper.Save(new List<string>() { $"https://{portalName}.{Configuration["zoom:zoom-domain"]}" }, false);
+            Log.LogDebug($"CreateTenant(): Setting csp settings to allow '{$"https://{portalName}.{Configuration["zoom:zoom-domain"]}"}'.");
+
+            await CspSettingsHelper.Save(new List<string>() { $"https://{portalName}.{Configuration["zoom:zoom-domain"]}" }, false);
+        }
+        catch (Exception ex)
+        {
+            Log.LogError(ex, "CreateTenant(): Exception while creating tenant.");
+        }
 
         Log.LogInformation($"CreateTenant(): Created tenant {portalName} with id {tenant.Id}.");
         return tenant;
@@ -608,6 +616,7 @@ public class ZoomController : ControllerBase
 
         var tenant = HostedSolution.GetTenant(tenantId);
 
+        Log.LogDebug($"GetConfirmLinkByTenantId(): Getting confirm link with tenant {tenant?.Id}, user {uid}.");
         return GetConfirmLink(tenant, uid);
     }
 
@@ -618,6 +627,7 @@ public class ZoomController : ControllerBase
         var portalName = GenerateAlias(accountNumber);
         var tenant = HostedSolution.GetTenant(portalName);
 
+        Log.LogDebug($"GetConfirmLinkByAccountNumber(): Getting confirm link with tenant {tenant?.Id}, user {uid}.");
         return GetConfirmLink(tenant, uid);
     }
 
@@ -625,17 +635,21 @@ public class ZoomController : ControllerBase
     {
         if (tenant == null)
         {
+            Log.LogDebug("GetConfirmLink(): Tenant is null.");
             return null;
         }
 
         TenantManager.SetCurrentTenant(tenant);
 
+        Log.LogDebug($"GetConfirmLink(): Getting userId from by zoom uid {uid}.");
         var userId = ZoomAccountHelper.GetUserIdFromZoomUid(uid);
         if (userId == null)
         {
+            Log.LogDebug("GetConfirmLink(): User is null.");
             return null;
         }
 
+        Log.LogDebug("GetConfirmLink(): Found user.");
         var user = UserManager.GetUser(userId.Value, null);
 
         return GetTenantRedirectUri(tenant, user.Email);
