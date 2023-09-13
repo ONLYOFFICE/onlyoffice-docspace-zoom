@@ -320,10 +320,14 @@ public class ZoomController : ControllerBase
             var (_, tenant) = await CreateUserAndTenant(profile, state.AccountNumber, state.TenantId);
 
             response.ConfirmLink = GetTenantRedirectUri(tenant, profile.EMail);
-            response.Collaboration = new ZoomCollaborationRoom()
+            if (!string.IsNullOrWhiteSpace(state.CollaborationId) && !"none".Equals(state.CollaborationId))
             {
-                Status = ZoomCollaborationStatus.Pending,
-            };
+                Log.LogDebug($"PostHome(): Got collaboration ID {state.CollaborationId}, setting status to pending");
+                response.Collaboration = new ZoomCollaborationRoom()
+                {
+                    Status = ZoomCollaborationStatus.Pending,
+                };
+            }
 
             Log.LogDebug("PostHome(): Returning user with confirmLink");
             return Ok(GetPayloadRedirectLink(tenant, response));
