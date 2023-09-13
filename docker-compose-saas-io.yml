@@ -1,0 +1,28 @@
+version: '3.6'
+x-saas-io: &x-saas-io
+  environment:
+    - ASPNETCORE_ENVIRONMENT="io"
+
+services:
+  onlyoffice-zoom-api:
+    <<: [*x-saas-io]
+    volumes:
+    - ${BASE_CONFIG_PATH}/zoom/appsettings.json:/app/onlyoffice/config/appsettings.json
+    - ${BASE_CONFIG_PATH}/appsettings.substitution.json:/app/onlyoffice/config/appsettings.${ASPNETCORE_ENVIRONMENT}.json
+    - ${BASE_CONFIG_PATH}/apisystem.substitution.json:/app/onlyoffice/config/apisystem.${ASPNETCORE_ENVIRONMENT}.json
+    - ${BASE_CONFIG_PATH}/redis.substitution.json:/app/onlyoffice/config/redis.${ASPNETCORE_ENVIRONMENT}.json
+    - ${BASE_CONFIG_PATH}/rabbitmq.substitution.json:/app/onlyoffice/config/rabbitmq.${ASPNETCORE_ENVIRONMENT}.json
+    - ${BASE_CONFIG_PATH}/notify.substitution.json:/app/onlyoffice/config/notify.${ASPNETCORE_ENVIRONMENT}.json
+    - ${BASE_CONFIG_PATH}/zoom/zoom.json:/app/onlyoffice/config/zoom.${ASPNETCORE_ENVIRONMENT}.json
+    - ${BASE_CONFIG_PATH}/storage.substitution.json:/app/onlyoffice/config/storage.json
+    - ${BASE_CONFIG_PATH}/nlog.substitution.config:/app/onlyoffice/config/nlog.config
+    - ${BASE_CONFIG_PATH}/zoom/autofac.consumers.json:/app/onlyoffice/config/autofac.consumers.json
+    expose:
+      - "80"
+
+  onlyoffice-zoom-rout:
+    <<: [*x-saas-io]
+    volumes:
+    - ${BASE_CONFIG_PATH}/zoom/zoom.${ASPNETCORE_ENVIRONMENT}.conf:/etc/nginx/conf.d/zoom.${ASPNETCORE_ENVIRONMENT}.conf
+    ports:
+      - ${ZOOM_ROOUTER_PORT_MAP}:8093
