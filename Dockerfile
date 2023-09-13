@@ -25,6 +25,6 @@ FROM $REPO_RUNTIME AS router
 LABEL vendor = "ONLYOFFICE" \
                 maintainer = scensio System SIA <support@onlyoffice.com>
 WORKDIR /var/www/zoom
-COPY --from=build /app/client/public/. ./
-COPY --from=build /app/config/nginx/templates/nginx.conf.template  /etc/nginx/nginx.conf.template
-COPY --from=base /app/config/nginx/scripts/prepare-nginx-proxy.sh /docker-entrypoint.d/prepare-nginx-proxy.sh
+COPY ./client/public/. ./
+COPY ./config/nginx/templates/nginx.conf.template  /etc/nginx/nginx.conf.template
+COPY ./config/nginx/srcipts/prepare-nginx-router.sh /docker-entrypoint.d/prepare-nginx-proxy.sh
