@@ -27,4 +27,4 @@ LABEL vendor = "ONLYOFFICE" \
 WORKDIR /var/www/zoom
 COPY ./client/public/. ./
 COPY ./config/nginx/templates/nginx.conf.template  /etc/nginx/nginx.conf.template
-COPY ./config/nginx/srcipts/prepare-nginx-router.sh /docker-entrypoint.d/prepare-nginx-proxy.sh
+COPY ./config/nginx/scripts/prepare-nginx-router.sh /docker-entrypoint.d/prepare-nginx-proxy.sh
