@@ -166,11 +166,13 @@ public class ZoomController : ControllerBase
         string confirmLink;
         if (collaboration != null)
         {
+            Log.LogDebug($"GetState(): Collaboration is not null, getting confirm link using tenant id {collaboration.TenantId}");
             confirmLink = GetConfirmLinkByTenantId(collaboration.TenantId, uid);
             model.TenantId = collaboration.TenantId;
         }
         else
         {
+            Log.LogDebug($"GetState(): Collaboration is null, getting confirm link using account number {model.AccountNumber}");
             confirmLink = GetConfirmLinkByAccountNumber(model.AccountNumber, uid);
         }
 
@@ -239,7 +241,7 @@ public class ZoomController : ControllerBase
                 : GetPayloadRedirectLinkByAccountNumber(model.AccountNumber, integrationPayload));
         }
 
-        // proceed to oauth
+        Log.LogDebug($"GetState(): ConfirmLink is null, proceeding to oauth");
 
         var jwtSecret = Configuration["zoom:gate-secret"];
 
@@ -419,7 +421,7 @@ public class ZoomController : ControllerBase
         var serialized = JsonSerializer.Serialize(payload);
 
         var link = $"https{Uri.SchemeDelimiter}{tenant.Alias}.{Configuration["zoom:zoom-domain"]}/?payload={HttpUtility.UrlEncode(serialized)}";
-        Log.LogDebug($"PostHome(): Generated confirmLink ({link})");
+        Log.LogDebug($"GetPayloadRedirectLink(): Generated confirmLink ({link})");
         return link;
     }
 
@@ -506,6 +508,7 @@ public class ZoomController : ControllerBase
 
     private async Task<UserInfo> CreateUser(LoginProfile profile, bool guest)
     {
+        Log.LogDebug($"CreateTenant(): Creating user for zoom user '{profile.Id}'.");
         var userInfo = new UserInfo
         {
             FirstName = string.IsNullOrEmpty(profile.FirstName) ? UserControlsCommonResource.UnknownFirstName : profile.FirstName,
@@ -531,6 +534,7 @@ public class ZoomController : ControllerBase
             }
             catch (TenantQuotaException)
             {
+                Log.LogDebug($"CreateTenant(): Quota exceeded adding as simple user.");
                 employeeType = EmployeeType.User;
             }
         }
@@ -539,6 +543,7 @@ public class ZoomController : ControllerBase
 
     private async Task<Tenant> CreateTenant(string portalName, LoginProfile profile)
     {
+        Log.LogDebug($"CreateTenant(): Creating tenant with name '{portalName}' for zoom user '{profile.Id}'.");
         var info = new TenantRegistrationInfo
         {
             Name = "Zoom",
@@ -564,6 +569,7 @@ public class ZoomController : ControllerBase
 
         TenantManager.SetCurrentTenant(tenant);
 
+        Log.LogDebug($"CreateTenant(): Setting tariff for tenant {tenant.Id}.");
         var trialQuota = Configuration["quota:id"];
         if (!string.IsNullOrEmpty(trialQuota))
         {
@@ -584,8 +590,10 @@ public class ZoomController : ControllerBase
             }
         }
 
+        Log.LogDebug($"CreateTenant(): Setting csp settings to allow '{$"https://{portalName}.{Configuration["zoom:zoom-domain"]}"}'.");
         await CspSettingsHelper.Save(new List<string>() { $"https://{portalName}.{Configuration["zoom:zoom-domain"]}" }, false);
 
+        Log.LogInformation($"CreateTenant(): Created tenant {portalName} with id {tenant.Id}.");
         return tenant;
     }
 
