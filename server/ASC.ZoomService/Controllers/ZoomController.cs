@@ -25,8 +25,8 @@
 // International. See the License terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
 
 using ASC.ApiSystem.Helpers;
-using ASC.Core.Common.Quota.Features;
 using ASC.Core.Common.Quota;
+using ASC.Core.Common.Quota.Features;
 using ASC.FederatedLogin;
 using ASC.FederatedLogin.Helpers;
 using ASC.FederatedLogin.LoginProviders;
@@ -39,6 +39,7 @@ using ASC.Web.Files.Classes;
 using ASC.Web.Files.Services.WCFService;
 using ASC.Web.Files.Utils;
 using ASC.ZoomService.Extensions;
+using ASC.ZoomService.Models;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
@@ -383,6 +384,21 @@ public class ZoomController : ControllerBase
         {
             SecurityContext.Logout();
         }
+    }
+
+    [HttpPost("deauth")]
+    [Authorize(AuthenticationSchemes = ZoomHookAuthHandler.ZOOM_HOOK_AUTH_SCHEME)]
+    public async Task<IActionResult> DeauthorizationHook(ZoomEventModel<ZoomDeauthorizationModel> zoomEvent)
+    {
+        //var portalName = GenerateAlias(zoomEvent.Payload.AccountId);
+        //var tenant = HostedSolution.GetTenant(portalName);
+        //if (tenant == null) return BadRequest();
+        //TenantManager.SetCurrentTenant(tenant);
+
+        var userId = ZoomAccountHelper.GetUserIdFromZoomUid(zoomEvent.Payload.UserId);
+        if (userId == null) return BadRequest();
+        AccountLinker.RemoveLink(userId.ToString(), zoomEvent.Payload.UserId, ProviderConstants.Zoom);
+        return Ok();
     }
 
     #endregion

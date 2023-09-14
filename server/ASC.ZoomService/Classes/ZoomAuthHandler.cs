@@ -24,18 +24,15 @@
 // content are licensed under the terms of the Creative Commons Attribution-ShareAlike 4.0
 // International. See the License terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
 
+using ASC.Core.Common.Configuration;
+using ASC.FederatedLogin.LoginProviders;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using System.Security.Authentication;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-
-using ASC.Core.Common.Configuration;
-using ASC.Core.Common.Security;
-using ASC.FederatedLogin.LoginProviders;
-
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 
 namespace ASC.ApiSystem.Classes;
 

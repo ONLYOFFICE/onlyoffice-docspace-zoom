@@ -158,7 +158,8 @@ public class Startup
             .AddScheme<AuthenticationSchemeOptions, AuthHandler>("auth:allowskip:default", _ => { })
             .AddScheme<AuthenticationSchemeOptions, AuthHandler>("auth:allowskip:registerportal", _ => { })
             .AddScheme<AuthenticationSchemeOptions, ZoomAuthHandler>(ZoomAuthHandler.ZOOM_AUTH_SCHEME_HEADER, _ => { })
-            .AddScheme<AuthenticationSchemeOptions, ZoomAuthHandler>(ZoomAuthHandler.ZOOM_AUTH_SCHEME_QUERY, _ => { });
+            .AddScheme<AuthenticationSchemeOptions, ZoomAuthHandler>(ZoomAuthHandler.ZOOM_AUTH_SCHEME_QUERY, _ => { })
+            .AddScheme<AuthenticationSchemeOptions, ZoomHookAuthHandler>(ZoomHookAuthHandler.ZOOM_HOOK_AUTH_SCHEME, _ => { });
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -2,6 +2,7 @@
   "zoom": {
     "gate-secret": "123-super-secret-key",
     "zoom-domain": "",
-    "zoom-redirect-uri": ""
+    "zoom-redirect-uri": "",
+    "event-secret": ""
   }
 }
