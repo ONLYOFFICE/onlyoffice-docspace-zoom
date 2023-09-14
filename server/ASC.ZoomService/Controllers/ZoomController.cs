@@ -496,6 +496,11 @@ public class ZoomController : ControllerBase
                 Log.LogInformation($"CreateUserAndTenant(): Created new user for '{portalName}'; UserId: {profile.UniqueId}");
                 shouldLink = true;
             }
+            else
+            {
+                var linkedUserId = ZoomAccountHelper.GetUserIdFromZoomUid(profile.Id);
+                shouldLink = linkedUserId == null;
+            }
 
             if (shouldLink)
             {
