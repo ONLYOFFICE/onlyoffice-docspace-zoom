@@ -31,7 +31,7 @@ using ASC.Files.Core.EF;
 using ASC.Files.Core.Core;
 using ASC.Web.Files;
 
-namespace ASC.ApiSystem;
+namespace ASC.ZoomService;
 
 public class Startup
 {
