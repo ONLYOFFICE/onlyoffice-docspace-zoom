@@ -390,15 +390,37 @@ public class ZoomController : ControllerBase
     [Authorize(AuthenticationSchemes = ZoomHookAuthHandler.ZOOM_HOOK_AUTH_SCHEME)]
     public async Task<IActionResult> DeauthorizationHook(ZoomEventModel<ZoomDeauthorizationModel> zoomEvent)
     {
-        //var portalName = GenerateAlias(zoomEvent.Payload.AccountId);
-        //var tenant = HostedSolution.GetTenant(portalName);
-        //if (tenant == null) return BadRequest();
-        //TenantManager.SetCurrentTenant(tenant);
+        try
+        {
+            SecurityContext.AuthenticateMeWithoutCookie(Core.Configuration.Constants.CoreSystem);
+            Log.LogInformation($"DeauthorizationHook(): Got deauth request with zoom user id {zoomEvent.Payload.UserId}");
+            // getting all linked accounts on all tenants
+            var userIds = AccountLinker.GetLinkedObjects(zoomEvent.Payload.UserId, ProviderConstants.Zoom);
 
-        var userId = ZoomAccountHelper.GetUserIdFromZoomUid(zoomEvent.Payload.UserId);
-        if (userId == null) return BadRequest();
-        AccountLinker.RemoveLink(userId.ToString(), zoomEvent.Payload.UserId, ProviderConstants.Zoom);
-        return Ok();
+            foreach (var userId in userIds)
+            {
+                try
+                {
+                    Log.LogInformation($"DeauthorizationHook(): Unlinking user with zoom id {zoomEvent.Payload.UserId}, user id {userId}");
+                    AccountLinker.RemoveLink(userId.ToString(), zoomEvent.Payload.UserId, ProviderConstants.Zoom);
+                }
+                catch (Exception ex)
+                {
+                    Log.LogError(ex, $"DeauthorizationHook(): Coulnd't unlink user with zoom id {zoomEvent.Payload.UserId}, user id {userId}");
+                }
+            }
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            Log.LogError(ex, $"DeauthorizationHook(): Error");
+        }
+        finally
+        {
+            SecurityContext.Logout();
+        }
+        return BadRequest();
     }
 
     #endregion
