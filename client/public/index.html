@@ -791,7 +791,20 @@
             }
 
             async function promptJoinCollaborate() {
-                if (!collaborationHost) {
+                // double check, we might already be in a collaboration
+                const runningContext = await zoomSdk.getRunningContext();
+                if (runningContext === "inCollaborate") {
+                    await getCollaboration();
+                } else if (!collaborationHost) {
+                    try {
+                        await zoomSdk.joinCollaborate();
+                    } catch (ex) {
+                        if (ex.code === "10085") {
+                            // there is no collaboration to join to
+                            destroyLoginFrameAndInitFilePicker();
+                            return;
+                        }
+                    }
                     showMessage("Meeting participant started editing session", { button: {
                         text: "Join",
                         action: async () => {
