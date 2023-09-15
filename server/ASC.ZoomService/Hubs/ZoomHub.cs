@@ -167,7 +167,7 @@ public class ZoomHub : Hub
         {
             _securityContext.AuthenticateMeWithoutCookie(guid);
 
-            var room = await _fileStorageService.CreateRoomAsync($"Zoom Collaboration: {DateTime.Now:MM/dd/yy hh:mm tt}", RoomType.CustomRoom, false, Array.Empty<FileShareParams>(), false, string.Empty);
+            var room = await _fileStorageService.CreateRoomAsync($"Zoom Collaboration {DateTime.Now.ToString("g", user.GetCulture())}", RoomType.CustomRoom, false, Array.Empty<FileShareParams>(), false, string.Empty);
             await CheckRights();
 
             var collaboration = new ZoomCollaborationCachedRoom()
