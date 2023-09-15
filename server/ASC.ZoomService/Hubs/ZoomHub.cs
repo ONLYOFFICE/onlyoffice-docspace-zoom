@@ -76,6 +76,12 @@ public class ZoomHub : Hub
         await base.OnDisconnectedAsync(exception);
     }
 
+    public bool CheckIfUser()
+    {
+        var userId = _zoomAccountHelper.GetUserIdFromZoomUid(GetUidClaim());
+        return !userId.HasValue || _userManager.IsUser(userId.Value);
+    }
+
     public bool CheckCollaboration()
     {
         var meetingId = GetMidClaim();
