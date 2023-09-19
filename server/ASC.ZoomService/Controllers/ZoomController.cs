@@ -150,7 +150,7 @@ public class ZoomController : ControllerBase
     [HttpGet("state")]
     [AllowCrossSiteJson]
     [Authorize(AuthenticationSchemes = ZoomAuthHandler.ZOOM_AUTH_SCHEME_HEADER)]
-    public async Task<IActionResult> GetState([FromQuery] ZoomStateModel model)
+    public IActionResult GetState([FromQuery] ZoomStateModel model)
     {
         var uid = User.Claims.FirstOrDefault(c => c.Type == ZoomAuthHandler.ZOOM_CLAIM_UID)?.Value;
         var mid = User.Claims.FirstOrDefault(c => c.Type == ZoomAuthHandler.ZOOM_CLAIM_MID)?.Value;
@@ -202,38 +202,6 @@ public class ZoomController : ControllerBase
                     integrationPayload.Collaboration.FileId = collaboration.FileId;
                     integrationPayload.Collaboration.RoomId = collaboration.RoomId;
                     integrationPayload.Collaboration.Status = collaboration.Status;
-                }
-
-                if (integrationPayload.Collaboration.RoomId != null)
-                {
-                    try
-                    {
-                        Log.LogDebug("GetState(): Collaboration RoomId is not null, adding user to room");
-                        SecurityContext.AuthenticateMeWithoutCookie(Core.Configuration.Constants.CoreSystem);
-                        var access = collaboration.CollaborationType switch
-                        {
-                            ZoomCollaborationType.Edit => Files.Core.Security.FileShare.Collaborator,
-                            _ => Files.Core.Security.FileShare.Read,
-                        };
-                        await FileStorageService.SetAceObjectAsync(new AceCollection<int>()
-                        {
-                            Message = string.Empty,
-                            Files = Array.Empty<int>(),
-                            Folders = new[] { int.Parse(collaboration.RoomId) },
-                            Aces = new List<AceWrapper>
-                            {
-                                new()
-                                {
-                                    Id = ZoomAccountHelper.GetUserIdFromZoomUid(uid).Value,
-                                    Access = access,
-                                }
-                            }
-                        }, false);
-                    }
-                    finally
-                    {
-                        SecurityContext.Logout();
-                    }
                 }
             }
 
