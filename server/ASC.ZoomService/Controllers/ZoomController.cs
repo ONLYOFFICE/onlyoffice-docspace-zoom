@@ -549,7 +549,7 @@ public class ZoomController : ControllerBase
                 employeeType = EmployeeType.User;
             }
         }
-        return await UserManagerWrapper.AddUser(userInfo, UserManagerWrapper.GeneratePassword(), type: employeeType, afterInvite: true);
+        return await UserManagerWrapper.AddUser(userInfo, UserManagerWrapper.GeneratePassword(), type: employeeType, afterInvite: true, notify: false);
     }
 
     private async Task<Tenant> CreateTenant(string portalName, LoginProfile profile)
