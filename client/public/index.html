@@ -981,11 +981,16 @@
                     // check if we are authorized in zoom or not
                     // authorizePrompt if we are guest
                     // else authorize
+                    const browser = localStorage.getItem("browser-auth") === "true";
 
-                    await zoomSdk.authorize({
-                        state: payload["State"],
-                        codeChallenge: payload["Challenge"]
-                    });
+                    if (browser && payload["FallbackAuthUrl"]) {
+                        await zoomSdk.openUrl({ url: payload["FallbackAuthUrl"] });
+                    } else {
+                        await zoomSdk.authorize({
+                            state: payload["State"],
+                            codeChallenge: payload["Challenge"]
+                        });
+                    }
                 }
             } catch (e) {
                 console.error(e);

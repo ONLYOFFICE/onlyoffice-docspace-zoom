@@ -222,7 +222,8 @@ public class ZoomController : ControllerBase
         var payload = JsonSerializer.Serialize(new ZoomAuthPayload()
         {
             State = JsonWebToken.Encode(model, jwtSecret),
-            Challenge = challenge
+            Challenge = challenge,
+            FallbackAuthUrl = $"https://zoom.us/oauth/authorize?response_type=code&client_id={ZoomAccountHelper.GetLoginProvider().ClientID}&redirect_uri={Configuration["zoom:zoom-redirect-uri"]}"
         });
 
         Log.LogDebug("GetState(): New user, returning OAuth challenge");
@@ -700,6 +701,7 @@ public class ZoomController : ControllerBase
     {
         public string State { get; set; }
         public string Challenge { get; set; }
+        public string FallbackAuthUrl { get; set; }
     }
 
     #endregion
