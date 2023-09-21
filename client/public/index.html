@@ -981,10 +981,8 @@
                     // check if we are authorized in zoom or not
                     // authorizePrompt if we are guest
                     // else authorize
-                    const browser = localStorage.getItem("browser-auth") === "true";
-
-                    if (browser && payload["FallbackAuthUrl"]) {
-                        await zoomSdk.openUrl({ url: payload["FallbackAuthUrl"] });
+                    if (configResponse.browserVersion.startsWith("applewebkit")) {
+                        await zoomSdk.openUrl({ url: location.origin + "/zoomservice/zoom/install" });
                     } else {
                         await zoomSdk.authorize({
                             state: payload["State"],
