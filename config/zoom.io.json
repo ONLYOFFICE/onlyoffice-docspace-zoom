@@ -1,0 +1,7 @@
+{
+  "zoom": {
+    "gate-secret": "123-super-secret-key",
+    "zoom-domain": "zoom.onlyoffice.io",
+    "zoom-redirect-uri": "https://zoom.onlyoffice.io/zoomservice/zoom/home"
+  }
+}

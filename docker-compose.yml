@@ -1,0 +1,22 @@
+version: '3.6'
+services:
+  onlyoffice-zoom-api:
+    build:
+      context: ./
+      dockerfile: "${DOCKERFILE}"
+      target: api
+    image: ${ZOOM_API_IMAGE_NAME}
+    container_name: ${ZOOM_API_CONTAINER_NAME}
+
+  onlyoffice-zoom-rout:
+    build:
+      context: ./
+      dockerfile: "${DOCKERFILE}"
+      target: router
+    image: ${ZOOM_ROUTER_IMAGE_NAME}
+    container_name: ${ZOOM_ROUTER_CONTAINER_NAME}
+
+networks:
+  default:
+    name: ${NETWORK_NAME}
+    external: true
