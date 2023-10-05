@@ -322,7 +322,7 @@ public class ZoomHub : Hub
             collabFileId = oldFile.Id;
             if (oldFile.ParentId != roomId)
             {
-                var file = await _fileStorageService.CreateNewFileAsync(new FileModel<int, int> { ParentId = roomId, Title = oldFile.Title, TemplateId = oldFile.Id });
+                var file = await _fileStorageService.CreateNewFileAsync(new FileModel<int, int> { ParentId = roomId, Title = oldFile.Title, TemplateId = oldFile.Id }, true);
                 collabFileId = file.Id;
             }
         }
