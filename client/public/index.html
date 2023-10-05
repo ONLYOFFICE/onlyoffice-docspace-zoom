@@ -739,7 +739,11 @@
                     const zoomUser = await zoomSdk.getUserContext();
                     if (zoomUser.role === "host" || zoomUser.role === "coHost") {
                         showLoader();
-                        await zoomSdk.startCollaborate({ shareScreen: true });
+                        try {
+                            await zoomSdk.startCollaborate({ shareScreen: true });
+                        } catch {
+                            destroyLoginFrameAndInitFilePicker(true);
+                        }
                     } else {
                         showMessage("You're not host or coHost, please press 'Collaborate' button manually");
                     }
