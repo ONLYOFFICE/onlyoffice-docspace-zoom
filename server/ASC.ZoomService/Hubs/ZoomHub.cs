@@ -194,6 +194,10 @@ public class ZoomHub : Hub
                 await CollaborateChange(changePayload);
             }
         }
+        catch (TenantQuotaException)
+        {
+            await Clients.Group(GetGroupNameFromMeetingId(meetingId)).SendAsync("OnQuotaHit");
+        }
         finally
         {
             _securityContext.Logout();
@@ -245,6 +249,11 @@ public class ZoomHub : Hub
                 RoomId = cachedCollaboration.RoomId,
                 Status = cachedCollaboration.Status
             });
+        }
+        catch (TenantQuotaException)
+        {
+            var meetingId = GetMidClaim();
+            await Clients.Group(GetGroupNameFromMeetingId(meetingId)).SendAsync("OnQuotaHit");
         }
         finally
         {

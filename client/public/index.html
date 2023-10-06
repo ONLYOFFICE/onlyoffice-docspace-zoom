@@ -352,6 +352,7 @@
             }
 
             let home = "zoomservice";
+            let docSpaceUrl = "";
 
             let docSpaceFrame;
             let docSpaceAuthFrame;
@@ -468,6 +469,7 @@
                     connection.on("OnCollaboration", onCollaboration);
                     connection.on("OnCollaborationStarting", onCollaborationStarting);
                     connection.on("OnCollaborationChanging", onCollaborationChanging);
+                    connection.on("OnQuotaHit", onQuotaHit);
                 try {
                     await connection.start();
                 } catch (e) {
@@ -521,6 +523,10 @@
             async function onCollaborationChanging() {
                 showMessage("Collaboration host is changing a document, please wait");
                 destroyFrame();
+            }
+
+            async function onQuotaHit() {
+                showMessage("The quota of yuor DocSpace is almost reached.");
             }
 
             async function getCollaboration() {
@@ -971,6 +977,7 @@
 
                 home = payload["Home"] ? payload["Home"] : home;
                 if (payload["DocSpaceUrl"]) {
+                    docSpaceUrl = payload["DocSpaceUrl"];
                     await loadJS(`${payload["DocSpaceUrl"]}/static/scripts/api.js`);
                     initLoader();
                 }
