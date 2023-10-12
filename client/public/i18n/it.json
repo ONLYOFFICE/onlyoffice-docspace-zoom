@@ -1,0 +1,18 @@
+﻿{
+  "Title": "Titolo",
+  "New Document": "Nuovo documento",
+  "Document": "Documento",
+  "Spreadsheet": "Foglio di calcolo",
+  "Presentation": "Presentazione",
+  "Please set access rights of Zoom participants:": "Ti preghiamo di impostare i diritti di accesso dei partecipanti Zoom:",
+  "Edit": "Modifica",
+  "All participants will edit the document with you": "Tutti i partecipanti potranno modificare il documento insieme a te",
+  "LiveView": "LiveView",
+  "All participants will see your screen": "Tutti i partecipanti potranno visualizzare il tuo schermo",
+  "Open": "Apri",
+  "Collaboration host is changing a document, please wait": "L'host della collaborazione sta modificando un documento, attendi",
+  "Sorry, you cannot create new rooms and files. Please wait until Owner or Power User start the collaboration session.": "Siamo spiacenti, non puoi creare nuove stanze virtuali e nuovi file. Attendi fino a quando il Proprietario o l'Utente esperto non avviano la sessione di collaborazione.",
+  "Choose file from DocSpace to collaborate with other Zoom meeting participants": "Scegli un file da DocSpace per collaborare con altri partecipanti alla riunione Zoom",
+  "You're not host or coHost, please press 'Collaborate' button manually": "Non sei un host o un cohost. Premi manualmente il pulsante 'Collabora'",
+  "Meeting participant started editing session": "Il partecipante alla riunione ha avviato la sessione di modifica"
+}
