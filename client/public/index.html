@@ -352,6 +352,7 @@
             }
 
             let home = "zoomservice";
+            let docSpaceUrl = "";
 
             let docSpaceFrame;
             let docSpaceAuthFrame;
@@ -468,6 +469,7 @@
                     connection.on("OnCollaboration", onCollaboration);
                     connection.on("OnCollaborationStarting", onCollaborationStarting);
                     connection.on("OnCollaborationChanging", onCollaborationChanging);
+                    connection.on("OnQuotaHit", onQuotaHit);
                 try {
                     await connection.start();
                 } catch (e) {
@@ -521,6 +523,10 @@
             async function onCollaborationChanging() {
                 showMessage("Collaboration host is changing a document, please wait");
                 destroyFrame();
+            }
+
+            async function onQuotaHit() {
+                showMessage("The quota of yuor DocSpace is almost reached.");
             }
 
             async function getCollaboration() {
@@ -739,7 +745,11 @@
                     const zoomUser = await zoomSdk.getUserContext();
                     if (zoomUser.role === "host" || zoomUser.role === "coHost") {
                         showLoader();
-                        await zoomSdk.startCollaborate({ shareScreen: true });
+                        try {
+                            await zoomSdk.startCollaborate({ shareScreen: true });
+                        } catch {
+                            destroyLoginFrameAndInitFilePicker(true);
+                        }
                     } else {
                         showMessage("You're not host or coHost, please press 'Collaborate' button manually");
                     }
@@ -780,8 +790,15 @@
                     await initSignalR(meetingUUID);
 
                     if (collaboration) {
-                        console.log("Collaboration payload recieved", collaboration);
-                        handleCollaborationPayload(collaboration);
+                        if (new URLSearchParams(window.location.search).get("outdated") === "true") {
+                            console.log("Collaboration payload is old, requesting new", collaboration);
+                            await getCollaboration();
+                        } else {
+                            console.log("Collaboration payload recieved", collaboration);
+                            history.pushState(null, null, location.toString() + "&outdated=true")
+                            handleCollaborationPayload(collaboration);
+                        }
+
                         return;
                     }
 
@@ -967,6 +984,7 @@
 
                 home = payload["Home"] ? payload["Home"] : home;
                 if (payload["DocSpaceUrl"]) {
+                    docSpaceUrl = payload["DocSpaceUrl"];
                     await loadJS(`${payload["DocSpaceUrl"]}/static/scripts/api.js`);
                     initLoader();
                 }

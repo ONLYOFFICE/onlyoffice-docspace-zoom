@@ -194,6 +194,10 @@ public class ZoomHub : Hub
                 await CollaborateChange(changePayload);
             }
         }
+        catch (TenantQuotaException)
+        {
+            await Clients.Group(GetGroupNameFromMeetingId(meetingId)).SendAsync("OnQuotaHit");
+        }
         finally
         {
             _securityContext.Logout();
@@ -245,6 +249,11 @@ public class ZoomHub : Hub
                 RoomId = cachedCollaboration.RoomId,
                 Status = cachedCollaboration.Status
             });
+        }
+        catch (TenantQuotaException)
+        {
+            var meetingId = GetMidClaim();
+            await Clients.Group(GetGroupNameFromMeetingId(meetingId)).SendAsync("OnQuotaHit");
         }
         finally
         {
@@ -322,7 +331,7 @@ public class ZoomHub : Hub
             collabFileId = oldFile.Id;
             if (oldFile.ParentId != roomId)
             {
-                var file = await _fileStorageService.CreateNewFileAsync(new FileModel<int, int> { ParentId = roomId, Title = oldFile.Title, TemplateId = oldFile.Id });
+                var file = await _fileStorageService.CreateNewFileAsync(new FileModel<int, int> { ParentId = roomId, Title = oldFile.Title, TemplateId = oldFile.Id }, true);
                 collabFileId = file.Id;
             }
         }
