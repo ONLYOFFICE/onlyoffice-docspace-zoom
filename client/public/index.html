@@ -790,8 +790,15 @@
                     await initSignalR(meetingUUID);
 
                     if (collaboration) {
-                        console.log("Collaboration payload recieved", collaboration);
-                        handleCollaborationPayload(collaboration);
+                        if (new URLSearchParams(window.location.search).get("outdated") === "true") {
+                            console.log("Collaboration payload is old, requesting new", collaboration);
+                            await getCollaboration();
+                        } else {
+                            console.log("Collaboration payload recieved", collaboration);
+                            history.pushState(null, null, location.toString() + "&outdated=true")
+                            handleCollaborationPayload(collaboration);
+                        }
+
                         return;
                     }
 
