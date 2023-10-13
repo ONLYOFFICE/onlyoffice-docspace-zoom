@@ -282,36 +282,36 @@
             <form id="additionalInfoForm">
                 <div id="fileCreateInfo">
                     <div>
-                        <div class="label">Title</div>
-                        <input name="document-title" value="New Document" />
+                        <div class="label" data-translate="content">Title</div>
+                        <input name="document-title" data-translate="value" value="New Document" />
                     </div>
                     <div class="formats">
                         <label class="active">
                             <input class="selectable-label" type="radio" hidden name="document-format" value="docx" checked />
                             <img src="/images/icons/64/docx.svg" />
-                            <span>Document</span>
+                            <span data-translate="content">Document</span>
                         </label>
                         <label>
                             <input class="selectable-label" type="radio" hidden name="document-format" value="xlsx" />
                             <img src="/images/icons/64/xlsx.svg" />
-                            <span>Spreadsheet</span>
+                            <span data-translate="content">Spreadsheet</span>
                         </label>
                         <label>
                             <input class="selectable-label" type="radio" hidden name="document-format" value="pptx" />
                             <img src="/images/icons/64/pptx.svg" />
-                            <span>Presentation</span>
+                            <span data-translate="content">Presentation</span>
                         </label>
                     </div>
                 </div>
                 <div id="fileInfo"></div>
                 <div id="permissionForm">
-                    <span><b>Please set access rights of Zoom participants:</b></span>
+                    <span><b data-translate="content">Please set access rights of Zoom participants:</b></span>
                     <div class="optionBox">
                         <label>
                             <input type="radio" name="permission" value="1" checked />
                             <div>
-                                <b>Edit</b>
-                                <span class="help">All participants will edit the document with you</span>
+                                <b data-translate="content">Edit</b>
+                                <span class="help" data-translate="content">All participants will edit the document with you</span>
                             </div>
                         </label>
                     </div>
@@ -319,13 +319,13 @@
                         <label>
                             <input type="radio" name="permission" value="0" />
                             <div>
-                                <b>LiveView</b>
-                                <span class="help">All participants will see your screen</span>
+                                <b data-translate="content">LiveView</b>
+                                <span class="help" data-translate="content">All participants will see your screen</span>
                             </div>
                         </label>
                     </div>
                 </div>
-                <div class="button" id="additionalSubmit">Open</div>
+                <div class="button" id="additionalSubmit" data-translate="content">Open</div>
             </form>
         </div>
         <div id="zoom-ds-frame"></div>
@@ -335,6 +335,61 @@
 
     <script src="https://appssdk.zoom.us/sdk.min.js"></script>
     <script src="/js/signalr.js"></script>
+    <script>
+        (function() {
+            window.zi18n = {
+                getCurrentLanguage: function() {
+                    return window._zm_lang || navigator.language;
+                },
+                translate: function(key) {
+                    const lang = window.zi18n.getCurrentLanguage();
+                    const halfLang = lang.split("-")[0];
+                    const dict = lang in window.zi18n.dictionary
+                        ? window.window.zi18n.dictionary[lang]
+                        : halfLang in window.zi18n.dictionary
+                            ? window.window.zi18n.dictionary[halfLang]
+                            : {};
+
+                    return key in dict ? dict[key] : key
+                },
+                loadHtmlTranslations: async function() {
+                    const lang = window.zi18n.getCurrentLanguage();
+
+                    try {
+                        const i18n = await window.zi18n.loadJsonTranslations(lang);
+                        if (!i18n) {
+                            await window.zi18n.loadJsonTranslations(lang.split("-")[0]);
+                        }
+                    } catch { }
+
+                    const elementsToTranslate = document.body.querySelectorAll("[data-translate]");
+                    for(let i = 0; i < elementsToTranslate.length; i++) {
+                        const element = elementsToTranslate[i];
+                        switch(element.dataset.translate) {
+                            case "content":
+                                element.innerText = window.zi18n.translate(element.innerText);
+                                break;
+                            case "value":
+                                element.value = window.zi18n.translate(element.value);
+                                break;
+                        }
+                    }
+                },
+                loadJsonTranslations: async function(lang) {
+                    try {
+                        if (window.zi18n.dictionary[lang]) return;
+                        const response = await fetch(`/i18n/${lang}.json`);
+                        const i18n = await response.json()
+                        window.zi18n.dictionary[lang] = i18n;
+                        return i18n;
+                    } catch {
+                        return null;
+                    }
+                },
+                dictionary: { }
+            };
+        })();
+    </script>
     <script>
         (async () => {
             function loadJS(uri) {
@@ -350,6 +405,12 @@
                     script.addEventListener("error", rej);
                 });
             }
+
+            function t(key) {
+                return window.zi18n.translate(key);
+            }
+
+            await window.zi18n.loadHtmlTranslations();
 
             let home = "zoomservice";
             let docSpaceUrl = "";
@@ -376,7 +437,7 @@
             const permissionForm = document.getElementById("permissionForm");
             const fileCreateInfo = document.getElementById("fileCreateInfo");
             const additionalInfoForm = document.getElementById("additionalInfoForm");
-            function showMessage(msg, options) {
+            function showMessage(msgKey, options) {
                 if (!options) options = {};
 
                 changeElementDisplay(messageBox, "none");
@@ -391,10 +452,10 @@
                 }
 
                 if (options.help) {
-                    messageHelp.innerText = msg;
+                    messageHelp.innerText = t(msgKey);
                     changeElementDisplay(messageHelp, "block");
                 } else {
-                    messageText.innerText = msg;
+                    messageText.innerText = t(msgKey);
                     hideAll();
                     changeElementDisplay(messageBox, "block");
                 }
@@ -710,7 +771,7 @@
 
                 const isUser = await connection.invoke("CheckIfUser");
                 if (isUser) {
-                    showMessage("Sorry, you cannot create new rooms and files. Plese wait until Owner or Power User start the collaboration session.");
+                    showMessage("Sorry, you cannot create new rooms and files. Please wait until Owner or Power User start the collaboration session.");
                     return;
                 }
 
