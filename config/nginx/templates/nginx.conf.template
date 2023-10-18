@@ -6,7 +6,7 @@ pid /tmp/nginx.pid;
 
 
 events {
-    worker_connections  1024;
+    worker_connections  $COUNT_WORKER_CONNECTIONS;
 }
 
 
