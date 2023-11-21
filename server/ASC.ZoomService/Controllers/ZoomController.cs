@@ -165,11 +165,15 @@ public class ZoomController : ControllerBase
         }
 
         string confirmLink;
+        bool foreignTenant = false;
         if (collaboration != null)
         {
             Log.LogDebug($"GetState(): Collaboration is not null, getting confirm link using tenant id {collaboration.TenantId}");
             confirmLink = GetConfirmLinkByTenantId(collaboration.TenantId, uid);
             model.TenantId = collaboration.TenantId;
+
+            var ownTenant = GetTenantByAccountNumber(model.AccountNumber);
+            foreignTenant = ownTenant.Id != collaboration.TenantId;
         }
         else
         {
@@ -184,7 +188,8 @@ public class ZoomController : ControllerBase
             var integrationPayload = new ZoomIntegrationPayload()
             {
                 ConfirmLink = confirmLink,
-                Home = Configuration["zoom:home"]
+                Home = Configuration["zoom:home"],
+                OwnAccountNumber = foreignTenant ? model.AccountNumber : null
             };
 
             if (collaborationIsActive)
@@ -637,12 +642,19 @@ public class ZoomController : ControllerBase
         return GetConfirmLink(tenant, uid);
     }
 
+    private Tenant GetTenantByAccountNumber(long accountNumber)
+    {
+        var portalName = GenerateAlias(accountNumber);
+        var tenant = HostedSolution.GetTenant(portalName);
+
+        return tenant;
+    }
+
     private string GetConfirmLinkByAccountNumber(long accountNumber, string uid)
     {
         ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(uid, nameof(uid));
 
-        var portalName = GenerateAlias(accountNumber);
-        var tenant = HostedSolution.GetTenant(portalName);
+        var tenant = GetTenantByAccountNumber(accountNumber);
 
         Log.LogDebug($"GetConfirmLinkByAccountNumber(): Getting confirm link with tenant {tenant?.Id}, user {uid}.");
         return GetConfirmLink(tenant, uid);
@@ -698,6 +710,7 @@ public class ZoomController : ControllerBase
         public string Error { get; set; }
         public string Home { get; set; } = "zoomservice";
         public string DocSpaceUrl { get; set; }
+        public long? OwnAccountNumber { get; set; }
 
         public ZoomCollaborationRoom Collaboration { get; set; }
     }

@@ -368,6 +368,8 @@
 
             let collaborationHost = false;
 
+            let ownTenant = 0;
+
             const messageBox = document.getElementById("messageBox");
             const messageText = document.getElementById("message");
             const messageHelp = document.getElementById("messageHelp");
@@ -456,6 +458,23 @@
                     theme: "Base"
                 });
             }
+
+            async function refreshState() {
+                if (ownTenant <= 0) return;
+
+                try {
+                    const appContext = await zoomSdk.getAppContext();
+                    let response = await fetch(`/${home}/zoom/state?accountNumber=${ownTenant}`, { headers: {
+                        "x-zoom-app-context": appContext.context
+                    }});
+
+                    if (!response.ok || !response.redirected) throw new Error("Unknown response from state handler");
+
+                    window.location = response.url;
+                } catch (e) {
+                    console.log("Error while refreshing state", e);
+                }
+            };
 
             async function initSignalR(meetingUUID) {
                 const appContext = await zoomSdk.getAppContext();
@@ -706,6 +725,11 @@
                         }
                         return;
                     }
+                }
+
+                if (ownTenant > 0) {
+                    await refreshState();
+                    return;
                 }
 
                 const isUser = await connection.invoke("CheckIfUser");
@@ -981,6 +1005,8 @@
                 if (!payload) {
                     // ToDo: request did not came from api system, handle error
                 }
+
+                ownTenant = payload["OwnAccountNumber"] ? payload["OwnAccountNumber"] : 0;
 
                 home = payload["Home"] ? payload["Home"] : home;
                 if (payload["DocSpaceUrl"]) {
