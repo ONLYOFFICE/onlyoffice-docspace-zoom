@@ -69,7 +69,7 @@ public class ZoomController : ControllerBase
     private AccountLinker AccountLinker { get; }
     private UserManagerWrapper UserManagerWrapper { get; }
     private RequestHelper RequestHelper { get; }
-    private FileStorageService<int> FileStorageService { get; }
+    private FileStorageService FileStorageService { get; }
     private SettingsManager SettingsManager { get; }
     private FileUploader FileUploader { get; }
     private SocketManager SocketManager { get; }
@@ -95,7 +95,7 @@ public class ZoomController : ControllerBase
         AccountLinker accountLinker,
         UserManagerWrapper userManagerWrapper,
         RequestHelper requestHelper,
-        FileStorageService<int> fileStorageService,
+        FileStorageService fileStorageService,
         SettingsManager settingsManager,
         FileUploader fileUploader,
         SocketManager socketManager,
@@ -150,7 +150,7 @@ public class ZoomController : ControllerBase
     [HttpGet("state")]
     [AllowCrossSiteJson]
     [Authorize(AuthenticationSchemes = ZoomAuthHandler.ZOOM_AUTH_SCHEME_HEADER)]
-    public IActionResult GetState([FromQuery] ZoomStateModel model)
+    public async Task<IActionResult> GetState([FromQuery] ZoomStateModel model)
     {
         var uid = User.Claims.FirstOrDefault(c => c.Type == ZoomAuthHandler.ZOOM_CLAIM_UID)?.Value;
         var mid = User.Claims.FirstOrDefault(c => c.Type == ZoomAuthHandler.ZOOM_CLAIM_MID)?.Value;
@@ -169,7 +169,7 @@ public class ZoomController : ControllerBase
         if (collaboration != null)
         {
             Log.LogDebug($"GetState(): Collaboration is not null, getting confirm link using tenant id {collaboration.TenantId}");
-            confirmLink = GetConfirmLinkByTenantId(collaboration.TenantId, uid);
+            confirmLink = await GetConfirmLinkByTenantId(collaboration.TenantId, uid);
             model.TenantId = collaboration.TenantId;
 
             var ownTenant = GetTenantByAccountNumber(model.AccountNumber);
@@ -178,7 +178,7 @@ public class ZoomController : ControllerBase
         else
         {
             Log.LogDebug($"GetState(): Collaboration is null, getting confirm link using account number {model.AccountNumber}");
-            confirmLink = GetConfirmLinkByAccountNumber(model.AccountNumber, uid);
+            confirmLink = await GetConfirmLinkByAccountNumber(model.AccountNumber, uid);
         }
 
         if (confirmLink != null)
@@ -212,7 +212,7 @@ public class ZoomController : ControllerBase
 
             return Redirect(collaboration != null
                 ? GetPayloadRedirectLinkByTenantId(collaboration.TenantId, integrationPayload)
-                : GetPayloadRedirectLinkByAccountNumber(model.AccountNumber, integrationPayload));
+                : await GetPayloadRedirectLinkByAccountNumber(model.AccountNumber, integrationPayload));
         }
 
         Log.LogDebug($"GetState(): ConfirmLink is null, proceeding to oauth");
@@ -329,7 +329,7 @@ public class ZoomController : ControllerBase
         var uid = User.Claims.FirstOrDefault(c => c.Type == ZoomAuthHandler.ZOOM_CLAIM_UID)?.Value;
         var mid = User.Claims.FirstOrDefault(c => c.Type == ZoomAuthHandler.ZOOM_CLAIM_MID)?.Value;
 
-        var userId = ZoomAccountHelper.GetUserIdFromZoomUid(uid);
+        var userId = await ZoomAccountHelper.GetUserIdFromZoomUid(uid);
         if (userId == null)
         {
             return Unauthorized();
@@ -337,7 +337,7 @@ public class ZoomController : ControllerBase
 
         try
         {
-            SecurityContext.AuthenticateMeWithoutCookie(userId.Value);
+            await SecurityContext.AuthenticateMeWithoutCookieAsync(userId.Value);
 
             if (file.Length > GetUploadLimit())
             {
@@ -346,7 +346,7 @@ public class ZoomController : ControllerBase
 
             try
             {
-                var resultFile = await FileUploader.ExecAsync(GlobalFolderHelper.FolderMy, file.FileName, file.Length, file.OpenReadStream(), true, true);
+                var resultFile = await FileUploader.ExecAsync(await GlobalFolderHelper.FolderMyAsync, file.FileName, file.Length, file.OpenReadStream(), true, true);
 
                 await SocketManager.CreateFileAsync(resultFile);
 
@@ -371,17 +371,17 @@ public class ZoomController : ControllerBase
     {
         try
         {
-            SecurityContext.AuthenticateMeWithoutCookie(Core.Configuration.Constants.CoreSystem);
+            await SecurityContext.AuthenticateMeWithoutCookieAsync(Core.Configuration.Constants.CoreSystem);
             Log.LogInformation($"DeauthorizationHook(): Got deauth request with zoom user id {zoomEvent.Payload.UserId}");
             // getting all linked accounts on all tenants
-            var userIds = AccountLinker.GetLinkedObjects(zoomEvent.Payload.UserId, ProviderConstants.Zoom);
+            var userIds = await AccountLinker.GetLinkedObjectsAsync(zoomEvent.Payload.UserId, ProviderConstants.Zoom);
 
             foreach (var userId in userIds)
             {
                 try
                 {
                     Log.LogInformation($"DeauthorizationHook(): Unlinking user with zoom id {zoomEvent.Payload.UserId}, user id {userId}");
-                    AccountLinker.RemoveLink(userId.ToString(), zoomEvent.Payload.UserId, ProviderConstants.Zoom);
+                    await AccountLinker.RemoveLinkAsync(userId.ToString(), zoomEvent.Payload.UserId, ProviderConstants.Zoom);
                 }
                 catch (Exception ex)
                 {
@@ -425,10 +425,10 @@ public class ZoomController : ControllerBase
         return GetPayloadRedirectLink(tenant, payload);
     }
 
-    private string GetPayloadRedirectLinkByAccountNumber(long accountNumber, ZoomIntegrationPayload payload)
+    private async Task<string> GetPayloadRedirectLinkByAccountNumber(long accountNumber, ZoomIntegrationPayload payload)
     {
         var portalName = GenerateAlias(accountNumber);
-        var tenant = HostedSolution.GetTenant(portalName);
+        var tenant = await HostedSolution.GetTenantAsync(portalName);
         return GetPayloadRedirectLink(tenant, payload);
     }
 
@@ -458,7 +458,7 @@ public class ZoomController : ControllerBase
     private async Task<(UserInfo, Tenant)> CreateUserAndTenant(LoginProfile profile, long accountNumber, int? tenantId = null)
     {
         var portalName = GenerateAlias(accountNumber);
-        var tenant = HostedSolution.GetTenant(portalName);
+        var tenant = await HostedSolution.GetTenantAsync(portalName);
         bool guest = false;
         if (tenantId.HasValue)
         {
@@ -486,10 +486,10 @@ public class ZoomController : ControllerBase
         TenantManager.SetCurrentTenant(tenant);
         try
         {
-            SecurityContext.AuthenticateMeWithoutCookie(Core.Configuration.Constants.CoreSystem);
+            await SecurityContext.AuthenticateMeWithoutCookieAsync(Core.Configuration.Constants.CoreSystem);
 
             var shouldLink = false || newTenant;
-            var userInfo = UserManager.GetUserByEmail(profile.EMail);
+            var userInfo = await UserManager.GetUserByEmailAsync(profile.EMail);
             if (!UserManager.UserExists(userInfo.Id))
             {
                 Log.LogDebug($"CreateUserAndTenant(): Creating new user for portal '{portalName}'; UserId: {profile.UniqueId}");
@@ -506,7 +506,7 @@ public class ZoomController : ControllerBase
             if (shouldLink)
             {
                 Log.LogDebug($"CreateUserAndTenant(): Linking portal user '{userInfo.Id}' to zoom user '{profile.Id}'.");
-                AccountLinker.AddLink(userInfo.Id.ToString(), profile);
+                await AccountLinker.AddLinkAsync(userInfo.Id.ToString(), profile);
                 Log.LogInformation($"CreateUserAndTenant(): Linked portal user '{userInfo.Id}' to zoom user '{profile.Id}'.");
             }
 
@@ -560,7 +560,7 @@ public class ZoomController : ControllerBase
                 employeeType = EmployeeType.User;
             }
         }
-        return await UserManagerWrapper.AddUser(userInfo, UserManagerWrapper.GeneratePassword(), type: employeeType, afterInvite: true, notify: false);
+        return await UserManagerWrapper.AddUserAsync(userInfo, UserManagerWrapper.GeneratePassword(), type: employeeType, afterInvite: true, notify: false);
     }
 
     private async Task<Tenant> CreateTenant(string portalName, LoginProfile profile)
@@ -587,7 +587,7 @@ public class ZoomController : ControllerBase
             await ApiSystemHelper.AddTenantToCacheAsync(info.Address, SecurityContext.CurrentAccount.ID);
         }
 
-        HostedSolution.RegisterTenant(info, out var tenant);
+        var tenant = await HostedSolution.RegisterTenantAsync(info);
 
         TenantManager.SetCurrentTenant(tenant);
 
@@ -610,7 +610,7 @@ public class ZoomController : ControllerBase
                         Quotas = new List<Quota> { new Quota(trialQuotaId, 1) },
                         DueDate = dueDate
                     };
-                    HostedSolution.SetTariff(tenant.Id, tariff);
+                    await HostedSolution.SetTariffAsync(tenant.Id, tariff);
                 }
             }
 
@@ -632,35 +632,35 @@ public class ZoomController : ControllerBase
         return $"zoom-{accountNumber}";
     }
 
-    private string GetConfirmLinkByTenantId(int tenantId, string uid)
+    private async Task<string> GetConfirmLinkByTenantId(int tenantId, string uid)
     {
         ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(uid, nameof(uid));
 
         var tenant = HostedSolution.GetTenant(tenantId);
 
         Log.LogDebug($"GetConfirmLinkByTenantId(): Getting confirm link with tenant {tenant?.Id}, user {uid}.");
-        return GetConfirmLink(tenant, uid);
+        return await GetConfirmLink(tenant, uid);
     }
 
-    private Tenant GetTenantByAccountNumber(long accountNumber)
+    private async Task<Tenant> GetTenantByAccountNumber(long accountNumber)
     {
         var portalName = GenerateAlias(accountNumber);
-        var tenant = HostedSolution.GetTenant(portalName);
+        var tenant = await HostedSolution.GetTenantAsync(portalName);
 
         return tenant;
     }
 
-    private string GetConfirmLinkByAccountNumber(long accountNumber, string uid)
+    private async Task<string> GetConfirmLinkByAccountNumber(long accountNumber, string uid)
     {
         ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(uid, nameof(uid));
 
-        var tenant = GetTenantByAccountNumber(accountNumber);
+        var tenant = await GetTenantByAccountNumber(accountNumber);
 
         Log.LogDebug($"GetConfirmLinkByAccountNumber(): Getting confirm link with tenant {tenant?.Id}, user {uid}.");
-        return GetConfirmLink(tenant, uid);
+        return await GetConfirmLink(tenant, uid);
     }
 
-    private string GetConfirmLink(Tenant tenant, string uid)
+    private async Task<string> GetConfirmLink(Tenant tenant, string uid)
     {
         if (tenant == null)
         {
@@ -671,7 +671,7 @@ public class ZoomController : ControllerBase
         TenantManager.SetCurrentTenant(tenant);
 
         Log.LogDebug($"GetConfirmLink(): Getting userId from by zoom uid {uid}.");
-        var userId = ZoomAccountHelper.GetUserIdFromZoomUid(uid);
+        var userId = await ZoomAccountHelper.GetUserIdFromZoomUid(uid);
         if (userId == null)
         {
             Log.LogDebug("GetConfirmLink(): User is null.");
@@ -679,7 +679,7 @@ public class ZoomController : ControllerBase
         }
 
         Log.LogDebug("GetConfirmLink(): Found user.");
-        var user = UserManager.GetUser(userId.Value, null);
+        var user = await UserManager.GetUserAsync(userId.Value, null);
 
         return GetTenantRedirectUri(tenant, user.Email);
     }
@@ -730,7 +730,7 @@ public class ZoomController : ControllerBase
     [Route("[controller")]
     public class ZoomHackController : ControllerBase
     {
-        public ZoomHackController(FileStorageService<int> fileStorageService, CustomTagsService<int> tagsService, GlobalFolderHelper globalFolderHelper)
+        public ZoomHackController(FileStorageService fileStorageService, CustomTagsService tagsService, GlobalFolderHelper globalFolderHelper)
         {
         }
     }

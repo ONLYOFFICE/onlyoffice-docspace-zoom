@@ -52,27 +52,28 @@ public class CommonMethods
         return $"{requestUriScheme}{Uri.SchemeDelimiter}{tenantDomain}/{url}{(first ? "&first=true" : "")}{(string.IsNullOrEmpty(module) ? "" : "&module=" + module)}{(sms ? "&sms=true" : "")}";
     }
 
-    public bool GetTenant(IModel model, out Tenant tenant)
+    public async Task<(bool, Tenant)> GetTenant(IModel model)
     {
+        Tenant tenant;
         if (_coreBaseSettings.Standalone && model != null && !string.IsNullOrWhiteSpace((model.PortalName ?? "")))
         {
             tenant = _tenantManager.GetTenant((model.PortalName ?? "").Trim());
-            return true;
+            return (true, tenant);
         }
 
         if (model != null && model.TenantId.HasValue)
         {
             tenant = _hostedSolution.GetTenant(model.TenantId.Value);
-            return true;
+            return (true, tenant);
         }
 
         if (model != null && !string.IsNullOrWhiteSpace((model.PortalName ?? "")))
         {
-            tenant = _hostedSolution.GetTenant((model.PortalName ?? "").Trim());
-            return true;
+            tenant = await _hostedSolution.GetTenantAsync((model.PortalName ?? "").Trim());
+            return (true, tenant);
         }
 
         tenant = null;
-        return false;
+        return (true, tenant);
     }
 }
