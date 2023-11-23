@@ -5,3 +5,4 @@
 [submodule "DocSpace"]
 	path = DocSpace
 	url = https://github.com/ONLYOFFICE/DocSpace.git
+	branch = release/v2.0.0
