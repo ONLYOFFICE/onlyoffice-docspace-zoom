@@ -26,7 +26,7 @@
 
 namespace ASC.ApiSystem.Classes;
 
-[Singletone]
+[Singleton]
 public class TimeZonesProvider
 {
     private readonly ILogger<TimeZonesProvider> _log;

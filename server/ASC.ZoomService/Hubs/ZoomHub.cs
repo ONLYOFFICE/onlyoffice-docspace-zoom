@@ -155,7 +155,7 @@ public class ZoomHub : Hub
 
     public async Task CollaborateStart(string collaborationId, ZoomCollaborationChangePayload changePayload)
     {
-        ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(collaborationId, nameof(collaborationId));
+        ArgumentException.ThrowIfNullOrEmpty(collaborationId, nameof(collaborationId));
 
         var meetingId = GetMidClaim();
         await Clients.Group(GetGroupNameFromMeetingId(meetingId)).SendAsync("OnCollaborationStarting");
@@ -222,7 +222,7 @@ public class ZoomHub : Hub
 
     public async Task CollaborateChange(ZoomCollaborationChangePayload changePayload)
     {
-        ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(changePayload.FileId, nameof(changePayload.FileId));
+        ArgumentException.ThrowIfNullOrEmpty(changePayload.FileId, nameof(changePayload.FileId));
 
         var uid = GetUidClaim();
         var guid = (await _zoomAccountHelper.GetUserIdFromZoomUid(uid)).Value;
@@ -279,7 +279,7 @@ public class ZoomHub : Hub
             await _securityContext.AuthenticateMeWithoutCookieAsync((await _zoomAccountHelper.GetAdminUser()).Id);
 
             var parentId = await _globalFolderHelper.GetFolderVirtualRooms();
-            var found = await _fileStorageService.GetFolderItemsAsync(parentId, 0, 1, FilterType.CustomRooms, false, null, null, false, false,
+            var found = await _fileStorageService.GetFolderItemsAsync(parentId, 0, 1, FilterType.CustomRooms, false, null, null, null, false, false,
                 new OrderBy(SortedByType.DateAndTime, true), tagNames: new[] { cachedCollaboration.MeetingId });
 
             int? roomId = null;
@@ -299,7 +299,7 @@ public class ZoomHub : Hub
             var collaborationRoom = await _fileStorageService.GetFolderAsync(int.Parse(cachedCollaboration.RoomId));
             var innerRoom = await _fileStorageService.CreateNewFolderAsync(roomId.Value, collaborationRoom.Title);
 
-            var itemsToMove = await _fileStorageService.GetFolderItemsAsync(collaborationRoom.Id, 0, 20, FilterType.None, false, null, null, false, false, new OrderBy(SortedByType.DateAndTime, true));
+            var itemsToMove = await _fileStorageService.GetFolderItemsAsync(collaborationRoom.Id, 0, 20, FilterType.None, false, null, null, null, false, false, new OrderBy(SortedByType.DateAndTime, true));
             var fileIds = itemsToMove.Entries.Where(entry => entry is File<int>).Select(entry => (entry as File<int>).Id);
             var result = await _fileStorageService.MoveOrCopyItemsAsync(
                 new List<JsonElement>(),
@@ -321,7 +321,7 @@ public class ZoomHub : Hub
         int collabFileId;
         if (fileId < 0)
         {
-            ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(changePayload.Title, nameof(changePayload.Title));
+            ArgumentException.ThrowIfNullOrEmpty(changePayload.Title, nameof(changePayload.Title));
             var file = await _fileStorageService.CreateNewFileAsync(new FileModel<int, int> { ParentId = roomId, Title = changePayload.Title, TemplateId = 0 });
             collabFileId = file.Id;
         }

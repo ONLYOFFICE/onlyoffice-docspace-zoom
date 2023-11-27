@@ -582,9 +582,9 @@ public class ZoomController : ControllerBase
             Calls = false,
         };
 
-        if (!string.IsNullOrEmpty(ApiSystemHelper.ApiCacheUrl))
+        if (ApiSystemHelper.ApiCacheEnable)
         {
-            await ApiSystemHelper.AddTenantToCacheAsync(info.Address, SecurityContext.CurrentAccount.ID);
+            await ApiSystemHelper.AddTenantToCacheAsync(info.Address, info.HostedRegion);
         }
 
         var tenant = await HostedSolution.RegisterTenantAsync(info);
@@ -616,7 +616,7 @@ public class ZoomController : ControllerBase
 
             Log.LogDebug($"CreateTenant(): Setting csp settings to allow '{$"https://{portalName}.{Configuration["zoom:zoom-domain"]}"}'.");
 
-            await CspSettingsHelper.Save(new List<string>() { $"https://{portalName}.{Configuration["zoom:zoom-domain"]}" }, false);
+            await CspSettingsHelper.SaveAsync(new List<string>() { $"https://{portalName}.{Configuration["zoom:zoom-domain"]}" }, false);
         }
         catch (Exception ex)
         {
@@ -634,7 +634,7 @@ public class ZoomController : ControllerBase
 
     private async Task<string> GetConfirmLinkByTenantId(int tenantId, string uid)
     {
-        ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(uid, nameof(uid));
+        ArgumentException.ThrowIfNullOrEmpty(uid, nameof(uid));
 
         var tenant = HostedSolution.GetTenant(tenantId);
 
@@ -652,7 +652,7 @@ public class ZoomController : ControllerBase
 
     private async Task<string> GetConfirmLinkByAccountNumber(long accountNumber, string uid)
     {
-        ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(uid, nameof(uid));
+        ArgumentException.ThrowIfNullOrEmpty(uid, nameof(uid));
 
         var tenant = await GetTenantByAccountNumber(accountNumber);
 
