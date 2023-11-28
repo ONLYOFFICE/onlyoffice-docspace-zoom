@@ -42,6 +42,7 @@ using ASC.ZoomService.Extensions;
 using ASC.ZoomService.Models;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Tokens;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -141,6 +142,12 @@ public class ZoomController : ControllerBase
         {
             value = "Zoom api works"
         });
+    }
+
+    [HttpGet("version")]
+    public IActionResult Version()
+    {
+        return Ok(Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion);
     }
 
     #endregion

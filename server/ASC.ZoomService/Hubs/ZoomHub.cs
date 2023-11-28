@@ -48,8 +48,9 @@ public class ZoomHub : Hub
     private readonly ZoomAccountHelper _zoomAccountHelper;
     private readonly SecurityContext _securityContext;
     private readonly UserManager _userManager;
+    private readonly ILogger<ZoomHub> _log;
 
-    public ZoomHub(IDistributedCache cache, FileStorageService fileStorageService, CustomTagsService tagsService, GlobalFolderHelper globalFolderHelper, ZoomAccountHelper zoomAccountHelper, SecurityContext securityContext, UserManager userManager)
+    public ZoomHub(IDistributedCache cache, FileStorageService fileStorageService, CustomTagsService tagsService, GlobalFolderHelper globalFolderHelper, ZoomAccountHelper zoomAccountHelper, SecurityContext securityContext, UserManager userManager, ILogger<ZoomHub> log)
     {
         _cache = cache;
         _fileStorageService = fileStorageService;
@@ -58,6 +59,7 @@ public class ZoomHub : Hub
         _zoomAccountHelper = zoomAccountHelper;
         _securityContext = securityContext;
         _userManager = userManager;
+        _log = log;
     }
 
     public override async Task OnConnectedAsync()
@@ -198,6 +200,11 @@ public class ZoomHub : Hub
         {
             await Clients.Group(GetGroupNameFromMeetingId(meetingId)).SendAsync("OnQuotaHit");
         }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Error while starting collaboration");
+            throw;
+        }
         finally
         {
             _securityContext.Logout();
@@ -255,6 +262,11 @@ public class ZoomHub : Hub
             var meetingId = GetMidClaim();
             await Clients.Group(GetGroupNameFromMeetingId(meetingId)).SendAsync("OnQuotaHit");
         }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Error while changing collaboration");
+            throw;
+        }
         finally
         {
             _securityContext.Logout();
@@ -307,6 +319,11 @@ public class ZoomHub : Hub
                 JsonSerializer.Deserialize<JsonElement>(innerRoom.Id.ToString()),
                 Web.Files.Services.WCFService.FileOperations.FileConflictResolveType.Skip,
                 true);
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Error while moving collaboration to backup");
+            throw;
         }
         finally
         {
