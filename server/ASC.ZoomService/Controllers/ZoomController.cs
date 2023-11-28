@@ -499,7 +499,7 @@ public class ZoomController : ControllerBase
             }
             else
             {
-                var linkedUserId = ZoomAccountHelper.GetUserIdFromZoomUid(profile.Id);
+                var linkedUserId = await ZoomAccountHelper.GetUserIdFromZoomUid(profile.Id);
                 shouldLink = linkedUserId == null;
             }
 
