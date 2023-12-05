@@ -319,6 +319,7 @@ public class ZoomHub : Hub
                 JsonSerializer.Deserialize<JsonElement>(innerRoom.Id.ToString()),
                 Web.Files.Services.WCFService.FileOperations.FileConflictResolveType.Skip,
                 true);
+            await Task.Delay(TimeSpan.FromMinutes(1));
         }
         catch (Exception ex)
         {
