@@ -283,7 +283,7 @@
                 <div id="fileCreateInfo">
                     <div>
                         <div class="label" data-translate="content">Title</div>
-                        <input name="document-title" data-translate="value" value="New Document" />
+                        <input id="filenameInput" name="document-title" data-translate="value" value="New Document" />
                     </div>
                     <div class="formats">
                         <label class="active">
@@ -1006,6 +1006,8 @@
                 }
 
                 document.getElementById("createNewFileButton").onclick = function() {
+                    const input = document.getElementById("filenameInput");
+                    input.value = t("New Document");
                     OnFileSelected(null);
                 }
 
