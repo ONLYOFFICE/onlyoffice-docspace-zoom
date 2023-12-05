@@ -303,7 +303,7 @@ public class ZoomHub : Hub
             if (!roomId.HasValue)
             {
                 await _tagsService.CreateTagAsync(cachedCollaboration.MeetingId);
-                var room = await _fileStorageService.CreateRoomAsync($"Zoom Meeting: {DateTime.Now:MM/dd/yy}", RoomType.CustomRoom, false, Array.Empty<FileShareParams>(), false, string.Empty);
+                var room = await _fileStorageService.CreateRoomAsync($"Zoom Meeting {DateTime.Now:MM/dd/yy}", RoomType.CustomRoom, false, Array.Empty<FileShareParams>(), false, string.Empty);
                 await _tagsService.AddRoomTagsAsync(room.Id, new[] { cachedCollaboration.MeetingId });
                 roomId = room.Id;
             }
