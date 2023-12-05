@@ -364,7 +364,10 @@ public class ZoomController : ControllerBase
                 Log.LogWarning(e, "Uploading file failed");
                 return BadRequest();
             }
-
+        }
+        catch (TenantQuotaException)
+        {
+            return Ok(new { error = "quota" });
         }
         finally
         {

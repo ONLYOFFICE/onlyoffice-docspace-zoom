@@ -1034,6 +1034,14 @@
                             }
                         });
                         const json = await response.json();
+                        if (json.error) {
+                            if (json.error == "quota") {
+                                await onQuotaHit();
+                                return;
+                            } else {
+                                throw new Error(json.error);
+                            }
+                        }
                         console.log("Uploaded file", json);
                         OnFileSelected(json);
                     } catch (ex) {
