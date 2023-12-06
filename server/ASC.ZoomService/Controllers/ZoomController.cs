@@ -740,7 +740,7 @@ public class ZoomController : ControllerBase
     [Route("[controller")]
     public class ZoomHackController : ControllerBase
     {
-        public ZoomHackController(FileStorageService fileStorageService, CustomTagsService tagsService, GlobalFolderHelper globalFolderHelper)
+        public ZoomHackController(FileStorageService fileStorageService, CustomTagsService tagsService, GlobalFolderHelper globalFolderHelper, ZoomBackupHelper zoomBackupHelper)
         {
         }
     }

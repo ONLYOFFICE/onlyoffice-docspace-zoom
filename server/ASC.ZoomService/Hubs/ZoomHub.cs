@@ -25,16 +25,15 @@
 // International. See the License terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
 
 using ASC.ApiSystem.Helpers;
-using ASC.Files.Core;
 using ASC.Files.Core.ApiModels;
 using ASC.Files.Core.ApiModels.RequestDto;
 using ASC.Files.Core.VirtualRooms;
 using ASC.Web.Files.Classes;
 using ASC.Web.Files.Services.WCFService;
 using ASC.ZoomService.Extensions;
+using ASC.ZoomService.Helpers;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Distributed;
-using System.Text.Json;
 
 namespace ASC.ApiSystem.Hubs;
 
@@ -48,9 +47,12 @@ public class ZoomHub : Hub
     private readonly ZoomAccountHelper _zoomAccountHelper;
     private readonly SecurityContext _securityContext;
     private readonly UserManager _userManager;
+    private readonly ZoomBackupHelper _zoomBackupHelper;
     private readonly ILogger<ZoomHub> _log;
 
-    public ZoomHub(IDistributedCache cache, FileStorageService fileStorageService, CustomTagsService tagsService, GlobalFolderHelper globalFolderHelper, ZoomAccountHelper zoomAccountHelper, SecurityContext securityContext, UserManager userManager, ILogger<ZoomHub> log)
+    public ZoomHub(IDistributedCache cache, FileStorageService fileStorageService, CustomTagsService tagsService,
+        GlobalFolderHelper globalFolderHelper, ZoomAccountHelper zoomAccountHelper, SecurityContext securityContext,
+        UserManager userManager, ZoomBackupHelper zoomBackupHelper, ILogger<ZoomHub> log)
     {
         _cache = cache;
         _fileStorageService = fileStorageService;
@@ -59,6 +61,7 @@ public class ZoomHub : Hub
         _zoomAccountHelper = zoomAccountHelper;
         _securityContext = securityContext;
         _userManager = userManager;
+        _zoomBackupHelper = zoomBackupHelper;
         _log = log;
     }
 
@@ -273,63 +276,18 @@ public class ZoomHub : Hub
         }
     }
 
-    public async Task CollaborateEnd()
+    public void CollaborateEnd()
     {
         var meetingId = GetMidClaim();
         var cachedCollaboration = _cache.GetCollaboration(meetingId);
 
         ThrowIfNotCollaborationInitiator(cachedCollaboration);
 
+        _ = Task.Run(async () =>
+        {
+            await _zoomBackupHelper.MoveFilesToBackup(cachedCollaboration);
+        });
         _cache.RemoveCollaboration(meetingId);
-        await MoveFilesToBackup(cachedCollaboration);
-    }
-
-    private async Task MoveFilesToBackup(ZoomCollaborationCachedRoom cachedCollaboration)
-    {
-        try
-        {
-            await _securityContext.AuthenticateMeWithoutCookieAsync((await _zoomAccountHelper.GetAdminUser()).Id);
-
-            var parentId = await _globalFolderHelper.GetFolderVirtualRooms();
-            var found = await _fileStorageService.GetFolderItemsAsync(parentId, 0, 1, FilterType.CustomRooms, false, null, null, null, false, false,
-                new OrderBy(SortedByType.DateAndTime, true), tagNames: new[] { cachedCollaboration.MeetingId });
-
-            int? roomId = null;
-            if (found.Entries.Any())
-            {
-                roomId = (found.Entries.First() as Folder<int>).Id;
-            }
-
-            if (!roomId.HasValue)
-            {
-                await _tagsService.CreateTagAsync(cachedCollaboration.MeetingId);
-                var room = await _fileStorageService.CreateRoomAsync($"Zoom Meeting {DateTime.Now:MM/dd/yy}", RoomType.CustomRoom, false, Array.Empty<FileShareParams>(), false, string.Empty);
-                await _tagsService.AddRoomTagsAsync(room.Id, new[] { cachedCollaboration.MeetingId });
-                roomId = room.Id;
-            }
-
-            var collaborationRoom = await _fileStorageService.GetFolderAsync(int.Parse(cachedCollaboration.RoomId));
-            var innerRoom = await _fileStorageService.CreateNewFolderAsync(roomId.Value, collaborationRoom.Title);
-
-            var itemsToMove = await _fileStorageService.GetFolderItemsAsync(collaborationRoom.Id, 0, 20, FilterType.None, false, null, null, null, false, false, new OrderBy(SortedByType.DateAndTime, true));
-            var fileIds = itemsToMove.Entries.Where(entry => entry is File<int>).Select(entry => (entry as File<int>).Id);
-            var result = await _fileStorageService.MoveOrCopyItemsAsync(
-                new List<JsonElement>(),
-                new List<JsonElement>(fileIds.Select(id => JsonSerializer.Deserialize<JsonElement>(id.ToString()))),
-                JsonSerializer.Deserialize<JsonElement>(innerRoom.Id.ToString()),
-                Web.Files.Services.WCFService.FileOperations.FileConflictResolveType.Skip,
-                true);
-            await Task.Delay(TimeSpan.FromMinutes(1));
-        }
-        catch (Exception ex)
-        {
-            _log.LogError(ex, "Error while moving collaboration to backup");
-            throw;
-        }
-        finally
-        {
-            _securityContext.Logout();
-        }
     }
 
     private async Task<int> MoveOrCreateFileIfNeeded(int roomId, ZoomCollaborationChangePayload changePayload)
