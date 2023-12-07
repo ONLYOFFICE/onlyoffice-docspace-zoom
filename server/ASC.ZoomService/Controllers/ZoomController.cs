@@ -39,6 +39,7 @@ using ASC.Web.Files.Classes;
 using ASC.Web.Files.Services.WCFService;
 using ASC.Web.Files.Utils;
 using ASC.ZoomService.Extensions;
+using ASC.ZoomService.Helpers;
 using ASC.ZoomService.Models;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Tokens;
