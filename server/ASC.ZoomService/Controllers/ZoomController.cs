@@ -158,7 +158,7 @@ public class ZoomController : ControllerBase
     [HttpGet("state")]
     [AllowCrossSiteJson]
     [Authorize(AuthenticationSchemes = ZoomAuthHandler.ZOOM_AUTH_SCHEME_HEADER)]
-    public async Task<IActionResult> GetState([FromQuery] ZoomStateModel model)
+    public async Task<IActionResult> GetState([FromQuery] ZoomStateModel model, [FromQuery] bool noRedirect = false)
     {
         var uid = User.Claims.FirstOrDefault(c => c.Type == ZoomAuthHandler.ZOOM_CLAIM_UID)?.Value;
         var mid = User.Claims.FirstOrDefault(c => c.Type == ZoomAuthHandler.ZOOM_CLAIM_MID)?.Value;
@@ -218,9 +218,18 @@ public class ZoomController : ControllerBase
                 }
             }
 
-            return Redirect(collaboration != null
-                ? GetPayloadRedirectLinkByTenantId(collaboration.TenantId, integrationPayload)
-                : await GetPayloadRedirectLinkByAccountNumber(model.AccountNumber, integrationPayload));
+            var link = collaboration != null
+                    ? GetPayloadRedirectLinkByTenantId(collaboration.TenantId, integrationPayload)
+                    : await GetPayloadRedirectLinkByAccountNumber(model.AccountNumber, integrationPayload);
+
+            if (noRedirect)
+            {
+                return Ok(link);
+            }
+            else
+            {
+                return Redirect(link);
+            }
         }
 
         Log.LogDebug($"GetState(): ConfirmLink is null, proceeding to oauth");
@@ -239,7 +248,14 @@ public class ZoomController : ControllerBase
         });
 
         Log.LogDebug("GetState(): New user, returning OAuth challenge");
-        return Redirect($"https{Uri.SchemeDelimiter}{Configuration["zoom:zoom-domain"]}/?payload={HttpUtility.UrlEncode(payload)}");
+        if (noRedirect)
+        {
+            return Ok($"https{Uri.SchemeDelimiter}{Configuration["zoom:zoom-domain"]}/?payload={HttpUtility.UrlEncode(payload)}");
+        }
+        else
+        {
+            return Redirect($"https{Uri.SchemeDelimiter}{Configuration["zoom:zoom-domain"]}/?payload={HttpUtility.UrlEncode(payload)}");
+        }
     }
 
     [HttpGet("install")]
