@@ -525,13 +525,15 @@
 
                 try {
                     const appContext = await zoomSdk.getAppContext();
-                    let response = await fetch(`/${home}/zoom/state?accountNumber=${ownTenant}`, { headers: {
-                        "x-zoom-app-context": appContext.context
-                    }});
+                    let response = await fetch(`/${home}/zoom/state?accountNumber=${ownTenant}&noRedirect=true`, {
+                        headers: {
+                            "x-zoom-app-context": appContext.context
+                        }
+                    });
 
-                    if (!response.ok || !response.redirected) throw new Error("Unknown response from state handler");
+                    if (!response.ok) throw new Error("Unknown response from state handler");
 
-                    window.location = response.url;
+                    window.location = await response.text();
                 } catch (e) {
                     console.log("Error while refreshing state", e);
                 }

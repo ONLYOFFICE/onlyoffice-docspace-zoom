@@ -27,8 +27,6 @@
 using ASC.ApiSystem.Helpers;
 using ASC.Files.Core.ApiModels;
 using ASC.Files.Core.ApiModels.RequestDto;
-using ASC.Files.Core.VirtualRooms;
-using ASC.Web.Files.Classes;
 using ASC.Web.Files.Services.WCFService;
 using ASC.ZoomService.Extensions;
 using ASC.ZoomService.Helpers;
@@ -42,22 +40,17 @@ public class ZoomHub : Hub
 {
     private readonly IDistributedCache _cache;
     private readonly FileStorageService _fileStorageService;
-    private readonly CustomTagsService _tagsService;
-    private readonly GlobalFolderHelper _globalFolderHelper;
     private readonly ZoomAccountHelper _zoomAccountHelper;
     private readonly SecurityContext _securityContext;
     private readonly UserManager _userManager;
     private readonly ZoomBackupHelper _zoomBackupHelper;
     private readonly ILogger<ZoomHub> _log;
 
-    public ZoomHub(IDistributedCache cache, FileStorageService fileStorageService, CustomTagsService tagsService,
-        GlobalFolderHelper globalFolderHelper, ZoomAccountHelper zoomAccountHelper, SecurityContext securityContext,
-        UserManager userManager, ZoomBackupHelper zoomBackupHelper, ILogger<ZoomHub> log)
+    public ZoomHub(IDistributedCache cache, FileStorageService fileStorageService, ZoomAccountHelper zoomAccountHelper,
+        SecurityContext securityContext, UserManager userManager, ZoomBackupHelper zoomBackupHelper, ILogger<ZoomHub> log)
     {
         _cache = cache;
         _fileStorageService = fileStorageService;
-        _tagsService = tagsService;
-        _globalFolderHelper = globalFolderHelper;
         _zoomAccountHelper = zoomAccountHelper;
         _securityContext = securityContext;
         _userManager = userManager;
