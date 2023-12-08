@@ -177,6 +177,8 @@ public class Startup
 
         app.UseAuthorization();
 
+        app.UseCultureMiddleware();
+
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapCustomAsync().Wait();
