@@ -614,16 +614,18 @@ public class ZoomController : ControllerBase
             Calls = false,
         };
 
-        if (ApiSystemHelper.ApiCacheEnable)
-        {
-            Log.LogDebug($"CreateTenant(): Adding tenant to cache {info.Address} {info.HostedRegion}.");
-            await ApiSystemHelper.AddTenantToCacheAsync(info.Address, info.HostedRegion);
-        }
-
         Log.LogDebug($"CreateTenant(): Registering tenant {portalName}.");
         var tenant = await HostedSolution.RegisterTenantAsync(info);
 
         TenantManager.SetCurrentTenant(tenant);
+
+        if (ApiSystemHelper.ApiCacheEnable)
+        {
+            var region = Configuration["eu-central-1"];
+            var domain = tenant.GetTenantDomain(CoreSettings);
+            Log.LogDebug($"CreateTenant(): Adding tenant to cache {domain} {region}.");
+            await ApiSystemHelper.AddTenantToCacheAsync(domain, region);
+        }
 
         try
         {
