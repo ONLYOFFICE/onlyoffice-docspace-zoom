@@ -325,11 +325,6 @@ public class ZoomController : ControllerBase
             Log.LogDebug("PostHome(): Creating user and/or tenant");
             var (_, tenant) = await CreateUserAndTenant(profile, state.AccountNumber, state.TenantId);
 
-            bool foreignTenant = false;
-            var ownTenant = GetTenantByAccountNumber(state.AccountNumber);
-            foreignTenant = ownTenant.Id != state.TenantId;
-            response.OwnAccountNumber = foreignTenant ? state.AccountNumber : null;
-
             response.ConfirmLink = GetTenantRedirectUri(tenant, profile.EMail);
             if (!string.IsNullOrWhiteSpace(state.CollaborationId) && !"none".Equals(state.CollaborationId))
             {
