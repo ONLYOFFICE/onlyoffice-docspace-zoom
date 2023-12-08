@@ -616,7 +616,7 @@ public class ZoomController : ControllerBase
 
         if (ApiSystemHelper.ApiCacheEnable)
         {
-            var region = Configuration["eu-central-1"];
+            var region = Configuration["aws-region"];
             var domain = tenant.GetTenantDomain(CoreSettings);
             Log.LogDebug($"CreateTenant(): Adding tenant to cache {domain} {region}.");
             await ApiSystemHelper.AddTenantToCacheAsync(domain, region);
