@@ -171,6 +171,8 @@ public class Startup
             app.UseCors(CustomCorsPolicyName);
         }
 
+        app.UseSynchronizationContextMiddleware();
+
         app.UseAuthentication();
 
         app.UseAuthorization();

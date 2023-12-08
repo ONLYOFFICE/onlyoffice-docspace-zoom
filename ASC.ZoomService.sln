@@ -7,47 +7,51 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.ZoomService", "server\A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DocSpace", "DocSpace", "{00A132A5-9CDA-4104-9C1F-D13A9F74A3A1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Files.Core", "DocSpace\products\ASC.Files\Core\ASC.Files.Core.csproj", "{E115C29A-3B59-4FA7-93F0-C0F2D2C92A95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Files.Core", "DocSpace\server\products\ASC.Files\Core\ASC.Files.Core.csproj", "{E115C29A-3B59-4FA7-93F0-C0F2D2C92A95}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Web.Core", "DocSpace\web\ASC.Web.Core\ASC.Web.Core.csproj", "{942E1232-1D00-4D45-9ABD-B0E120591993}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Web.Core", "DocSpace\server\web\ASC.Web.Core\ASC.Web.Core.csproj", "{942E1232-1D00-4D45-9ABD-B0E120591993}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Api.Core", "DocSpace\common\ASC.Api.Core\ASC.Api.Core.csproj", "{A324F6B1-0BCD-430D-A2CB-8BB8553674CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Api.Core", "DocSpace\server\common\ASC.Api.Core\ASC.Api.Core.csproj", "{A324F6B1-0BCD-430D-A2CB-8BB8553674CF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Common", "DocSpace\common\ASC.Common\ASC.Common.csproj", "{3E701759-4CC1-4009-8A42-60CD6F5E5773}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Common", "DocSpace\server\common\ASC.Common\ASC.Common.csproj", "{3E701759-4CC1-4009-8A42-60CD6F5E5773}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Core.Common", "DocSpace\common\ASC.Core.Common\ASC.Core.Common.csproj", "{A51D0454-4AFA-46DE-89D4-B03D37E1816C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Core.Common", "DocSpace\server\common\ASC.Core.Common\ASC.Core.Common.csproj", "{A51D0454-4AFA-46DE-89D4-B03D37E1816C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.EventBus", "DocSpace\common\ASC.EventBus\ASC.EventBus.csproj", "{12DF3D5E-3C34-4207-9F65-4C0933F95FA9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.EventBus", "DocSpace\server\common\ASC.EventBus\ASC.EventBus.csproj", "{12DF3D5E-3C34-4207-9F65-4C0933F95FA9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.FederatedLogin", "DocSpace\common\ASC.FederatedLogin\ASC.FederatedLogin.csproj", "{BC8E8741-9462-4422-B9D9-D0D9A4CD26F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.FederatedLogin", "DocSpace\server\common\ASC.FederatedLogin\ASC.FederatedLogin.csproj", "{BC8E8741-9462-4422-B9D9-D0D9A4CD26F2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Notify.Textile", "DocSpace\common\ASC.Notify.Textile\ASC.Notify.Textile.csproj", "{AD7F0146-A2BA-4897-9745-B537CDA92917}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Notify.Textile", "DocSpace\server\common\ASC.Notify.Textile\ASC.Notify.Textile.csproj", "{AD7F0146-A2BA-4897-9745-B537CDA92917}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Feed", "DocSpace\common\ASC.Feed\ASC.Feed.csproj", "{EDEDDF85-8BE3-4897-9A12-E3305767D86D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Feed", "DocSpace\server\common\ASC.Feed\ASC.Feed.csproj", "{EDEDDF85-8BE3-4897-9A12-E3305767D86D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.IPSecurity", "DocSpace\common\ASC.IPSecurity\ASC.IPSecurity.csproj", "{4A69C2D3-D5E9-4786-ADFE-A0C56AC323FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.IPSecurity", "DocSpace\server\common\ASC.IPSecurity\ASC.IPSecurity.csproj", "{4A69C2D3-D5E9-4786-ADFE-A0C56AC323FF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.AuditTrail", "DocSpace\common\services\ASC.AuditTrail\ASC.AuditTrail.csproj", "{958C44BE-14AA-4142-9C8F-424BDC4BACFD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.AuditTrail", "DocSpace\server\common\services\ASC.AuditTrail\ASC.AuditTrail.csproj", "{958C44BE-14AA-4142-9C8F-424BDC4BACFD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.MessagingSystem", "DocSpace\common\ASC.MessagingSystem\ASC.MessagingSystem.csproj", "{7BA644A4-84B0-46F6-BB4E-7C27CDB5C390}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.MessagingSystem", "DocSpace\server\common\ASC.MessagingSystem\ASC.MessagingSystem.csproj", "{7BA644A4-84B0-46F6-BB4E-7C27CDB5C390}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Textile", "DocSpace\common\ASC.Textile\ASC.Textile.csproj", "{851D3EC8-157D-4985-9984-47AC88F7708B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Textile", "DocSpace\server\common\ASC.Textile\ASC.Textile.csproj", "{851D3EC8-157D-4985-9984-47AC88F7708B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Data.Encryption", "DocSpace\common\ASC.Data.Encryption\ASC.Data.Encryption.csproj", "{E84ED8E4-88F7-4250-8CF7-E3461EF71CF5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Data.Encryption", "DocSpace\server\common\ASC.Data.Encryption\ASC.Data.Encryption.csproj", "{E84ED8E4-88F7-4250-8CF7-E3461EF71CF5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Data.Storage", "DocSpace\common\ASC.Data.Storage\ASC.Data.Storage.csproj", "{15521F69-DBC2-4199-956D-F4677DE23BCF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Data.Storage", "DocSpace\server\common\ASC.Data.Storage\ASC.Data.Storage.csproj", "{15521F69-DBC2-4199-956D-F4677DE23BCF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.EventBus.ActiveMQ", "DocSpace\common\ASC.EventBus.ActiveMQ\ASC.EventBus.ActiveMQ.csproj", "{E5FF0DD4-3968-4EFF-A583-9D43281A4B38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.EventBus.ActiveMQ", "DocSpace\server\common\ASC.EventBus.ActiveMQ\ASC.EventBus.ActiveMQ.csproj", "{E5FF0DD4-3968-4EFF-A583-9D43281A4B38}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Webhooks.Core", "DocSpace\common\ASC.Webhooks.Core\ASC.Webhooks.Core.csproj", "{815DF7A6-D1F1-4AC3-AE97-2C94C70FEA4F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Webhooks.Core", "DocSpace\server\common\ASC.Webhooks.Core\ASC.Webhooks.Core.csproj", "{815DF7A6-D1F1-4AC3-AE97-2C94C70FEA4F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.EventBus.Extensions.Logger", "DocSpace\common\ASC.EventBus.Extensions.Logger\ASC.EventBus.Extensions.Logger.csproj", "{EA18B236-5AC3-4C8A-B681-9CB31F178C18}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.EventBus.Extensions.Logger", "DocSpace\server\common\ASC.EventBus.Extensions.Logger\ASC.EventBus.Extensions.Logger.csproj", "{EA18B236-5AC3-4C8A-B681-9CB31F178C18}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.ElasticSearch", "DocSpace\common\services\ASC.ElasticSearch\ASC.ElasticSearch.csproj", "{AE1A0E06-6CD4-4E1D-8209-22BBBD6D5652}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.ElasticSearch", "DocSpace\server\common\services\ASC.ElasticSearch\ASC.ElasticSearch.csproj", "{AE1A0E06-6CD4-4E1D-8209-22BBBD6D5652}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.EventBus.RabbitMQ", "DocSpace\common\ASC.EventBus.RabbitMQ\ASC.EventBus.RabbitMQ.csproj", "{5C5B79C6-F63D-427A-A943-4B46DC384835}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.EventBus.RabbitMQ", "DocSpace\server\common\ASC.EventBus.RabbitMQ\ASC.EventBus.RabbitMQ.csproj", "{5C5B79C6-F63D-427A-A943-4B46DC384835}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Web.Api", "DocSpace\web\ASC.Web.Api\ASC.Web.Api.csproj", "{D65E12BD-CF6C-43EA-92AE-6112F4EF9A61}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Web.Api", "DocSpace\server\web\ASC.Web.Api\ASC.Web.Api.csproj", "{D65E12BD-CF6C-43EA-92AE-6112F4EF9A61}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Data.Backup.Core", "DocSpace\server\common\ASC.Data.Backup.Core\ASC.Data.Backup.Core.csproj", "{2DE427FC-921A-4E94-B986-3E11EF1DA290}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.ActiveDirectory", "DocSpace\server\common\ASC.ActiveDirectory\ASC.ActiveDirectory.csproj", "{97A373E8-34B2-40F9-A8A5-81E2DEA39BF6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -143,6 +147,14 @@ Global
 		{D65E12BD-CF6C-43EA-92AE-6112F4EF9A61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D65E12BD-CF6C-43EA-92AE-6112F4EF9A61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D65E12BD-CF6C-43EA-92AE-6112F4EF9A61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DE427FC-921A-4E94-B986-3E11EF1DA290}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DE427FC-921A-4E94-B986-3E11EF1DA290}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DE427FC-921A-4E94-B986-3E11EF1DA290}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DE427FC-921A-4E94-B986-3E11EF1DA290}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97A373E8-34B2-40F9-A8A5-81E2DEA39BF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97A373E8-34B2-40F9-A8A5-81E2DEA39BF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97A373E8-34B2-40F9-A8A5-81E2DEA39BF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97A373E8-34B2-40F9-A8A5-81E2DEA39BF6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -169,6 +181,8 @@ Global
 		{AE1A0E06-6CD4-4E1D-8209-22BBBD6D5652} = {00A132A5-9CDA-4104-9C1F-D13A9F74A3A1}
 		{5C5B79C6-F63D-427A-A943-4B46DC384835} = {00A132A5-9CDA-4104-9C1F-D13A9F74A3A1}
 		{D65E12BD-CF6C-43EA-92AE-6112F4EF9A61} = {00A132A5-9CDA-4104-9C1F-D13A9F74A3A1}
+		{2DE427FC-921A-4E94-B986-3E11EF1DA290} = {00A132A5-9CDA-4104-9C1F-D13A9F74A3A1}
+		{97A373E8-34B2-40F9-A8A5-81E2DEA39BF6} = {00A132A5-9CDA-4104-9C1F-D13A9F74A3A1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3C7B881C-3799-444A-9460-09D6037FEABB}
