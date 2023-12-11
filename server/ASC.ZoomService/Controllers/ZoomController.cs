@@ -180,24 +180,24 @@ public class ZoomController : ControllerBase
             confirmLink = await GetConfirmLinkByTenantId(collaboration.TenantId, uid);
             model.TenantId = collaboration.TenantId;
 
-            var ownTenant = GetTenantByAccountNumber(model.AccountNumber);
+            var ownTenant = GetTenantByAccountId(model.AccountId);
             foreignTenant = ownTenant.Id != collaboration.TenantId;
         }
         else
         {
-            Log.LogDebug($"GetState(): Collaboration is null, getting confirm link using account number {model.AccountNumber}");
-            confirmLink = await GetConfirmLinkByAccountNumber(model.AccountNumber, uid);
+            Log.LogDebug($"GetState(): Collaboration is null, getting confirm link using account number {model.AccountId}");
+            confirmLink = await GetConfirmLinkByAccountId(model.AccountId, uid);
         }
 
         if (confirmLink != null)
         {
-            Log.LogDebug($"GetState(): Got request from Zoom App; Found portal and user, redirecting with auth; AccountNumber: {model.AccountNumber}; UserId: {uid}");
+            Log.LogDebug($"GetState(): Got request from Zoom App; Found portal and user, redirecting with auth; AccountNumber: {model.AccountId}; UserId: {uid}");
 
             var integrationPayload = new ZoomIntegrationPayload()
             {
                 ConfirmLink = confirmLink,
                 Home = Configuration["zoom:home"],
-                OwnAccountNumber = foreignTenant ? model.AccountNumber : null
+                OwnAccountId = foreignTenant ? model.AccountId : null
             };
 
             if (collaborationIsActive)
@@ -220,7 +220,7 @@ public class ZoomController : ControllerBase
 
             var link = collaboration != null
                     ? GetPayloadRedirectLinkByTenantId(collaboration.TenantId, integrationPayload)
-                    : await GetPayloadRedirectLinkByAccountNumber(model.AccountNumber, integrationPayload);
+                    : await GetPayloadRedirectLinkByAccountId(model.AccountId, integrationPayload);
 
             if (noRedirect)
             {
@@ -277,7 +277,7 @@ public class ZoomController : ControllerBase
             Log.LogDebug("GetHome(): Requesting profile info");
             var (profile, raw) = loginProvider.GetLoginProfileAndRaw(token.AccessToken);
             Log.LogDebug("GetHome(): Creating user and/or tenant");
-            var (_, tenant) = await CreateUserAndTenant(profile, raw.AccountNumber);
+            var (_, tenant) = await CreateUserAndTenant(profile, raw.AccountId);
 
             var deeplink = CreateDeeplink(token.AccessToken);
 
@@ -323,7 +323,7 @@ public class ZoomController : ControllerBase
             var profile = loginProvider.GetLoginProfile(token);
 
             Log.LogDebug("PostHome(): Creating user and/or tenant");
-            var (_, tenant) = await CreateUserAndTenant(profile, state.AccountNumber, state.TenantId);
+            var (_, tenant) = await CreateUserAndTenant(profile, state.AccountId, state.TenantId);
 
             response.ConfirmLink = GetTenantRedirectUri(tenant, profile.EMail);
             if (!string.IsNullOrWhiteSpace(state.CollaborationId) && !"none".Equals(state.CollaborationId))
@@ -452,9 +452,9 @@ public class ZoomController : ControllerBase
         return GetPayloadRedirectLink(tenant, payload);
     }
 
-    private async Task<string> GetPayloadRedirectLinkByAccountNumber(long accountNumber, ZoomIntegrationPayload payload)
+    private async Task<string> GetPayloadRedirectLinkByAccountId(string accountId, ZoomIntegrationPayload payload)
     {
-        var portalName = GenerateAlias(accountNumber);
+        var portalName = GenerateAlias(accountId);
         var tenant = await HostedSolution.GetTenantAsync(portalName);
         return GetPayloadRedirectLink(tenant, payload);
     }
@@ -482,9 +482,9 @@ public class ZoomController : ControllerBase
         return JsonNode.Parse(json)["deeplink"].GetValue<string>();
     }
 
-    private async Task<(UserInfo, Tenant)> CreateUserAndTenant(LoginProfile profile, long accountNumber, int? tenantId = null)
+    private async Task<(UserInfo, Tenant)> CreateUserAndTenant(LoginProfile profile, string accountId, int? tenantId = null)
     {
-        var portalName = GenerateAlias(accountNumber);
+        var portalName = GenerateAlias(accountId);
         var tenant = await HostedSolution.GetTenantAsync(portalName);
         bool guest = false;
         if (tenantId.HasValue)
@@ -658,9 +658,9 @@ public class ZoomController : ControllerBase
         return tenant;
     }
 
-    private string GenerateAlias(long accountNumber)
+    private string GenerateAlias(string accountId)
     {
-        return $"zoom-{accountNumber}";
+        return $"zoom-{accountId}";
     }
 
     private async Task<string> GetConfirmLinkByTenantId(int tenantId, string uid)
@@ -673,19 +673,19 @@ public class ZoomController : ControllerBase
         return await GetConfirmLink(tenant, uid);
     }
 
-    private async Task<Tenant> GetTenantByAccountNumber(long accountNumber)
+    private async Task<Tenant> GetTenantByAccountId(string accountId)
     {
-        var portalName = GenerateAlias(accountNumber);
+        var portalName = GenerateAlias(accountId);
         var tenant = await HostedSolution.GetTenantAsync(portalName);
 
         return tenant;
     }
 
-    private async Task<string> GetConfirmLinkByAccountNumber(long accountNumber, string uid)
+    private async Task<string> GetConfirmLinkByAccountId(string accountId, string uid)
     {
         ArgumentException.ThrowIfNullOrEmpty(uid, nameof(uid));
 
-        var tenant = await GetTenantByAccountNumber(accountNumber);
+        var tenant = await GetTenantByAccountId(accountId);
 
         Log.LogDebug($"GetConfirmLinkByAccountNumber(): Getting confirm link with tenant {tenant?.Id}, user {uid}.");
         return await GetConfirmLink(tenant, uid);
@@ -741,7 +741,7 @@ public class ZoomController : ControllerBase
         public string Error { get; set; }
         public string Home { get; set; } = "zoomservice";
         public string DocSpaceUrl { get; set; }
-        public long? OwnAccountNumber { get; set; }
+        public string OwnAccountId { get; set; }
 
         public ZoomCollaborationRoom Collaboration { get; set; }
     }

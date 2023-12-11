@@ -525,7 +525,7 @@
 
                 try {
                     const appContext = await zoomSdk.getAppContext();
-                    let response = await fetch(`/${home}/zoom/state?accountNumber=${ownTenant}&noRedirect=true`, {
+                    let response = await fetch(`/${home}/zoom/state?accountId=${ownTenant}&noRedirect=true`, {
                         headers: {
                             "x-zoom-app-context": appContext.context
                         }
@@ -1079,7 +1079,7 @@
                     // ToDo: request did not came from api system, handle error
                 }
 
-                ownTenant = payload["OwnAccountNumber"] ? payload["OwnAccountNumber"] : 0;
+                ownTenant = payload["OwnAccountId"] ? payload["OwnAccountId"] : 0;
 
                 home = payload["Home"] ? payload["Home"] : home;
                 if (payload["DocSpaceUrl"]) {
