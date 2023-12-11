@@ -435,7 +435,7 @@ public class ZoomController : ControllerBase
 
     private long GetUploadLimit()
     {
-        var limitString = Configuration["zoom-upload-limit"];
+        var limitString = Configuration["zoom:zoom-upload-limit"];
         if (!string.IsNullOrEmpty(limitString))
         {
             if (long.TryParse(limitString, out var limit))
@@ -616,7 +616,7 @@ public class ZoomController : ControllerBase
 
         if (ApiSystemHelper.ApiCacheEnable)
         {
-            var region = Configuration["aws-region"];
+            var region = Configuration["zoom:aws-region"];
             var domain = tenant.GetTenantDomain(CoreSettings);
             Log.LogDebug($"CreateTenant(): Adding tenant to cache {domain} {region}.");
             await ApiSystemHelper.AddTenantToCacheAsync(domain, region);
