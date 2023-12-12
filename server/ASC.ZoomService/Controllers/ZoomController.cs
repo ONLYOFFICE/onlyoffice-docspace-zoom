@@ -164,6 +164,12 @@ public class ZoomController : ControllerBase
         var mid = User.Claims.FirstOrDefault(c => c.Type == ZoomAuthHandler.ZOOM_CLAIM_MID)?.Value;
         model.TenantId = null;
 
+        if (model.AccountId.Contains('_'))
+        {
+            // ToDo: we might have a collision
+            model.AccountId = model.AccountId.Replace("_", "--");
+        }
+
         ZoomCollaborationCachedRoom collaboration = null;
         var collaborationIsActive = !string.IsNullOrWhiteSpace(model.CollaborationId) && !"none".Equals(model.CollaborationId);
         if (collaborationIsActive)
@@ -276,6 +282,13 @@ public class ZoomController : ControllerBase
             var token = loginProvider.GetAccessToken(code, Configuration["zoom:zoom-redirect-uri"]);
             Log.LogDebug("GetHome(): Requesting profile info");
             var (profile, raw) = loginProvider.GetLoginProfileAndRaw(token.AccessToken);
+
+            if (raw.AccountId.Contains('_'))
+            {
+                // ToDo: we might have a collision
+                raw.AccountId = raw.AccountId.Replace("_", "--");
+            }
+
             Log.LogDebug("GetHome(): Creating user and/or tenant");
             var (_, tenant) = await CreateUserAndTenant(profile, raw.AccountId);
 
