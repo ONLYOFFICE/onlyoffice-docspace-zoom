@@ -29,7 +29,6 @@ using ASC.Files.Core.ApiModels;
 using ASC.Files.Core.ApiModels.RequestDto;
 using ASC.Web.Files.Services.WCFService;
 using ASC.ZoomService.Extensions;
-using ASC.ZoomService.Helpers;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Distributed;
 
@@ -43,18 +42,16 @@ public class ZoomHub : Hub
     private readonly ZoomAccountHelper _zoomAccountHelper;
     private readonly SecurityContext _securityContext;
     private readonly UserManager _userManager;
-    private readonly ZoomBackupHelper _zoomBackupHelper;
     private readonly ILogger<ZoomHub> _log;
 
     public ZoomHub(IDistributedCache cache, FileStorageService fileStorageService, ZoomAccountHelper zoomAccountHelper,
-        SecurityContext securityContext, UserManager userManager, ZoomBackupHelper zoomBackupHelper, ILogger<ZoomHub> log)
+        SecurityContext securityContext, UserManager userManager, ILogger<ZoomHub> log)
     {
         _cache = cache;
         _fileStorageService = fileStorageService;
         _zoomAccountHelper = zoomAccountHelper;
         _securityContext = securityContext;
         _userManager = userManager;
-        _zoomBackupHelper = zoomBackupHelper;
         _log = log;
     }
 
@@ -276,10 +273,10 @@ public class ZoomHub : Hub
 
         ThrowIfNotCollaborationInitiator(cachedCollaboration);
 
-        _ = Task.Run(async () =>
-        {
-            await _zoomBackupHelper.MoveFilesToBackup(cachedCollaboration);
-        });
+        //_ = Task.Run(async () =>
+        //{
+        //    await _zoomBackupHelper.MoveFilesToBackup(cachedCollaboration);
+        //});
         _cache.RemoveCollaboration(meetingId);
     }
 
