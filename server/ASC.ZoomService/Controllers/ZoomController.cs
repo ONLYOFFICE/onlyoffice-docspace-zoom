@@ -515,7 +515,7 @@ public class ZoomController : ControllerBase
         bool guest = false;
         if (tenantId.HasValue)
         {
-            if (tenant.Id == tenantId.Value)
+            if (tenant != null && tenant.Id == tenantId.Value)
             {
                 Log.LogDebug($"CreateUserAndTenant(): TenantId equals accountNumber, no additional actions needed");
             }
