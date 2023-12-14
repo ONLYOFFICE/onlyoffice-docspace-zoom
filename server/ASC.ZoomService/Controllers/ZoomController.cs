@@ -353,7 +353,7 @@ public class ZoomController : ControllerBase
         }
         catch (Exception ex)
         {
-            Log.LogDebug($"PostHome(): Error: {ex.Message}");
+            Log.LogDebug(ex, $"PostHome(): Error while creating");
             response.Error = ex.Message;
             return BadRequest(response);
         }
