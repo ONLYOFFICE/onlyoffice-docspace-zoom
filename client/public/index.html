@@ -429,7 +429,7 @@
 
             let collaborationHost = false;
 
-            let ownTenant = 0;
+            let ownTenant = null;
 
             const messageBox = document.getElementById("messageBox");
             const messageText = document.getElementById("message");
@@ -521,7 +521,7 @@
             }
 
             async function refreshState() {
-                if (ownTenant <= 0) return;
+                if (!ownTenant) return;
 
                 try {
                     const appContext = await zoomSdk.getAppContext();
@@ -790,7 +790,7 @@
                     }
                 }
 
-                if (ownTenant > 0) {
+                if (ownTenant) {
                     await refreshState();
                     return;
                 }
