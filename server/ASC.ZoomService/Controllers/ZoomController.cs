@@ -265,18 +265,31 @@ public class ZoomController : ControllerBase
     }
 
     [HttpGet("install")]
-    public IActionResult GetInstall()
+    public IActionResult GetInstall([FromQuery] string state)
     {
-        return Redirect($"https://zoom.us/oauth/authorize?response_type=code&client_id={ZoomAccountHelper.GetLoginProvider().ClientID}&redirect_uri={Configuration["zoom:zoom-redirect-uri"]}");
+        return Redirect($"https://zoom.us/oauth/authorize?response_type=code&client_id={ZoomAccountHelper.GetLoginProvider().ClientID}" +
+            $"&redirect_uri={Configuration["zoom:zoom-redirect-uri"]}" +
+            $"{(state != null ? $"&state={state}" : "")}");
     }
 
     [HttpGet("home")]
-    public async Task<IActionResult> GetHome([FromQuery] string code)
+    public async Task<IActionResult> GetHome([FromQuery] string code, [FromQuery] string state)
     {
         Log.LogDebug("GetHome(): Got GET redirect from Zoom OAuth;");
 
         try
         {
+            var jwtSecret = Configuration["zoom:gate-secret"];
+
+            ZoomStateModel stateModel = null;
+            if (state != null)
+            {
+                var stateJson = JsonWebToken.Decode(state, jwtSecret);
+                stateModel = JsonSerializer.Deserialize<ZoomStateModel>(stateJson, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+            }
+
+            Log.LogDebug($"GetHome(): Got GET request from Zoom App; AccountId: {stateModel?.AccountId}; AccountNumber: {stateModel?.AccountNumber}");
+
             var loginProvider = ZoomAccountHelper.GetLoginProvider();
             Log.LogDebug("GetHome(): Exchanging code for AccessToken");
             var token = loginProvider.GetAccessToken(code, Configuration["zoom:zoom-redirect-uri"]);
@@ -290,7 +303,7 @@ public class ZoomController : ControllerBase
             }
 
             Log.LogDebug("GetHome(): Creating user and/or tenant");
-            var (_, tenant) = await CreateUserAndTenant(profile, raw.AccountId);
+            var (_, tenant) = await CreateUserAndTenant(profile, raw.AccountId, stateModel?.TenantId);
 
             var deeplink = CreateDeeplink(token.AccessToken);
 
