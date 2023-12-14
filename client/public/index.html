@@ -1099,7 +1099,9 @@
                     // authorizePrompt if we are guest
                     // else authorize
                     // if (configResponse.browserVersion.startsWith("applewebkit")) {
-                    await zoomSdk.openUrl({ url: location.origin + "/zoomservice/zoom/install" });
+                    await zoomSdk.openUrl({
+                        url: `${location.origin}/zoomservice/zoom/install?state=${payload["State"]}`
+                    });
                     showMessage("Please authorize using browser.");
                     // } else {
                     //     await zoomSdk.authorize({
