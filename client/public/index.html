@@ -687,6 +687,7 @@
                 const url = new URL(confirmLink);
                 return new Promise((res, rej) => {
                     const docSpaceInitConfig = {
+                        checkCSP: false,
                         src: url.origin,
                         rootPath: url.href.substring(url.origin.length),
                         frameId: "zoom-ds-auth-frame",
@@ -728,6 +729,7 @@
 
                 destroyLoginFrame();
                 const docSpaceInitConfig = {
+                    checkCSP: false,
                     frameId: "zoom-ds-frame",
                     name: "zoomDsFrame",
                     mode: "manager",
@@ -750,6 +752,7 @@
 
                 destroyLoginFrame();
                 const docSpaceInitConfig = {
+                    checkCSP: false,
                     frameId: "zoom-ds-frame",
                     name: "zoomDsFrame",
                     mode: "editor",
@@ -802,6 +805,7 @@
                 }
 
                 const docSpaceInitConfig = {
+                    checkCSP: false,
                     frameId: "zoom-ds-frame",
                     name: "zoomDsFrame",
                     mode: "file-selector",
