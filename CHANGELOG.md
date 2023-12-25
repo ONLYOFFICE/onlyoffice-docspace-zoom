@@ -1,6 +1,6 @@
 # Change Log
 
-##
+## 1.1.0
 - support DocSpace v2.0
 
 ## 1.0.0
