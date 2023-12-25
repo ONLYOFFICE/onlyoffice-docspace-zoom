@@ -50,11 +50,12 @@ public class ZoomAccountHelper
         return _zoomLoginProvider;
     }
 
-    public Guid? GetUserIdFromZoomUid(string uid)
+    public async Task<Guid?> GetUserIdFromZoomUid(string uid)
     {
         var loginProfile = _zoomLoginProvider.GetMinimalProfile(uid);
 
-        if (!TryGetUserByHash(loginProfile.HashId, out var userId) || userId == Guid.Empty)
+        var (success, userId) = await TryGetUserByHashAsync(loginProfile.HashId);
+        if (!success || userId == Guid.Empty)
         {
             return null;
         }
@@ -62,27 +63,27 @@ public class ZoomAccountHelper
         return userId;
     }
 
-    public UserInfo GetAdminUser()
+    public async Task<UserInfo> GetAdminUser()
     {
-        return _userManager.GetUsersByGroup(Constants.GroupAdmin.ID, EmployeeStatus.Active).FirstOrDefault();
+        return (await _userManager.GetUsersByGroupAsync(Constants.GroupAdmin.ID, EmployeeStatus.Active)).FirstOrDefault();
     }
 
     // AuthenticationController.TryGetUserByHash()
-    private bool TryGetUserByHash(string hashId, out Guid userId)
+    private async Task<(bool, Guid)> TryGetUserByHashAsync(string hashId)
     {
-        userId = Guid.Empty;
+        var userId = Guid.Empty;
         if (string.IsNullOrEmpty(hashId))
         {
-            return false;
+            return (false, userId);
         }
 
-        var linkedProfiles = _accountLinker.GetLinkedObjectsByHashId(hashId);
+        var linkedProfiles = await _accountLinker.GetLinkedObjectsByHashIdAsync(hashId);
         var tmp = Guid.Empty;
         if (linkedProfiles.Any(profileId => Guid.TryParse(profileId, out tmp) && _userManager.UserExists(tmp)))
         {
             userId = tmp;
         }
 
-        return true;
+        return (true, userId);
     }
 }

@@ -25,16 +25,12 @@
 // International. See the License terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
 
 using ASC.ApiSystem.Helpers;
-using ASC.Files.Core;
 using ASC.Files.Core.ApiModels;
 using ASC.Files.Core.ApiModels.RequestDto;
-using ASC.Files.Core.VirtualRooms;
-using ASC.Web.Files.Classes;
 using ASC.Web.Files.Services.WCFService;
 using ASC.ZoomService.Extensions;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Distributed;
-using System.Text.Json;
 
 namespace ASC.ApiSystem.Hubs;
 
@@ -42,22 +38,21 @@ namespace ASC.ApiSystem.Hubs;
 public class ZoomHub : Hub
 {
     private readonly IDistributedCache _cache;
-    private readonly FileStorageService<int> _fileStorageService;
-    private readonly CustomTagsService<int> _tagsService;
-    private readonly GlobalFolderHelper _globalFolderHelper;
+    private readonly FileStorageService _fileStorageService;
     private readonly ZoomAccountHelper _zoomAccountHelper;
     private readonly SecurityContext _securityContext;
     private readonly UserManager _userManager;
+    private readonly ILogger<ZoomHub> _log;
 
-    public ZoomHub(IDistributedCache cache, FileStorageService<int> fileStorageService, CustomTagsService<int> tagsService, GlobalFolderHelper globalFolderHelper, ZoomAccountHelper zoomAccountHelper, SecurityContext securityContext, UserManager userManager)
+    public ZoomHub(IDistributedCache cache, FileStorageService fileStorageService, ZoomAccountHelper zoomAccountHelper,
+        SecurityContext securityContext, UserManager userManager, ILogger<ZoomHub> log)
     {
         _cache = cache;
         _fileStorageService = fileStorageService;
-        _tagsService = tagsService;
-        _globalFolderHelper = globalFolderHelper;
         _zoomAccountHelper = zoomAccountHelper;
         _securityContext = securityContext;
         _userManager = userManager;
+        _log = log;
     }
 
     public override async Task OnConnectedAsync()
@@ -76,9 +71,9 @@ public class ZoomHub : Hub
         await base.OnDisconnectedAsync(exception);
     }
 
-    public bool CheckIfUser()
+    public async Task<bool> CheckIfUser()
     {
-        var userId = _zoomAccountHelper.GetUserIdFromZoomUid(GetUidClaim());
+        var userId = await _zoomAccountHelper.GetUserIdFromZoomUid(GetUidClaim());
         return !userId.HasValue || _userManager.IsUser(userId.Value);
     }
 
@@ -117,7 +112,7 @@ public class ZoomHub : Hub
             {
                 try
                 {
-                    _securityContext.AuthenticateMeWithoutCookie(Core.Configuration.Constants.CoreSystem);
+                    await _securityContext.AuthenticateMeWithoutCookieAsync(Core.Configuration.Constants.CoreSystem);
                     var access = cachedCollaboration.CollaborationType switch
                     {
                         ZoomCollaborationType.Edit => Files.Core.Security.FileShare.Editing,
@@ -133,7 +128,7 @@ public class ZoomHub : Hub
                     {
                         new()
                         {
-                            Id = _zoomAccountHelper.GetUserIdFromZoomUid(userId).Value,
+                            Id = (await _zoomAccountHelper.GetUserIdFromZoomUid(userId)).Value,
                             Access = access,
                         }
                     }
@@ -155,17 +150,17 @@ public class ZoomHub : Hub
 
     public async Task CollaborateStart(string collaborationId, ZoomCollaborationChangePayload changePayload)
     {
-        ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(collaborationId, nameof(collaborationId));
+        ArgumentException.ThrowIfNullOrEmpty(collaborationId, nameof(collaborationId));
 
         var meetingId = GetMidClaim();
         await Clients.Group(GetGroupNameFromMeetingId(meetingId)).SendAsync("OnCollaborationStarting");
 
         var uid = GetUidClaim();
-        var guid = _zoomAccountHelper.GetUserIdFromZoomUid(uid).Value;
+        var guid = (await _zoomAccountHelper.GetUserIdFromZoomUid(uid)).Value;
         var user = _userManager.GetUsers(guid);
         try
         {
-            _securityContext.AuthenticateMeWithoutCookie(guid);
+            await _securityContext.AuthenticateMeWithoutCookieAsync(guid);
 
             var room = await _fileStorageService.CreateRoomAsync($"Zoom Collaboration {DateTime.Now.ToString("g", user.GetCulture())}", RoomType.CustomRoom, false, Array.Empty<FileShareParams>(), false, string.Empty);
             await CheckRights();
@@ -179,7 +174,7 @@ public class ZoomHub : Hub
                 FileId = null,
                 CollaborationType = (ZoomCollaborationType)changePayload.CollaborationType,
                 Status = ZoomCollaborationStatus.Pending,
-                TenantId = user.Tenant
+                TenantId = user.TenantId
             };
             _cache.SetCollaboration(meetingId, collaboration);
 
@@ -193,6 +188,15 @@ public class ZoomHub : Hub
             {
                 await CollaborateChange(changePayload);
             }
+        }
+        catch (TenantQuotaException)
+        {
+            await Clients.Group(GetGroupNameFromMeetingId(meetingId)).SendAsync("OnQuotaHit");
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Error while starting collaboration");
+            throw;
         }
         finally
         {
@@ -218,13 +222,13 @@ public class ZoomHub : Hub
 
     public async Task CollaborateChange(ZoomCollaborationChangePayload changePayload)
     {
-        ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(changePayload.FileId, nameof(changePayload.FileId));
+        ArgumentException.ThrowIfNullOrEmpty(changePayload.FileId, nameof(changePayload.FileId));
 
         var uid = GetUidClaim();
-        var guid = _zoomAccountHelper.GetUserIdFromZoomUid(uid).Value;
+        var guid = (await _zoomAccountHelper.GetUserIdFromZoomUid(uid)).Value;
         try
         {
-            _securityContext.AuthenticateMeWithoutCookie(guid);
+            await _securityContext.AuthenticateMeWithoutCookieAsync(guid);
 
             var meetingId = GetMidClaim();
             var cachedCollaboration = _cache.GetCollaboration(meetingId);
@@ -246,63 +250,34 @@ public class ZoomHub : Hub
                 Status = cachedCollaboration.Status
             });
         }
+        catch (TenantQuotaException)
+        {
+            var meetingId = GetMidClaim();
+            await Clients.Group(GetGroupNameFromMeetingId(meetingId)).SendAsync("OnQuotaHit");
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Error while changing collaboration");
+            throw;
+        }
         finally
         {
             _securityContext.Logout();
         }
     }
 
-    public async Task CollaborateEnd()
+    public void CollaborateEnd()
     {
         var meetingId = GetMidClaim();
         var cachedCollaboration = _cache.GetCollaboration(meetingId);
 
         ThrowIfNotCollaborationInitiator(cachedCollaboration);
 
+        //_ = Task.Run(async () =>
+        //{
+        //    await _zoomBackupHelper.MoveFilesToBackup(cachedCollaboration);
+        //});
         _cache.RemoveCollaboration(meetingId);
-        await MoveFilesToBackup(cachedCollaboration);
-    }
-
-    private async Task MoveFilesToBackup(ZoomCollaborationCachedRoom cachedCollaboration)
-    {
-        try
-        {
-            _securityContext.AuthenticateMeWithoutCookie(_zoomAccountHelper.GetAdminUser().Id);
-
-            var parentId = await _globalFolderHelper.GetFolderVirtualRooms<int>();
-            var found = await _fileStorageService.GetFolderItemsAsync(parentId, 0, 1, FilterType.CustomRooms, false, null, null, false, false,
-                new OrderBy(SortedByType.DateAndTime, true), tagNames: new[] { cachedCollaboration.MeetingId });
-
-            int? roomId = null;
-            if (found.Entries.Any())
-            {
-                roomId = (found.Entries.First() as Folder<int>).Id;
-            }
-
-            if (!roomId.HasValue)
-            {
-                await _tagsService.CreateTagAsync(cachedCollaboration.MeetingId);
-                var room = await _fileStorageService.CreateRoomAsync($"Zoom Meeting: {DateTime.Now:MM/dd/yy}", RoomType.CustomRoom, false, Array.Empty<FileShareParams>(), false, string.Empty);
-                await _tagsService.AddRoomTagsAsync(room.Id, new[] { cachedCollaboration.MeetingId });
-                roomId = room.Id;
-            }
-
-            var collaborationRoom = await _fileStorageService.GetFolderAsync(int.Parse(cachedCollaboration.RoomId));
-            var innerRoom = await _fileStorageService.CreateNewFolderAsync(roomId.Value, collaborationRoom.Title);
-
-            var itemsToMove = await _fileStorageService.GetFolderItemsAsync(collaborationRoom.Id, 0, 20, FilterType.None, false, null, null, false, false, new OrderBy(SortedByType.DateAndTime, true));
-            var fileIds = itemsToMove.Entries.Where(entry => entry is File<int>).Select(entry => (entry as File<int>).Id);
-            var result = _fileStorageService.MoveOrCopyItems(
-                new List<JsonElement>(),
-                new List<JsonElement>(fileIds.Select(id => JsonSerializer.Deserialize<JsonElement>(id.ToString()))),
-                JsonSerializer.Deserialize<JsonElement>(innerRoom.Id.ToString()),
-                Web.Files.Services.WCFService.FileOperations.FileConflictResolveType.Skip,
-                true);
-        }
-        finally
-        {
-            _securityContext.Logout();
-        }
     }
 
     private async Task<int> MoveOrCreateFileIfNeeded(int roomId, ZoomCollaborationChangePayload changePayload)
@@ -312,7 +287,7 @@ public class ZoomHub : Hub
         int collabFileId;
         if (fileId < 0)
         {
-            ArgumentNullOrEmptyException.ThrowIfNullOrEmpty(changePayload.Title, nameof(changePayload.Title));
+            ArgumentException.ThrowIfNullOrEmpty(changePayload.Title, nameof(changePayload.Title));
             var file = await _fileStorageService.CreateNewFileAsync(new FileModel<int, int> { ParentId = roomId, Title = changePayload.Title, TemplateId = 0 });
             collabFileId = file.Id;
         }
@@ -322,7 +297,7 @@ public class ZoomHub : Hub
             collabFileId = oldFile.Id;
             if (oldFile.ParentId != roomId)
             {
-                var file = await _fileStorageService.CreateNewFileAsync(new FileModel<int, int> { ParentId = roomId, Title = oldFile.Title, TemplateId = oldFile.Id });
+                var file = await _fileStorageService.CreateNewFileAsync(new FileModel<int, int> { ParentId = roomId, Title = oldFile.Title, TemplateId = oldFile.Id }, true);
                 collabFileId = file.Id;
             }
         }

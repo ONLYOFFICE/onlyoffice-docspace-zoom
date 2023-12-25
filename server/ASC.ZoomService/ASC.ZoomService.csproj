@@ -13,6 +13,7 @@
     <NoWarn>NU1701</NoWarn>
     <ImplicitUsings>enable</ImplicitUsings>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+    <VersionPrefix>1.0</VersionPrefix>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,12 +23,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\DocSpace\common\ASC.Api.Core\ASC.Api.Core.csproj" />
-    <ProjectReference Include="..\..\DocSpace\common\ASC.Common\ASC.Common.csproj" />
-    <ProjectReference Include="..\..\DocSpace\common\ASC.Core.Common\ASC.Core.Common.csproj" />
-    <ProjectReference Include="..\..\DocSpace\products\ASC.Files\Core\ASC.Files.Core.csproj" />
-    <ProjectReference Include="..\..\DocSpace\web\ASC.Web.Api\ASC.Web.Api.csproj" />
-    <ProjectReference Include="..\..\DocSpace\web\ASC.Web.Core\ASC.Web.Core.csproj" />
+    <ProjectReference Include="..\..\DocSpace\server\common\ASC.Api.Core\ASC.Api.Core.csproj" />
+    <ProjectReference Include="..\..\DocSpace\server\common\ASC.Common\ASC.Common.csproj" />
+    <ProjectReference Include="..\..\DocSpace\server\common\ASC.Core.Common\ASC.Core.Common.csproj" />
+    <ProjectReference Include="..\..\DocSpace\server\products\ASC.Files\Core\ASC.Files.Core.csproj" />
+    <ProjectReference Include="..\..\DocSpace\server\web\ASC.Web.Api\ASC.Web.Api.csproj" />
+    <ProjectReference Include="..\..\DocSpace\server\web\ASC.Web.Core\ASC.Web.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,7 +39,7 @@
     </Content>
 
     <!-- Configuration -->
-    <Content Include="..\..\DocSpace\config\**">
+    <Content Include="..\..\DocSpace\buildtools\config\**">
       <Link>config\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
