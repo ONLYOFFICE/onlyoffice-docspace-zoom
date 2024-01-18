@@ -496,6 +496,10 @@
                     fileInfoElement.append(fileRow);
                 }
 
+                additionalInfoForm.onsubmit = (event) => {
+                    event.preventDefault();
+                    OnAdditionalInfoSubmit();
+                };
                 additionalSubmit.onclick = OnAdditionalInfoSubmit;
                 changeElementDisplay(fileCreateInfo, showCreate ? "block" : "none");
                 changeElementDisplay(permissionForm, showPermissions ? "block" : "none");
