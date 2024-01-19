@@ -81,7 +81,7 @@ body {
 }
 .button.secondary {
     background: white;
-    border: 1px solid #A3A9AE;
+    border: 1px solid rgba(208, 213, 218, 1);
     color: #333333;
 }
 
@@ -93,7 +93,7 @@ body {
 #filePickerBox > div {
     display: flex;
     flex-direction: row;
-    border-bottom: 1px solid #A3A9AE;
+    border-bottom: 1px solid rgba(208, 213, 218, 1);
     padding: 5px;
     align-items: center;
 }
@@ -171,7 +171,7 @@ body {
 }
 
 .optionBox .help {
-    color: #A3A9AE;
+    color: rgba(208, 213, 218, 1);
     font-size: 0.9rem;
 }
 
@@ -188,7 +188,7 @@ body {
     margin: 5px;
     padding: 6px 3px;
     border-radius: 6px;
-    border: 1px solid #A3A9AE;
+    border: 1px solid rgba(208, 213, 218, 1);
 }
 
 #fileCreateInfo .formats {
@@ -210,7 +210,7 @@ body {
     padding: 5px;
     margin: 5px;
     border-radius: 6px;
-    border: 1px solid #A3A9AE;
+    border: 1px solid rgba(208, 213, 218, 1);
     flex: 1;
     min-width: 92px;
 }
