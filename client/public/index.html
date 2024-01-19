@@ -440,21 +440,21 @@
                 if (!options) options = {};
 
                 changeElementDisplay(messageBox, "none");
-                messageText.innerText = null;
+                messageText.innerHTML = null;
                 messageButton.onclick = null;
                 changeElementDisplay(messageButton, "none");
 
                 if (options.button) {
-                    messageButton.innerText = options.button.text;
+                    messageButton.innerHTML = options.button.text;
                     changeElementDisplay(messageButton, "block");
                     messageButton.onclick = options.button.action;
                 }
 
                 if (options.help) {
-                    messageHelp.innerText = t(msgKey);
+                    messageHelp.innerHTML = t(msgKey);
                     changeElementDisplay(messageHelp, "block");
                 } else {
-                    messageText.innerText = t(msgKey);
+                    messageText.innerHTML = t(msgKey);
                     hideAll();
                     changeElementDisplay(messageBox, "block");
                 }
@@ -827,7 +827,7 @@
                 docSpaceFrame = window.DocSpace.SDK.initFrame(docSpaceInitConfig);
                 docSpaceFrame.style.maxWidth = "480px"; // fix for old picker
                 showDocSpace();
-                showMessage("Choose file from DocSpace to collaborate with other Zoom meeting participants", { help: true });
+                showMessage("<b>Choose file</b> from DocSpace to collaborate with other Zoom meeting participants", { help: true });
                 showFilePickerHeader();
             }
 
