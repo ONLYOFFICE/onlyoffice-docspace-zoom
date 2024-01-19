@@ -138,6 +138,13 @@ body {
 #permissionBox {
     padding: 10px;
     margin-top: 10px;
+    flex: 1;
+}
+
+#additionalInfoForm {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 #fileInfo > div {
@@ -153,6 +160,7 @@ body {
 
 #permissionForm {
     margin-top: 1.5rem;
+    flex: 1;
 }
 
 .optionBox {
@@ -199,6 +207,7 @@ body {
     display: flex;
     column-gap: 1rem;
     flex-wrap: wrap;
+    border-top: 1px solid rgba(208, 213, 218, 1);
 }
 
 #fileCreateInfo .formats > label {
