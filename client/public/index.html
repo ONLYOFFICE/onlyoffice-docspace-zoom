@@ -77,13 +77,21 @@
         }
 
         .button {
-            padding: 1rem;
+            padding: 0.5rem;
             background: rgba(82, 153, 224, 1);
             color: white;
             margin-top: 1rem;
             border-radius: 6px;
             cursor: pointer;
             text-align: center;
+            font-weight: bold;
+            border: 1px solid transparent;
+            flex: 1;
+        }
+        .button.secondary {
+            background: white;
+            border: 1px solid #A3A9AE;
+            color: #333333;
         }
 
         #filePickerBox {
@@ -193,6 +201,12 @@
 
         #fileCreateInfo .formats {
             display: flex;
+        }
+
+        .buttons {
+            display: flex;
+            column-gap: 1rem;
+            flex-wrap: wrap;
         }
 
         #fileCreateInfo .formats > label {
@@ -327,7 +341,10 @@
                         </label>
                     </div>
                 </div>
-                <div class="button" id="additionalSubmit" data-translate="content">Open</div>
+                <div class="buttons">
+                    <div class="button" id="additionalSubmit" data-translate="content">Open</div>
+                    <div class="button secondary" id="additionalCancel" data-translate="content">Cancel</div>
+                </div>
             </form>
         </div>
         <div id="zoom-ds-frame"></div>
@@ -503,6 +520,7 @@
                     OnAdditionalInfoSubmit();
                 };
                 additionalSubmit.onclick = OnAdditionalInfoSubmit;
+                additionalCancel.onclick = OnAdditionalInfoCancel;
                 changeElementDisplay(fileCreateInfo, showCreate ? "block" : "none");
                 changeElementDisplay(permissionForm, showPermissions ? "block" : "none");
                 changeElementDisplay(permissionBox, "block");
@@ -852,6 +870,11 @@
                         showMessage("You're not host or coHost, please press 'Collaborate' button manually");
                     }
                 }
+            }
+
+            function OnAdditionalInfoCancel() {
+                firstPick = true;
+                destroyLoginFrameAndInitFilePicker(true);
             }
 
             let firstPick = true;
