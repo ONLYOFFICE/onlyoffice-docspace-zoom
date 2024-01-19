@@ -517,6 +517,7 @@
 
             async function initLoader() {
                 docSpaceLoaderFrame = window.DocSpace.SDK.initSystem({
+                    checkCSP: false,
                     frameId: "zoom-ds-loader-frame",
                     name: "zoomDsLoaderFrame",
                     mode: "system",
