@@ -10,9 +10,12 @@
   "LiveView": "实时视图",
   "All participants will see your screen": "所有与会者都将能看到您的屏幕",
   "Open": "打开",
+  "Cancel": "取消",
   "Collaboration host is changing a document, please wait": "协作主持人正在修改该文档，请稍等",
   "Sorry, you cannot create new rooms and files. Please wait until Owner or Power User start the collaboration session.": "抱歉，您不能创建新的房间和文件。请等待所有者或高级用户启动协作模式。",
-  "Choose file from DocSpace to collaborate with other Zoom meeting participants": "从协作空间选择文件，与其他 Zoom 与会者进行协作",
+  "<b>Choose file</b> from DocSpace to collaborate with other Zoom meeting participants": "从协作空间<b>选择文件</b>，与其他 Zoom 与会者进行协作",
   "You're not host or coHost, please press 'Collaborate' button manually": "您不是主持人或共同主持人，请手动按下“协作”按钮",
-  "Meeting participant started editing session": "与会者已开始编辑"
+  "Meeting participant started editing session": "与会者已开始编辑",
+  "The quota of your DocSpace is almost reached.": "您的协作空间配额即将用完。",
+  "Please authorize using browser.": "请使用浏览器进行授权。"
 }
