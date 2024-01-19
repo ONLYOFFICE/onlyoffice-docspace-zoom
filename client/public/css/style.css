@@ -56,6 +56,7 @@ body {
 #messageHelp, .messageBody {
     text-align: center;
     padding: 1rem;
+    font-size: larger;
 }
 
 .messageBody {
