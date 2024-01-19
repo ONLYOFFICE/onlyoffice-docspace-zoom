@@ -12,7 +12,7 @@
   "Open": "Open",
   "Collaboration host is changing a document, please wait": "Collaboration host is changing a document, please wait",
   "Sorry, you cannot create new rooms and files. Please wait until Owner or Power User start the collaboration session.": "Sorry, you cannot create new rooms and files. Please wait until Owner or Power User start the collaboration session.",
-  "Choose file from DocSpace to collaborate with other Zoom meeting participants": "Choose file from DocSpace to collaborate with other Zoom meeting participants",
+  "<b>Choose file</b> from DocSpace to collaborate with other Zoom meeting participants": "<b>Choose file</b> from DocSpace to collaborate with other Zoom meeting participants",
   "You're not host or coHost, please press 'Collaborate' button manually": "You're not host or coHost, please press 'Collaborate' button manually",
   "Meeting participant started editing session": "Meeting participant started editing session"
 }
