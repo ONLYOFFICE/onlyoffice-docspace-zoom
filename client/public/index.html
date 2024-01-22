@@ -6,248 +6,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ONLYOFFICE</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-        }
-
-        html,
-        body,
-        .container {
-            height: 100%;
-            width: 100%;
-        }
-
-        body {
-            font-family: system-ui;
-            color: #333333;
-            background-image: url("/images/zoom.integration.background.svg");
-            background-position: center center;
-            background-size: cover;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        #zoom-ds-frame
-        #zoom-ds-loader-frame,
-        #spinner-holder {
-            flex: 1;
-        }
-
-        #zoom-ds-auth-frame,
-        #zoom-ds-frame,
-        #messageBox,
-        #messageHelp,
-        #messageButton,
-        #permissionBox,
-        #filePickerBox {
-            display: none;
-        }
-
-        .messageHeader {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            margin-top: 5rem;
-        }
-
-        .messageHeader img {
-            height: 5rem;
-        }
-
-        #messageHelp, .messageBody {
-            text-align: center;
-            padding: 1rem;
-            font-size: 1.2rem;
-        }
-
-        .messageBody {
-            padding: 2rem;
-            font-size: 1.4rem;
-            margin: 1.5rem 1.5rem 0 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0px 5px 20px 0px rgba(4, 15, 27, 0.07);
-        }
-
-        .button {
-            padding: 1rem;
-            background: rgba(82, 153, 224, 1);
-            color: white;
-            margin-top: 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        #filePickerBox {
-            width: 100%;
-            max-width: 480px;
-        }
-
-        #filePickerBox > div {
-            display: flex;
-            flex-direction: row;
-            border-bottom: 1px solid #A3A9AE;
-            padding: 5px;
-            align-items: center;
-        }
-
-        .filePickerHeader {
-            font-weight: bold;
-            font-size: larger;
-        }
-
-        .filePickerButtons {
-            flex: 1;
-            display: flex;
-            flex-direction: row;
-            justify-content: end;
-        }
-
-        .filePickerButtons div {
-            border: 1px solid rgba(208, 213, 218, 1);
-            border-radius: 3px;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            color: rgba(163, 169, 174, 1);
-            margin-left: 5px;
-        }
-
-        .filePickerButtons div svg {
-            width: 24px;
-            height: 24px;
-        }
-
-        .filePickerButtons div.primary {
-            border: 1px solid transparent;
-            background: rgba(82, 153, 224, 1);
-            color: white;
-        }
-
-        #permissionBox {
-            padding: 10px;
-            margin-top: 10px;
-        }
-
-        #fileInfo > div {
-            display: flex;
-            align-items: center;
-            font-weight: 500;
-        }
-
-        #fileInfo > div > img {
-            height: 2rem;
-            margin-right: 0.5rem;
-        }
-
-        #permissionForm {
-            margin-top: 1.5rem;
-        }
-
-        .optionBox {
-            margin-top: 0.5rem;
-        }
-
-        .optionBox > label {
-            display: flex;
-            align-items: baseline;
-        }
-
-        .optionBox > label > div {
-            display: flex;
-            flex-direction: column;
-            margin-left: 5px;
-        }
-
-        .optionBox .help {
-            color: #A3A9AE;
-            font-size: 0.9rem;
-        }
-
-        #fileCreateInfo {
-            padding: 5px;
-        }
-
-        #fileCreateInfo .label {
-            font-weight: 500;
-        }
-
-        #fileCreateInfo input {
-            width: calc(100% - 18px);
-            margin: 5px;
-            padding: 6px 3px;
-            border-radius: 6px;
-            border: 1px solid #A3A9AE;
-        }
-
-        #fileCreateInfo .formats {
-            display: flex;
-        }
-
-        #fileCreateInfo .formats > label {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-weight: 500;
-            padding: 5px;
-            margin: 5px;
-            border-radius: 6px;
-            border: 1px solid #A3A9AE;
-            flex: 1;
-            min-width: 105px;
-        }
-
-        #fileCreateInfo .formats > label.active {
-            background-color: rgba(223, 226, 227, 1);
-        }
-
-        #fileCreateInfo .formats > label > img {
-            width: 32px;
-            height: 32px;
-        }
-
-        #dragZone {
-            display: none;
-            position: absolute;
-            height: 100%;
-            width: 100%;
-            background: white;
-            padding: 30px;
-            box-sizing: border-box;
-        }
-
-        #dragZone > div {
-            border: 3px dashed #A3A9AE;
-            width: 100%;
-            height: 100%;
-            border-radius: 6px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.2rem;
-            font-weight: 500;
-        }
-
-        @media screen and (max-width: 415px) {
-            #fileCreateInfo .formats {
-                flex-direction: column;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/fonts.css">
 </head>
 
 <body>
-    <div id="dragZone"><div>Drag&amp;Drop file here</div></div>
     <div class="container">
         <div id="messageBox">
             <div class="messageHeader">
@@ -266,13 +29,13 @@
                 <div class="filePickerButtons">
                     <input id="uploadNewFileInput" hidden type="file" name="file" accept=".docx,.xlsx,.pptx" />
                     <div id="uploadNewFileButton">
-                        <svg width="17" height="16" viewBox="0 0 17 16" fill="none">
-                            <path d="M6.49384 12V9H2.5L8.5 2L14.5 9H10.494V12M1.5 14H15.5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                        <svg viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M9.00002 1.0625C9.31019 1.0625 9.60487 1.19804 9.80673 1.43353L16.1817 8.87103C16.4518 9.18608 16.5137 9.6295 16.3403 10.0065C16.1669 10.3834 15.79 10.625 15.375 10.625H12.1811V12.75H10.0561V9.5625C10.0561 8.9757 10.5318 8.5 11.1186 8.5H13.0649L9.00002 3.75763L4.93512 8.5H6.86847C7.45528 8.5 7.93097 8.9757 7.93097 9.5625V12.75H5.80597V10.625H2.62502C2.21008 10.625 1.8331 10.3834 1.65972 10.0065C1.48634 9.6295 1.54827 9.18608 1.81831 8.87103L8.19331 1.43353C8.39516 1.19804 8.68985 1.0625 9.00002 1.0625ZM16.4375 13.8125V15.9375H1.56252V13.8125H16.4375Z" fill="#A3A9AE"/>
                         </svg>
                     </div>
                     <div class="primary" id="createNewFileButton">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <path fill-rule="evenodd" clip-rule="evenodd" d="M9 7V1H7V7H1V9H7V15H9V9H15V7H9Z" fill="currentColor"/>
+                        <svg viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M9 1C8.17157 1 7.5 1.67157 7.5 2.5V7H3C2.17157 7 1.5 7.67157 1.5 8.5C1.5 9.32843 2.17157 10 3 10H7.5V14.5C7.5 15.3284 8.17157 16 9 16C9.82843 16 10.5 15.3284 10.5 14.5V10H15C15.8284 10 16.5 9.32843 16.5 8.5C16.5 7.67157 15.8284 7 15 7H10.5V2.5C10.5 1.67157 9.82843 1 9 1Z" fill="white"/>
                         </svg>
                     </div>
                 </div>
@@ -325,7 +88,10 @@
                         </label>
                     </div>
                 </div>
-                <div class="button" id="additionalSubmit" data-translate="content">Open</div>
+                <div class="buttons">
+                    <div class="button" id="additionalSubmit" data-translate="content">Open</div>
+                    <div class="button secondary" id="additionalCancel" data-translate="content">Cancel</div>
+                </div>
             </form>
         </div>
         <div id="zoom-ds-frame"></div>
@@ -443,21 +209,21 @@
                 if (!options) options = {};
 
                 changeElementDisplay(messageBox, "none");
-                messageText.innerText = null;
+                messageText.innerHTML = null;
                 messageButton.onclick = null;
                 changeElementDisplay(messageButton, "none");
 
                 if (options.button) {
-                    messageButton.innerText = options.button.text;
+                    messageButton.innerHTML = options.button.text;
                     changeElementDisplay(messageButton, "block");
                     messageButton.onclick = options.button.action;
                 }
 
                 if (options.help) {
-                    messageHelp.innerText = t(msgKey);
+                    messageHelp.innerHTML = t(msgKey);
                     changeElementDisplay(messageHelp, "block");
                 } else {
-                    messageText.innerText = t(msgKey);
+                    messageText.innerHTML = t(msgKey);
                     hideAll();
                     changeElementDisplay(messageBox, "block");
                 }
@@ -496,7 +262,12 @@
                     fileInfoElement.append(fileRow);
                 }
 
+                additionalInfoForm.onsubmit = (event) => {
+                    event.preventDefault();
+                    OnAdditionalInfoSubmit();
+                };
                 additionalSubmit.onclick = OnAdditionalInfoSubmit;
+                additionalCancel.onclick = OnAdditionalInfoCancel;
                 changeElementDisplay(fileCreateInfo, showCreate ? "block" : "none");
                 changeElementDisplay(permissionForm, showPermissions ? "block" : "none");
                 changeElementDisplay(permissionBox, "block");
@@ -513,6 +284,7 @@
 
             async function initLoader() {
                 docSpaceLoaderFrame = window.DocSpace.SDK.initSystem({
+                    checkCSP: false,
                     frameId: "zoom-ds-loader-frame",
                     name: "zoomDsLoaderFrame",
                     mode: "system",
@@ -824,7 +596,7 @@
                 docSpaceFrame = window.DocSpace.SDK.initFrame(docSpaceInitConfig);
                 docSpaceFrame.style.maxWidth = "480px"; // fix for old picker
                 showDocSpace();
-                showMessage("Choose file from DocSpace to collaborate with other Zoom meeting participants", { help: true });
+                showMessage("<b>Choose file</b> from DocSpace to collaborate with other Zoom meeting participants", { help: true });
                 showFilePickerHeader();
             }
 
@@ -845,6 +617,11 @@
                         showMessage("You're not host or coHost, please press 'Collaborate' button manually");
                     }
                 }
+            }
+
+            function OnAdditionalInfoCancel() {
+                firstPick = true;
+                destroyLoginFrameAndInitFilePicker(true);
             }
 
             let firstPick = true;
@@ -1003,7 +780,6 @@
                 }
             }
 
-            let dragTimeout;
             function hookEvents() {
                 const inputs = document.getElementsByClassName("selectable-label");
                 for(let i = 0; i < inputs.length; i++) {
@@ -1055,21 +831,6 @@
                         destroyLoginFrameAndInitFilePicker(false, false);
                     }
                 }
-
-                window.addEventListener("dragover", function(e) {
-                    if (document.getElementById("filePickerBox").style.display == "none") return;
-
-                    e.preventDefault()
-                    changeElementDisplay(document.getElementById("dragZone"), "block");
-                    clearTimeout(dragTimeout);
-                    dragTimeout = setTimeout(() => changeElementDisplay(document.getElementById("dragZone"), "none"), 500);
-                });
-                window.addEventListener("drop", function(e) {
-                    if (document.getElementById("filePickerBox").style.display == "none") return;
-
-                    e.preventDefault();
-                    changeElementDisplay(document.getElementById("dragZone"), "none");
-                });
             }
 
             hookEvents();

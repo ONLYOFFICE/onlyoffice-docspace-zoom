@@ -12,7 +12,7 @@
   "Open": "Открыть",
   "Collaboration host is changing a document, please wait": "Организатор совместной работы изменяет документ, пожалуйста, подождите",
   "Sorry, you cannot create new rooms and files. Please wait until Owner or Power User start the collaboration session.": "К сожалению, вы не можете создавать новые комнаты и файлы. Пожалуйста, подождите, когда Владелец или Опытный пользователь начнет сеанс совместной работы.",
-  "Choose file from DocSpace to collaborate with other Zoom meeting participants": "Выберите файл из DocSpace для совместной работы с другими участниками собрания Zoom",
-  "You're not host or coHost, please press 'Collaborate' button manually": "Вы не являетесь организатором или соорганизатором. Пожалуйста, нажмите кнопку 'Совместная работа'",
+  "<b>Choose file</b> from DocSpace to collaborate with other Zoom meeting participants": "Выберите файл из DocSpace для совместной работы с другими участниками собрания Zoom",
+  "You're not host or coHost, please press 'Collaborate' button manually": "Вы не являетесь организатором или соорганизатором. Пожалуйста, нажмите кнопку 'Коллективная работа'",
   "Meeting participant started editing session": "Участник собрания начал сеанс редактирования"
 }

@@ -12,7 +12,7 @@
   "Open": "Apri",
   "Collaboration host is changing a document, please wait": "L'host della collaborazione sta modificando un documento, attendi",
   "Sorry, you cannot create new rooms and files. Please wait until Owner or Power User start the collaboration session.": "Siamo spiacenti, non puoi creare nuove stanze virtuali e nuovi file. Attendi fino a quando il Proprietario o l'Utente esperto non avviano la sessione di collaborazione.",
-  "Choose file from DocSpace to collaborate with other Zoom meeting participants": "Scegli un file da DocSpace per collaborare con altri partecipanti alla riunione Zoom",
+  "<b>Choose file</b> from DocSpace to collaborate with other Zoom meeting participants": "Scegli un file da DocSpace per collaborare con altri partecipanti alla riunione Zoom",
   "You're not host or coHost, please press 'Collaborate' button manually": "Non sei un host o un cohost. Premi manualmente il pulsante 'Collabora'",
   "Meeting participant started editing session": "Il partecipante alla riunione ha avviato la sessione di modifica"
 }
