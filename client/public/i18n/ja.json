@@ -10,9 +10,12 @@
   "LiveView": "LiveView",
   "All participants will see your screen": "参加者全員にあなたの画面が表示されます",
   "Open": "開く",
+  "Cancel": "キャンセル",
   "Collaboration host is changing a document, please wait": "コラボレーションのホストがドキュメントを変更中です。",
   "Sorry, you cannot create new rooms and files. Please wait until Owner or Power User start the collaboration session.": "申し訳ありませんが、新しいルームやファイルを作成することはできません。所有者またはパワーユーザーがコラボレーションセッションを開始するまでお待ちください。",
-  "<b>Choose file</b> from DocSpace to collaborate with other Zoom meeting participants": "DocSpaceからファイルを選択し、他のZoomミーティング参加者と共同作業を行うことができます。",
+  "<b>Choose file</b> from DocSpace to collaborate with other Zoom meeting participants": "DocSpaceから<b>ファイルを選択</b>し、他のZoomミーティング参加者と共同作業を行うことができます。",
   "You're not host or coHost, please press 'Collaborate' button manually": "あなたはホストでも共同ホストでもありませんので、手動で「コラボレーション」ボタンを押してください。",
-  "Meeting participant started editing session": "ミーティング参加者が編集セッションを開始"
+  "Meeting participant started editing session": "ミーティング参加者が編集セッションを開始",
+  "The quota of your DocSpace is almost reached.": "DocSpaceの容量が残りわずかとなりました。",
+  "Please authorize using browser.": "ブラウザで認証してください。"
 }
