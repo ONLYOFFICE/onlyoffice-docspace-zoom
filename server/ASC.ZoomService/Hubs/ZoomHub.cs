@@ -42,18 +42,16 @@ public class ZoomHub : Hub
     private readonly ZoomAccountHelper _zoomAccountHelper;
     private readonly SecurityContext _securityContext;
     private readonly UserManager _userManager;
-    private readonly TenantManager _tenantManager;
     private readonly ILogger<ZoomHub> _log;
 
     public ZoomHub(IDistributedCache cache, FileStorageService fileStorageService, ZoomAccountHelper zoomAccountHelper,
-        SecurityContext securityContext, UserManager userManager, TenantManager tenantManager, ILogger<ZoomHub> log)
+        SecurityContext securityContext, UserManager userManager, ILogger<ZoomHub> log)
     {
         _cache = cache;
         _fileStorageService = fileStorageService;
         _zoomAccountHelper = zoomAccountHelper;
         _securityContext = securityContext;
         _userManager = userManager;
-        _tenantManager = tenantManager;
         _log = log;
     }
 
@@ -160,13 +158,11 @@ public class ZoomHub : Hub
         var uid = GetUidClaim();
         var guid = (await _zoomAccountHelper.GetUserIdFromZoomUid(uid)).Value;
         var user = _userManager.GetUsers(guid);
-        var tenant = await _tenantManager.GetTenantAsync(user.TenantId);
         try
         {
             await _securityContext.AuthenticateMeWithoutCookieAsync(guid);
-            var tz = TimeZoneInfo.FromSerializedString(tenant.TimeZone);
 
-            var room = await _fileStorageService.CreateRoomAsync($"Zoom Collaboration {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz).ToString("g", user.GetCulture())}", RoomType.CustomRoom, false, Array.Empty<FileShareParams>(), false, string.Empty);
+            var room = await _fileStorageService.CreateRoomAsync($"Zoom Collaboration {DateTime.Now.ToString("g", user.GetCulture())}", RoomType.CustomRoom, false, Array.Empty<FileShareParams>(), false, string.Empty);
             await CheckRights();
 
             var collaboration = new ZoomCollaborationCachedRoom()
