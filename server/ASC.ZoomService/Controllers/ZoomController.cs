@@ -47,6 +47,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 
 namespace ASC.ApiSystem.Controllers;
 
@@ -571,6 +572,19 @@ public class ZoomController : ControllerBase
         }
     }
 
+    private string SanitizeName(string name, string defaultValue)
+    {
+        var regex = new Regex(Configuration["core:username:regex"] ?? "");
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return defaultValue;
+        }
+        else
+        {
+            return new string(name.Select(s => regex.Match(s.ToString()).Success ? s : '-').ToArray());
+        }
+    }
+
     private CultureInfo GetCultureFromLocale(string locale)
     {
         var culture = TimeZonesProvider.GetCurrentCulture(null);
@@ -586,8 +600,8 @@ public class ZoomController : ControllerBase
         Log.LogDebug($"CreateTenant(): Creating user for zoom user '{profile.Id}'.");
         var userInfo = new UserInfo
         {
-            FirstName = string.IsNullOrEmpty(profile.FirstName) ? UserControlsCommonResource.UnknownFirstName : profile.FirstName,
-            LastName = string.IsNullOrEmpty(profile.LastName) ? UserControlsCommonResource.UnknownLastName : profile.LastName,
+            FirstName = SanitizeName(profile.FirstName, UserControlsCommonResource.UnknownFirstName),
+            LastName = SanitizeName(profile.LastName, UserControlsCommonResource.UnknownLastName),
             Email = profile.EMail,
             Title = string.Empty,
             Location = string.Empty,
@@ -624,8 +638,8 @@ public class ZoomController : ControllerBase
             Name = "Zoom",
             Address = portalName,
             Culture = GetCultureFromLocale(profile.Locale),
-            FirstName = string.IsNullOrEmpty(profile.FirstName) ? UserControlsCommonResource.UnknownFirstName : profile.FirstName,
-            LastName = string.IsNullOrEmpty(profile.LastName) ? UserControlsCommonResource.UnknownLastName : profile.LastName,
+            FirstName = SanitizeName(profile.FirstName, UserControlsCommonResource.UnknownFirstName),
+            LastName = SanitizeName(profile.LastName, UserControlsCommonResource.UnknownLastName),
             PasswordHash = null,
             Email = profile.EMail,
             TimeZoneInfo = TimeZoneConverter.GetTimeZone(profile.TimeZone) ?? TimeZoneInfo.Local,
