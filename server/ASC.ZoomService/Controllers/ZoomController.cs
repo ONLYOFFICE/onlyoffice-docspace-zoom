@@ -652,7 +652,29 @@ public class ZoomController : ControllerBase
         {
             Log.LogDebug($"CreateTenant(): Setting tariff for tenant {tenant.Id}.");
 
-            if (TryGetQuotaId(out var trialQuotaId))
+            var approvedList = Configuration.GetSection("zoom:zoom-tariff").Get<string[]>();
+
+            bool approved;
+            if (approvedList == null || !approvedList.Any())
+            {
+                approved = true;
+            }
+            else
+            {
+                approved = false;
+                foreach(var pattern in approvedList)
+                {
+                    var regex = new Regex(pattern);
+                    var match = regex.Match(profile.EMail);
+                    if (match.Success)
+                    {
+                        approved = true;
+                        break;
+                    }
+                }
+            }
+
+            if (TryGetQuotaId(approved, out var trialQuotaId))
             {
                 var dueDate = DateTime.MaxValue;
                 if (TryGetQuotaDue(out var dueTrial))
@@ -681,9 +703,9 @@ public class ZoomController : ControllerBase
         return tenant;
     }
 
-    private bool TryGetQuotaId(out int quotaId)
+    private bool TryGetQuotaId(bool approved, out int quotaId)
     {
-        if (!int.TryParse(Configuration["zoom:quota:id"], out int parsedId))
+        if (!int.TryParse(Configuration["zoom:quota:id"], out int parsedId) || !approved)
         {
             if (!int.TryParse(Configuration["quota:id"], out parsedId))
             {
