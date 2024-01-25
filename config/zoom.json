@@ -4,6 +4,10 @@
     "zoom-domain": "",
     "zoom-redirect-uri": "",
     "event-secret": "",
-    "aws-region": ""
+    "aws-region": "",
+    "quota": {
+      "id": -8,
+      "due": 180
+    }
   }
 }

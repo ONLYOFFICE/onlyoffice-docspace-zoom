@@ -665,24 +665,21 @@ public class ZoomController : ControllerBase
         try
         {
             Log.LogDebug($"CreateTenant(): Setting tariff for tenant {tenant.Id}.");
-            var trialQuota = Configuration["quota:id"];
-            if (!string.IsNullOrEmpty(trialQuota))
-            {
-                if (int.TryParse(trialQuota, out var trialQuotaId))
-                {
-                    var dueDate = DateTime.MaxValue;
-                    if (int.TryParse(Configuration["quota:due"], out var dueTrial))
-                    {
-                        dueDate = DateTime.UtcNow.AddDays(dueTrial);
-                    }
 
-                    var tariff = new Tariff
-                    {
-                        Quotas = new List<Quota> { new Quota(trialQuotaId, 1) },
-                        DueDate = dueDate
-                    };
-                    await HostedSolution.SetTariffAsync(tenant.Id, tariff);
+            if (TryGetQuotaId(out var trialQuotaId))
+            {
+                var dueDate = DateTime.MaxValue;
+                if (TryGetQuotaDue(out var dueTrial))
+                {
+                    dueDate = DateTime.UtcNow.AddDays(dueTrial);
                 }
+
+                var tariff = new Tariff
+                {
+                    Quotas = new List<Quota> { new Quota(trialQuotaId, 1) },
+                    DueDate = dueDate
+                };
+                await HostedSolution.SetTariffAsync(tenant.Id, tariff);
             }
 
             Log.LogDebug($"CreateTenant(): Setting csp settings to allow '{$"https://{portalName}.{Configuration["zoom:zoom-domain"]}"}'.");
@@ -696,6 +693,34 @@ public class ZoomController : ControllerBase
 
         Log.LogInformation($"CreateTenant(): Created tenant {portalName} with id {tenant.Id}.");
         return tenant;
+    }
+
+    private bool TryGetQuotaId(out int quotaId)
+    {
+        if (!int.TryParse(Configuration["zoom:quota:id"], out int parsedId))
+        {
+            if (!int.TryParse(Configuration["quota:id"], out parsedId))
+            {
+                quotaId = 0;
+                return false;
+            }
+        }
+        quotaId = parsedId;
+        return true;
+    }
+
+    private bool TryGetQuotaDue(out int quotaDue)
+    {
+        if (!int.TryParse(Configuration["zoom:quota:due"], out int parsedDue))
+        {
+            if (!int.TryParse(Configuration["quota:due"], out parsedDue))
+            {
+                quotaDue = 0;
+                return false;
+            }
+        }
+        quotaDue = parsedDue;
+        return true;
     }
 
     private string GenerateAlias(string accountId)
