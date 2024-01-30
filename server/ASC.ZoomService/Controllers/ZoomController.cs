@@ -647,6 +647,7 @@ public class ZoomController : ControllerBase
             Industry = TenantIndustry.Other,
             Spam = false,
             Calls = false,
+            ActivationStatus = EmployeeActivationStatus.Activated,
         };
 
         Log.LogDebug($"CreateTenant(): Registering tenant {portalName}.");
