@@ -25,6 +25,7 @@
 // International. See the License terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
 
 using ASC.ApiSystem.Helpers;
+using ASC.ApiSystem.Services.NotifyService;
 using ASC.Core.Common.Quota;
 using ASC.Core.Common.Quota.Features;
 using ASC.FederatedLogin;
@@ -35,9 +36,11 @@ using ASC.Files.Core.ApiModels.ResponseDto;
 using ASC.Files.Core.VirtualRooms;
 using ASC.Web.Api.Core;
 using ASC.Web.Core.Files;
+using ASC.Web.Core.Notify;
 using ASC.Web.Files.Classes;
 using ASC.Web.Files.Services.WCFService;
 using ASC.Web.Files.Utils;
+using ASC.Web.Studio.Core.Notify;
 using ASC.ZoomService.Extensions;
 using ASC.ZoomService.Helpers;
 using ASC.ZoomService.Models;
@@ -72,8 +75,6 @@ public class ZoomController : ControllerBase
     private AccountLinker AccountLinker { get; }
     private UserManagerWrapper UserManagerWrapper { get; }
     private RequestHelper RequestHelper { get; }
-    private FileStorageService FileStorageService { get; }
-    private SettingsManager SettingsManager { get; }
     private FileUploader FileUploader { get; }
     private SocketManager SocketManager { get; }
     private FileDtoHelper FileDtoHelper { get; }
@@ -81,6 +82,7 @@ public class ZoomController : ControllerBase
     private IDistributedCache Cache { get; }
     private CspSettingsHelper CspSettingsHelper { get; }
     private TenantQuotaFeatureCheckerCount<CountPaidUserFeature> CountPaidUserChecker { get; }
+    private NotifyClient NotifyClient { get; }
 
     public ZoomController(
         CommonMethods commonMethods,
@@ -98,15 +100,14 @@ public class ZoomController : ControllerBase
         AccountLinker accountLinker,
         UserManagerWrapper userManagerWrapper,
         RequestHelper requestHelper,
-        FileStorageService fileStorageService,
-        SettingsManager settingsManager,
         FileUploader fileUploader,
         SocketManager socketManager,
         FileDtoHelper fileDtoHelper,
         GlobalFolderHelper globalFolderHelper,
         IDistributedCache cache,
         CspSettingsHelper cspSettingsHelper,
-        TenantQuotaFeatureCheckerCount<CountPaidUserFeature> countPaidUserChecker
+        TenantQuotaFeatureCheckerCount<CountPaidUserFeature> countPaidUserChecker,
+        NotifyClient notifyClient
         )
     {
         CommonMethods = commonMethods;
@@ -124,8 +125,6 @@ public class ZoomController : ControllerBase
         AccountLinker = accountLinker;
         UserManagerWrapper = userManagerWrapper;
         RequestHelper = requestHelper;
-        FileStorageService = fileStorageService;
-        SettingsManager = settingsManager;
         FileUploader = fileUploader;
         SocketManager = socketManager;
         FileDtoHelper = fileDtoHelper;
@@ -133,6 +132,7 @@ public class ZoomController : ControllerBase
         Cache = cache;
         CspSettingsHelper = cspSettingsHelper;
         CountPaidUserChecker = countPaidUserChecker;
+        NotifyClient = notifyClient;
     }
 
     #region For TEST api
@@ -666,6 +666,10 @@ public class ZoomController : ControllerBase
             await ApiSystemHelper.AddTenantToCacheAsync(domain, region);
         }
 
+        HttpContext.Request.Scheme = "https";
+        HttpContext.Request.Host = new HostString(tenant.GetTenantDomain(CoreSettings));
+        await SendCongratulations(tenant, info.FirstName);
+
         try
         {
             Log.LogDebug($"CreateTenant(): Setting tariff for tenant {tenant.Id}.");
@@ -697,6 +701,19 @@ public class ZoomController : ControllerBase
 
         Log.LogInformation($"CreateTenant(): Created tenant {portalName} with id {tenant.Id}.");
         return tenant;
+    }
+
+    private async Task SendCongratulations(Tenant tenant, string firstName)
+    {
+        try
+        {
+            Log.LogInformation("Sending welcome email");
+            await NotifyClient.SendZoomWelcome(tenant.OwnerId, firstName, tenant.GetCulture());
+        }
+        catch (Exception ex)
+        {
+            Log.LogError(ex, "Error while sending welcome email");
+        }
     }
 
     private bool TryGetQuotaId(out int quotaId)
