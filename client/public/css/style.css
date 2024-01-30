@@ -257,6 +257,10 @@ body {
     height: 32px;
 }
 
+.fw600 {
+    font-weight: 600;
+}
+
 @media screen and (max-width: 438px) {
     #fileCreateInfo .formats {
         flex-direction: column;
