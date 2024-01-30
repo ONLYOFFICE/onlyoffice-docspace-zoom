@@ -161,6 +161,10 @@ body {
     flex-direction: column;
 }
 
+#fileInfo {
+    margin: 0 10px;
+}
+
 #fileInfo > div {
     display: flex;
     align-items: center;
@@ -175,7 +179,7 @@ body {
 #permissionForm {
     flex: 1;
     padding: 5px;
-    margin: 5px;
+    margin: 5px 10px;
     margin-top: 8px;
 }
 
@@ -205,18 +209,26 @@ body {
 
 #fileCreateInfo .label {
     font-weight: 600;
+    margin-left: 10px;
 }
 
 #fileCreateInfo input {
-    width: calc(100% - 18px);
-    margin: 5px;
-    padding: 6px 3px;
+    margin: 5px 10px;
+    padding: 8px 6px;
     border-radius: 3px;
     border: 1px solid rgba(208, 213, 218, 1);
+    font-size: small;
 }
 
 #fileCreateInfo .formats {
     display: flex;
+    gap: 5px;
+    margin: 0 10px;
+}
+
+.inputHolder {
+    display: flex;
+    flex-direction: column;
 }
 
 .buttons {
@@ -234,7 +246,6 @@ body {
     font-weight: 600;
     font-size: small;
     padding: 16px;
-    margin: 5px;
     border-radius: 6px;
     border: 1px solid rgba(208, 213, 218, 1);
     flex: 1;
@@ -268,7 +279,6 @@ body {
 
     #fileCreateInfo .formats > label {
         flex-direction: row;
-        margin: 5px;
         margin-top: 8px;
         gap: 0.5rem;
     }
