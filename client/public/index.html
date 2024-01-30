@@ -293,6 +293,7 @@
                     mode: "system",
                     theme: "Base"
                 });
+                docSpaceLoaderFrame.style.width = "100vw";
             }
 
             async function refreshState() {
@@ -517,6 +518,7 @@
                 };
                 console.debug("Opening DocSpace Manager");
                 docSpaceFrame = window.DocSpace.SDK.initFrame(docSpaceInitConfig);
+                docSpaceFrame.style.width = "100vw";
                 showDocSpace();
             }
 
@@ -550,6 +552,7 @@
                 }
                 console.debug("Opening DocSpace Editor");
                 docSpaceFrame = window.DocSpace.SDK.initFrame(docSpaceInitConfig);
+                docSpaceFrame.style.width = "100vw";
                 showDocSpace();
             }
             
