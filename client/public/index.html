@@ -22,81 +22,84 @@
                 <div class="button" id="messageButton"></div>
             </div>
         </div>
-        <div id="messageHelp"></div>
-        <div id="filePickerBox">
-            <div>
-                <span class="filePickerHeader">ONLYOFFICE</span>
-                <div class="filePickerButtons">
-                    <input id="uploadNewFileInput" hidden type="file" name="file" accept=".docx,.xlsx,.pptx" />
-                    <div id="uploadNewFileButton">
-                        <svg viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" clip-rule="evenodd" d="M9.00002 1.0625C9.31019 1.0625 9.60487 1.19804 9.80673 1.43353L16.1817 8.87103C16.4518 9.18608 16.5137 9.6295 16.3403 10.0065C16.1669 10.3834 15.79 10.625 15.375 10.625H12.1811V12.75H10.0561V9.5625C10.0561 8.9757 10.5318 8.5 11.1186 8.5H13.0649L9.00002 3.75763L4.93512 8.5H6.86847C7.45528 8.5 7.93097 8.9757 7.93097 9.5625V12.75H5.80597V10.625H2.62502C2.21008 10.625 1.8331 10.3834 1.65972 10.0065C1.48634 9.6295 1.54827 9.18608 1.81831 8.87103L8.19331 1.43353C8.39516 1.19804 8.68985 1.0625 9.00002 1.0625ZM16.4375 13.8125V15.9375H1.56252V13.8125H16.4375Z" fill="#A3A9AE"/>
-                        </svg>
-                    </div>
-                    <div class="primary" id="createNewFileButton">
-                        <svg viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" clip-rule="evenodd" d="M9 1C8.17157 1 7.5 1.67157 7.5 2.5V7H3C2.17157 7 1.5 7.67157 1.5 8.5C1.5 9.32843 2.17157 10 3 10H7.5V14.5C7.5 15.3284 8.17157 16 9 16C9.82843 16 10.5 15.3284 10.5 14.5V10H15C15.8284 10 16.5 9.32843 16.5 8.5C16.5 7.67157 15.8284 7 15 7H10.5V2.5C10.5 1.67157 9.82843 1 9 1Z" fill="white"/>
-                        </svg>
+
+        <div id="backgroundBox">
+            <div id="messageHelp"></div>
+            <div id="filePickerBox">
+                <div>
+                    <span class="filePickerHeader">ONLYOFFICE</span>
+                    <div class="filePickerButtons">
+                        <input id="uploadNewFileInput" hidden type="file" name="file" accept=".docx,.xlsx,.pptx" />
+                        <div id="uploadNewFileButton">
+                            <svg viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M9.00002 1.0625C9.31019 1.0625 9.60487 1.19804 9.80673 1.43353L16.1817 8.87103C16.4518 9.18608 16.5137 9.6295 16.3403 10.0065C16.1669 10.3834 15.79 10.625 15.375 10.625H12.1811V12.75H10.0561V9.5625C10.0561 8.9757 10.5318 8.5 11.1186 8.5H13.0649L9.00002 3.75763L4.93512 8.5H6.86847C7.45528 8.5 7.93097 8.9757 7.93097 9.5625V12.75H5.80597V10.625H2.62502C2.21008 10.625 1.8331 10.3834 1.65972 10.0065C1.48634 9.6295 1.54827 9.18608 1.81831 8.87103L8.19331 1.43353C8.39516 1.19804 8.68985 1.0625 9.00002 1.0625ZM16.4375 13.8125V15.9375H1.56252V13.8125H16.4375Z" fill="#A3A9AE"/>
+                            </svg>
+                        </div>
+                        <div class="primary" id="createNewFileButton">
+                            <svg viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M9 1C8.17157 1 7.5 1.67157 7.5 2.5V7H3C2.17157 7 1.5 7.67157 1.5 8.5C1.5 9.32843 2.17157 10 3 10H7.5V14.5C7.5 15.3284 8.17157 16 9 16C9.82843 16 10.5 15.3284 10.5 14.5V10H15C15.8284 10 16.5 9.32843 16.5 8.5C16.5 7.67157 15.8284 7 15 7H10.5V2.5C10.5 1.67157 9.82843 1 9 1Z" fill="white"/>
+                            </svg>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div id="permissionBox">
+                <form id="additionalInfoForm">
+                    <div id="fileCreateInfo">
+                        <div class="inputHolder">
+                            <div class="label" data-translate="content">Title</div>
+                            <input id="filenameInput" name="document-title" data-translate="value" value="New Document" />
+                        </div>
+                        <div class="formats">
+                            <label class="active">
+                                <input class="selectable-label" type="radio" hidden name="document-format" value="docx" checked />
+                                <img src="/images/icons/64/docx.svg" />
+                                <span data-translate="content">Document</span>
+                            </label>
+                            <label>
+                                <input class="selectable-label" type="radio" hidden name="document-format" value="xlsx" />
+                                <img src="/images/icons/64/xlsx.svg" />
+                                <span data-translate="content">Spreadsheet</span>
+                            </label>
+                            <label>
+                                <input class="selectable-label" type="radio" hidden name="document-format" value="pptx" />
+                                <img src="/images/icons/64/pptx.svg" />
+                                <span data-translate="content">Presentation</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="fileInfo"></div>
+                    <div id="permissionForm">
+                        <span class="fw600" data-translate="content">Please set access rights of Zoom participants:</span>
+                        <div class="optionBox">
+                            <label>
+                                <input type="radio" name="permission" value="1" checked />
+                                <div>
+                                    <span class="fw600" data-translate="content">Edit</span>
+                                    <span class="help" data-translate="content">All participants will edit the document with you</span>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="optionBox">
+                            <label>
+                                <input type="radio" name="permission" value="0" />
+                                <div>
+                                    <span class="fw600" data-translate="content">LiveView</span>
+                                    <span class="help" data-translate="content">All participants will see your screen</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="buttons">
+                        <div class="button" id="additionalSubmit" data-translate="content">Open</div>
+                        <div class="button secondary" id="additionalCancel" data-translate="content">Cancel</div>
+                    </div>
+                </form>
+            </div>
+            <div id="zoom-ds-frame"></div>
+            <div id="zoom-ds-auth-frame"></div>
+            <div id="zoom-ds-loader-frame"></div>
         </div>
-        <div id="permissionBox">
-            <form id="additionalInfoForm">
-                <div id="fileCreateInfo">
-                    <div>
-                        <div class="label" data-translate="content">Title</div>
-                        <input id="filenameInput" name="document-title" data-translate="value" value="New Document" />
-                    </div>
-                    <div class="formats">
-                        <label class="active">
-                            <input class="selectable-label" type="radio" hidden name="document-format" value="docx" checked />
-                            <img src="/images/icons/64/docx.svg" />
-                            <span data-translate="content">Document</span>
-                        </label>
-                        <label>
-                            <input class="selectable-label" type="radio" hidden name="document-format" value="xlsx" />
-                            <img src="/images/icons/64/xlsx.svg" />
-                            <span data-translate="content">Spreadsheet</span>
-                        </label>
-                        <label>
-                            <input class="selectable-label" type="radio" hidden name="document-format" value="pptx" />
-                            <img src="/images/icons/64/pptx.svg" />
-                            <span data-translate="content">Presentation</span>
-                        </label>
-                    </div>
-                </div>
-                <div id="fileInfo"></div>
-                <div id="permissionForm">
-                    <span><b data-translate="content">Please set access rights of Zoom participants:</b></span>
-                    <div class="optionBox">
-                        <label>
-                            <input type="radio" name="permission" value="1" checked />
-                            <div>
-                                <b data-translate="content">Edit</b>
-                                <span class="help" data-translate="content">All participants will edit the document with you</span>
-                            </div>
-                        </label>
-                    </div>
-                    <div class="optionBox">
-                        <label>
-                            <input type="radio" name="permission" value="0" />
-                            <div>
-                                <b data-translate="content">LiveView</b>
-                                <span class="help" data-translate="content">All participants will see your screen</span>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-                <div class="buttons">
-                    <div class="button" id="additionalSubmit" data-translate="content">Open</div>
-                    <div class="button secondary" id="additionalCancel" data-translate="content">Cancel</div>
-                </div>
-            </form>
-        </div>
-        <div id="zoom-ds-frame"></div>
-        <div id="zoom-ds-auth-frame"></div>
-        <div id="zoom-ds-loader-frame"></div>
     </div>
 
     <script src="https://appssdk.zoom.us/sdk.min.js"></script>
