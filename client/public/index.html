@@ -600,7 +600,6 @@
                 };
                 console.debug("Opening DocSpace File Picker");
                 docSpaceFrame = window.DocSpace.SDK.initFrame(docSpaceInitConfig);
-                docSpaceFrame.style.maxWidth = "480px"; // fix for old picker
                 showDocSpace();
                 showMessage("<b>Choose file</b> from DocSpace to collaborate with other Zoom meeting participants", { help: true });
                 showFilePickerHeader();
