@@ -134,6 +134,7 @@ public class Startup
 
         _diHelper.TryAdd<FileHandlerService>();
         _diHelper.TryAdd<ASC.Web.Studio.Core.Notify.NotifyTransferRequest>();
+        _diHelper.TryAdd<ASC.Web.Studio.Core.Notify.ProductSecurityInterceptor>();
         _diHelper.TryAdd<TextileStyler>();
 
         if (!string.IsNullOrEmpty(_corsOrigin))
