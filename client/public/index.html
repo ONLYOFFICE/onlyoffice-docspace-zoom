@@ -98,7 +98,6 @@
             </div>
             <div id="zoom-ds-frame"></div>
             <div id="zoom-ds-auth-frame"></div>
-            <div id="zoom-ds-loader-frame"></div>
         </div>
     </div>
 
@@ -238,7 +237,7 @@
 
             function showLoader() {
                 hideAll();
-                changeElementDisplay(document.getElementById("zoom-ds-loader-frame"), "block");
+                //changeElementDisplay(document.getElementById("zoom-ds-loader-frame"), "block");
             }
 
             function showDocSpace() {
@@ -281,20 +280,12 @@
                 changeElementDisplay(messageHelp, "none");
                 changeElementDisplay(permissionBox, "none");
                 changeElementDisplay(document.getElementById("zoom-ds-frame"), "none");
-                changeElementDisplay(document.getElementById("zoom-ds-loader-frame"), "none");
+                //changeElementDisplay(document.getElementById("zoom-ds-loader-frame"), "none");
                 changeElementDisplay(document.getElementById("filePickerBox"), "none");
             }
 
             async function initLoader() {
                 return;
-                docSpaceLoaderFrame = window.DocSpace.SDK.initSystem({
-                    checkCSP: false,
-                    frameId: "zoom-ds-loader-frame",
-                    name: "zoomDsLoaderFrame",
-                    mode: "system",
-                    theme: "Base"
-                });
-                docSpaceLoaderFrame.style.width = "100vw";
             }
 
             async function refreshState() {
