@@ -232,6 +232,7 @@
             }
 
             function changeElementDisplay(element, display) {
+                if (!element) return;
                 element.style.display = display;
             }
 
@@ -243,6 +244,7 @@
             function showDocSpace() {
                 hideAll();
                 changeElementDisplay(document.getElementById("zoom-ds-frame"), "block");
+                changeElementDisplay(document.getElementById("zoom-ds-frame-container"), "block");
             }
 
             function showFilePickerHeader() {
@@ -280,6 +282,7 @@
                 changeElementDisplay(messageHelp, "none");
                 changeElementDisplay(permissionBox, "none");
                 changeElementDisplay(document.getElementById("zoom-ds-frame"), "none");
+                changeElementDisplay(document.getElementById("zoom-ds-frame-container"), "none");
                 //changeElementDisplay(document.getElementById("zoom-ds-loader-frame"), "none");
                 changeElementDisplay(document.getElementById("filePickerBox"), "none");
             }
@@ -506,11 +509,11 @@
                     showTitle: true,
                     showMenu: !id,
                     showFilter: !id,
-                    id: id
+                    id: id,
+                    width: "100vw"
                 };
                 console.debug("Opening DocSpace Manager");
                 docSpaceFrame = window.DocSpace.SDK.initFrame(docSpaceInitConfig);
-                docSpaceFrame.style.width = "100vw";
                 showDocSpace();
             }
 
@@ -531,7 +534,8 @@
                     showTitle: true,
                     showMenu: !id,
                     showFilter: !id,
-                    id: id
+                    id: id,
+                    width: "100vw"
                 };
 
                 if (goBack) {
@@ -544,7 +548,6 @@
                 }
                 console.debug("Opening DocSpace Editor");
                 docSpaceFrame = window.DocSpace.SDK.initFrame(docSpaceInitConfig);
-                docSpaceFrame.style.width = "100vw";
                 showDocSpace();
             }
             

@@ -32,14 +32,13 @@ body {
     box-shadow: 0px 5px 20px 0px rgba(4, 15, 27, 0.07);
 }
 
-#zoom-ds-frame
-#zoom-ds-loader-frame,
+#zoom-ds-frame, #zoom-ds-frame-container,
 #spinner-holder {
     flex: 1;
 }
 
-#zoom-ds-auth-frame,
-#zoom-ds-frame,
+#zoom-ds-auth-frame, #zoom-ds-auth-frame-container,
+#zoom-ds-frame, #zoom-ds-frame-container,
 #messageBox,
 #messageHelp,
 #messageButton,
