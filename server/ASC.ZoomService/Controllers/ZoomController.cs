@@ -82,7 +82,7 @@ public class ZoomController : ControllerBase
     private IDistributedCache Cache { get; }
     private CspSettingsHelper CspSettingsHelper { get; }
     private TenantQuotaFeatureCheckerCount<CountPaidUserFeature> CountPaidUserChecker { get; }
-    private NotifyClient NotifyClient { get; }
+    private StudioNotifyService StudioNotifyService { get; }
 
     public ZoomController(
         CommonMethods commonMethods,
@@ -107,7 +107,7 @@ public class ZoomController : ControllerBase
         IDistributedCache cache,
         CspSettingsHelper cspSettingsHelper,
         TenantQuotaFeatureCheckerCount<CountPaidUserFeature> countPaidUserChecker,
-        NotifyClient notifyClient
+        StudioNotifyService studioNotifyService
         )
     {
         CommonMethods = commonMethods;
@@ -132,7 +132,7 @@ public class ZoomController : ControllerBase
         Cache = cache;
         CspSettingsHelper = cspSettingsHelper;
         CountPaidUserChecker = countPaidUserChecker;
-        NotifyClient = notifyClient;
+        StudioNotifyService = studioNotifyService;
     }
 
     #region For TEST api
@@ -708,7 +708,9 @@ public class ZoomController : ControllerBase
         try
         {
             Log.LogInformation("Sending welcome email");
-            await NotifyClient.SendZoomWelcome(tenant.OwnerId, firstName, tenant.GetCulture());
+            var user = await UserManager.GetUserAsync(tenant.OwnerId, null);
+
+            await StudioNotifyService.SendZoomWelcomeAsync(user);
         }
         catch (Exception ex)
         {
