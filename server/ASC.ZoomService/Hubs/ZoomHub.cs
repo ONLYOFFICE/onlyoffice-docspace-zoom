@@ -25,6 +25,7 @@
 // International. See the License terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
 
 using ASC.ApiSystem.Helpers;
+using ASC.Common.Utils;
 using ASC.Files.Core.ApiModels;
 using ASC.Files.Core.ApiModels.RequestDto;
 using ASC.Web.Files.Services.WCFService;
@@ -42,16 +43,20 @@ public class ZoomHub : Hub
     private readonly ZoomAccountHelper _zoomAccountHelper;
     private readonly SecurityContext _securityContext;
     private readonly UserManager _userManager;
+    private readonly TenantManager _tenantManager;
+    private readonly TimeZoneConverter _timeZoneConverter;
     private readonly ILogger<ZoomHub> _log;
 
     public ZoomHub(IDistributedCache cache, FileStorageService fileStorageService, ZoomAccountHelper zoomAccountHelper,
-        SecurityContext securityContext, UserManager userManager, ILogger<ZoomHub> log)
+        SecurityContext securityContext, UserManager userManager, TenantManager tenantManager, TimeZoneConverter timeZoneConverter, ILogger<ZoomHub> log)
     {
         _cache = cache;
         _fileStorageService = fileStorageService;
         _zoomAccountHelper = zoomAccountHelper;
         _securityContext = securityContext;
         _userManager = userManager;
+        _tenantManager = tenantManager;
+        _timeZoneConverter = timeZoneConverter;
         _log = log;
     }
 
@@ -158,11 +163,21 @@ public class ZoomHub : Hub
         var uid = GetUidClaim();
         var guid = (await _zoomAccountHelper.GetUserIdFromZoomUid(uid)).Value;
         var user = _userManager.GetUsers(guid);
+        var tenant = await _tenantManager.GetTenantAsync(user.TenantId);
         try
         {
             await _securityContext.AuthenticateMeWithoutCookieAsync(guid);
+            var tz = TimeZoneInfo.Local;
+            try
+            {
+                tz = _timeZoneConverter.GetTimeZone(tenant.TimeZone);
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, $"Failed to parse tenant TZ: {tenant.TimeZone}");
+            }
 
-            var room = await _fileStorageService.CreateRoomAsync($"Zoom Collaboration {DateTime.Now.ToString("g", user.GetCulture())}", RoomType.CustomRoom, false, Array.Empty<FileShareParams>(), false, string.Empty);
+            var room = await _fileStorageService.CreateRoomAsync($"Zoom Collaboration {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz).ToString("g", user.GetCulture())}", RoomType.CustomRoom, false, Array.Empty<FileShareParams>(), false, string.Empty);
             await CheckRights();
 
             var collaboration = new ZoomCollaborationCachedRoom()

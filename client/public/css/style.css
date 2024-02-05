@@ -1,0 +1,287 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body,
+.container {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    font-family: 'Open Sans', system-ui;
+    color: #333333;
+    background-color: white;
+    background-image: url("../images/zoom.integration.background.svg");
+    background-position: center center;
+    background-size: cover;
+    font-size: 14px;
+}
+
+.container, #backgroundBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#backgroundBox {
+    height: 100%;
+    background-color: white;
+    box-shadow: 0px 5px 20px 0px rgba(4, 15, 27, 0.07);
+}
+
+#zoom-ds-frame, #zoom-ds-frame-container,
+#spinner-holder {
+    flex: 1;
+}
+
+#zoom-ds-auth-frame, #zoom-ds-auth-frame-container,
+#zoom-ds-frame, #zoom-ds-frame-container,
+#messageBox,
+#messageHelp,
+#messageButton,
+#permissionBox,
+#filePickerBox {
+    display: none;
+}
+
+.messageHeader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-top: 5rem;
+}
+
+.messageHeader img {
+    height: 5rem;
+}
+
+#messageHelp, .messageBody {
+    text-align: center;
+    padding: 1rem;
+    font-size: larger;
+}
+
+.messageBody {
+    padding: 2rem;
+    font-size: 1.4rem;
+    margin: 1.5rem 1.5rem 0 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0px 5px 20px 0px rgba(4, 15, 27, 0.07);
+}
+
+.button {
+    padding: 0.5rem;
+    background: rgba(82, 153, 224, 1);
+    color: white;
+    margin-top: 1rem;
+    border-radius: 3px;
+    cursor: pointer;
+    text-align: center;
+    font-weight: 600;
+    border: 1px solid transparent;
+    flex: 1;
+}
+.button:hover {
+    opacity: 0.85;
+}
+.button.secondary {
+    background: white;
+    border: 1px solid rgba(208, 213, 218, 1);
+    color: #333333;
+}
+.button.secondary:hover {
+    border: 1px solid rgb(133, 133, 133);
+}
+
+#filePickerBox {
+    width: 100%;
+}
+
+#filePickerBox > div {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid rgba(208, 213, 218, 1);
+    padding: 5px 16px;
+    align-items: center;
+}
+
+.filePickerHeader {
+    font-weight: bold;
+    font-size: larger;
+}
+
+.filePickerButtons {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+}
+
+.filePickerButtons div {
+    border: 1px solid rgba(208, 213, 218, 1);
+    border-radius: 3px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: rgba(163, 169, 174, 1);
+    margin-left: 5px;
+    box-sizing: border-box;
+}
+
+.filePickerButtons div svg {
+    width: 17px;
+    height: 17px;
+}
+
+.filePickerButtons div.primary {
+    border: 1px solid transparent;
+    background: rgba(82, 153, 224, 1);
+    color: white;
+}
+
+#permissionBox {
+    margin: 10px;
+    flex: 1;
+    width: 100%;
+    max-width: 600px;
+}
+
+#additionalInfoForm {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#fileInfo {
+    margin: 0 10px;
+}
+
+#fileInfo > div {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+}
+
+#fileInfo > div > img {
+    height: 2rem;
+    margin-right: 0.5rem;
+}
+
+#permissionForm {
+    flex: 1;
+    padding: 5px;
+    margin: 5px 10px;
+    margin-top: 8px;
+}
+
+.optionBox {
+    margin-top: 0.5rem;
+}
+
+.optionBox > label {
+    display: flex;
+    align-items: baseline;
+}
+
+.optionBox > label > div {
+    display: flex;
+    flex-direction: column;
+    margin-left: 5px;
+}
+
+.optionBox .help {
+    color: rgba(163, 169, 174, 1);
+    font-size: 0.9rem;
+}
+
+#fileCreateInfo {
+    padding: 5px;
+}
+
+#fileCreateInfo .label {
+    font-weight: 600;
+    margin-left: 10px;
+}
+
+#fileCreateInfo input {
+    margin: 5px 10px;
+    padding: 8px 6px;
+    border-radius: 3px;
+    border: 1px solid rgba(208, 213, 218, 1);
+    font-size: small;
+}
+
+#fileCreateInfo .formats {
+    display: flex;
+    gap: 5px;
+    margin: 0 10px;
+}
+
+.inputHolder {
+    display: flex;
+    flex-direction: column;
+}
+
+.buttons {
+    display: flex;
+    column-gap: 1rem;
+    flex-wrap: wrap;
+    border-top: 1px solid rgba(208, 213, 218, 1);
+    margin: 10px;
+}
+
+#fileCreateInfo .formats > label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-weight: 600;
+    font-size: small;
+    padding: 16px;
+    border-radius: 6px;
+    border: 1px solid rgba(208, 213, 218, 1);
+    flex: 1;
+    min-width: 92px;
+}
+
+#fileCreateInfo .formats > label > span {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 100%;
+    text-align: center;
+}
+
+#fileCreateInfo .formats > label.active {
+    background-color: rgba(223, 226, 227, 1);
+}
+
+#fileCreateInfo .formats > label > img {
+    width: 32px;
+    height: 32px;
+}
+
+.fw600 {
+    font-weight: 600;
+}
+
+@media screen and (max-width: 438px) {
+    #fileCreateInfo .formats {
+        flex-direction: column;
+    }
+
+    #fileCreateInfo .formats > label {
+        flex-direction: row;
+        margin-top: 8px;
+        gap: 0.5rem;
+    }
+
+    #fileCreateInfo .formats > label > span {
+        text-align: left;
+    }
+}

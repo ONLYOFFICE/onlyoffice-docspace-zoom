@@ -30,6 +30,13 @@ using ASC.Core.Common.Quota;
 using ASC.Files.Core.EF;
 using ASC.Files.Core.Core;
 using ASC.Web.Files;
+using ASC.Notify.Model;
+using ASC.Core.Notify;
+using ASC.Core.Common.Notify.Engine;
+using ASC.Notify.Engine;
+using System.Threading.Channels;
+using ASC.Web.Studio.Core.Notify;
+using ASC.Notify.Textile;
 
 namespace ASC.ZoomService;
 
@@ -115,9 +122,20 @@ public class Startup
         _diHelper.TryAdd<CookieAuthHandler>();
         _diHelper.TryAdd<WebhooksGlobalFilterAttribute>();
 
+        WorkContextExtension.Register(_diHelper);
+
+        services.AddSingleton(Channel.CreateUnbounded<NotifyRequest>());
+        services.AddSingleton(svc => svc.GetRequiredService<Channel<NotifyRequest>>().Reader);
+        services.AddSingleton(svc => svc.GetRequiredService<Channel<NotifyRequest>>().Writer);
+        services.AddActivePassiveHostedService<NotifySenderService>(_diHelper);
+        services.AddActivePassiveHostedService<NotifySchedulerService>(_diHelper);
+
+        services.AddSingleton<NotifyConfiguration>();
 
         _diHelper.TryAdd<FileHandlerService>();
-
+        _diHelper.TryAdd<ASC.Web.Studio.Core.Notify.NotifyTransferRequest>();
+        _diHelper.TryAdd<ASC.Web.Studio.Core.Notify.ProductSecurityInterceptor>();
+        _diHelper.TryAdd<TextileStyler>();
 
         if (!string.IsNullOrEmpty(_corsOrigin))
         {
@@ -178,6 +196,8 @@ public class Startup
         app.UseAuthorization();
 
         app.UseCultureMiddleware();
+
+        app.ApplicationServices.GetRequiredService<NotifyConfiguration>().Configure();
 
         app.UseEndpoints(endpoints =>
         {

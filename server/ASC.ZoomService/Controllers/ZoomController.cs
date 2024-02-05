@@ -25,6 +25,7 @@
 // International. See the License terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
 
 using ASC.ApiSystem.Helpers;
+using ASC.ApiSystem.Services.NotifyService;
 using ASC.Core.Common.Quota;
 using ASC.Core.Common.Quota.Features;
 using ASC.FederatedLogin;
@@ -35,9 +36,11 @@ using ASC.Files.Core.ApiModels.ResponseDto;
 using ASC.Files.Core.VirtualRooms;
 using ASC.Web.Api.Core;
 using ASC.Web.Core.Files;
+using ASC.Web.Core.Notify;
 using ASC.Web.Files.Classes;
 using ASC.Web.Files.Services.WCFService;
 using ASC.Web.Files.Utils;
+using ASC.Web.Studio.Core.Notify;
 using ASC.ZoomService.Extensions;
 using ASC.ZoomService.Helpers;
 using ASC.ZoomService.Models;
@@ -47,6 +50,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 
 namespace ASC.ApiSystem.Controllers;
 
@@ -71,8 +75,6 @@ public class ZoomController : ControllerBase
     private AccountLinker AccountLinker { get; }
     private UserManagerWrapper UserManagerWrapper { get; }
     private RequestHelper RequestHelper { get; }
-    private FileStorageService FileStorageService { get; }
-    private SettingsManager SettingsManager { get; }
     private FileUploader FileUploader { get; }
     private SocketManager SocketManager { get; }
     private FileDtoHelper FileDtoHelper { get; }
@@ -80,6 +82,7 @@ public class ZoomController : ControllerBase
     private IDistributedCache Cache { get; }
     private CspSettingsHelper CspSettingsHelper { get; }
     private TenantQuotaFeatureCheckerCount<CountPaidUserFeature> CountPaidUserChecker { get; }
+    private StudioNotifyService StudioNotifyService { get; }
 
     public ZoomController(
         CommonMethods commonMethods,
@@ -97,15 +100,14 @@ public class ZoomController : ControllerBase
         AccountLinker accountLinker,
         UserManagerWrapper userManagerWrapper,
         RequestHelper requestHelper,
-        FileStorageService fileStorageService,
-        SettingsManager settingsManager,
         FileUploader fileUploader,
         SocketManager socketManager,
         FileDtoHelper fileDtoHelper,
         GlobalFolderHelper globalFolderHelper,
         IDistributedCache cache,
         CspSettingsHelper cspSettingsHelper,
-        TenantQuotaFeatureCheckerCount<CountPaidUserFeature> countPaidUserChecker
+        TenantQuotaFeatureCheckerCount<CountPaidUserFeature> countPaidUserChecker,
+        StudioNotifyService studioNotifyService
         )
     {
         CommonMethods = commonMethods;
@@ -123,8 +125,6 @@ public class ZoomController : ControllerBase
         AccountLinker = accountLinker;
         UserManagerWrapper = userManagerWrapper;
         RequestHelper = requestHelper;
-        FileStorageService = fileStorageService;
-        SettingsManager = settingsManager;
         FileUploader = fileUploader;
         SocketManager = socketManager;
         FileDtoHelper = fileDtoHelper;
@@ -132,6 +132,7 @@ public class ZoomController : ControllerBase
         Cache = cache;
         CspSettingsHelper = cspSettingsHelper;
         CountPaidUserChecker = countPaidUserChecker;
+        StudioNotifyService = studioNotifyService;
     }
 
     #region For TEST api
@@ -571,6 +572,19 @@ public class ZoomController : ControllerBase
         }
     }
 
+    private string SanitizeName(string name, string defaultValue)
+    {
+        var regex = new Regex(Configuration["core:username:regex"] ?? "");
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return defaultValue;
+        }
+        else
+        {
+            return new string(name.Select(s => regex.Match(s.ToString()).Success ? s : '-').ToArray());
+        }
+    }
+
     private CultureInfo GetCultureFromLocale(string locale)
     {
         var culture = TimeZonesProvider.GetCurrentCulture(null);
@@ -586,8 +600,8 @@ public class ZoomController : ControllerBase
         Log.LogDebug($"CreateTenant(): Creating user for zoom user '{profile.Id}'.");
         var userInfo = new UserInfo
         {
-            FirstName = string.IsNullOrEmpty(profile.FirstName) ? UserControlsCommonResource.UnknownFirstName : profile.FirstName,
-            LastName = string.IsNullOrEmpty(profile.LastName) ? UserControlsCommonResource.UnknownLastName : profile.LastName,
+            FirstName = SanitizeName(profile.FirstName, UserControlsCommonResource.UnknownFirstName),
+            LastName = SanitizeName(profile.LastName, UserControlsCommonResource.UnknownLastName),
             Email = profile.EMail,
             Title = string.Empty,
             Location = string.Empty,
@@ -613,7 +627,10 @@ public class ZoomController : ControllerBase
                 employeeType = EmployeeType.User;
             }
         }
-        return await UserManagerWrapper.AddUserAsync(userInfo, UserManagerWrapper.GeneratePassword(), type: employeeType, afterInvite: true, notify: false);
+
+        HttpContext.Request.Scheme = "https";
+        HttpContext.Request.Host = new HostString(TenantManager.GetCurrentTenant().GetTenantDomain(CoreSettings));
+        return await UserManagerWrapper.AddUserAsync(userInfo, UserManagerWrapper.GeneratePassword(), type: employeeType, afterInvite: true, notify: true);
     }
 
     private async Task<Tenant> CreateTenant(string portalName, LoginProfile profile)
@@ -624,8 +641,8 @@ public class ZoomController : ControllerBase
             Name = "Zoom",
             Address = portalName,
             Culture = GetCultureFromLocale(profile.Locale),
-            FirstName = string.IsNullOrEmpty(profile.FirstName) ? UserControlsCommonResource.UnknownFirstName : profile.FirstName,
-            LastName = string.IsNullOrEmpty(profile.LastName) ? UserControlsCommonResource.UnknownLastName : profile.LastName,
+            FirstName = SanitizeName(profile.FirstName, UserControlsCommonResource.UnknownFirstName),
+            LastName = SanitizeName(profile.LastName, UserControlsCommonResource.UnknownLastName),
             PasswordHash = null,
             Email = profile.EMail,
             TimeZoneInfo = TimeZoneConverter.GetTimeZone(profile.TimeZone) ?? TimeZoneInfo.Local,
@@ -633,6 +650,7 @@ public class ZoomController : ControllerBase
             Industry = TenantIndustry.Other,
             Spam = false,
             Calls = false,
+            ActivationStatus = EmployeeActivationStatus.Activated,
         };
 
         Log.LogDebug($"CreateTenant(): Registering tenant {portalName}.");
@@ -648,27 +666,28 @@ public class ZoomController : ControllerBase
             await ApiSystemHelper.AddTenantToCacheAsync(domain, region);
         }
 
+        HttpContext.Request.Scheme = "https";
+        HttpContext.Request.Host = new HostString(tenant.GetTenantDomain(CoreSettings));
+        await SendCongratulations(tenant, info.FirstName);
+
         try
         {
             Log.LogDebug($"CreateTenant(): Setting tariff for tenant {tenant.Id}.");
-            var trialQuota = Configuration["quota:id"];
-            if (!string.IsNullOrEmpty(trialQuota))
-            {
-                if (int.TryParse(trialQuota, out var trialQuotaId))
-                {
-                    var dueDate = DateTime.MaxValue;
-                    if (int.TryParse(Configuration["quota:due"], out var dueTrial))
-                    {
-                        dueDate = DateTime.UtcNow.AddDays(dueTrial);
-                    }
 
-                    var tariff = new Tariff
-                    {
-                        Quotas = new List<Quota> { new Quota(trialQuotaId, 1) },
-                        DueDate = dueDate
-                    };
-                    await HostedSolution.SetTariffAsync(tenant.Id, tariff);
+            if (TryGetQuotaId(out var trialQuotaId))
+            {
+                var dueDate = DateTime.MaxValue;
+                if (TryGetQuotaDue(out var dueTrial))
+                {
+                    dueDate = DateTime.UtcNow.AddDays(dueTrial);
                 }
+
+                var tariff = new Tariff
+                {
+                    Quotas = new List<Quota> { new Quota(trialQuotaId, 1) },
+                    DueDate = dueDate
+                };
+                await HostedSolution.SetTariffAsync(tenant.Id, tariff);
             }
 
             Log.LogDebug($"CreateTenant(): Setting csp settings to allow '{$"https://{portalName}.{Configuration["zoom:zoom-domain"]}"}'.");
@@ -682,6 +701,49 @@ public class ZoomController : ControllerBase
 
         Log.LogInformation($"CreateTenant(): Created tenant {portalName} with id {tenant.Id}.");
         return tenant;
+    }
+
+    private async Task SendCongratulations(Tenant tenant, string firstName)
+    {
+        try
+        {
+            Log.LogInformation("Sending welcome email");
+            var user = await UserManager.GetUserAsync(tenant.OwnerId, null);
+
+            await StudioNotifyService.SendZoomWelcomeAsync(user);
+        }
+        catch (Exception ex)
+        {
+            Log.LogError(ex, "Error while sending welcome email");
+        }
+    }
+
+    private bool TryGetQuotaId(out int quotaId)
+    {
+        if (!int.TryParse(Configuration["zoom:quota:id"], out int parsedId))
+        {
+            if (!int.TryParse(Configuration["quota:id"], out parsedId))
+            {
+                quotaId = 0;
+                return false;
+            }
+        }
+        quotaId = parsedId;
+        return true;
+    }
+
+    private bool TryGetQuotaDue(out int quotaDue)
+    {
+        if (!int.TryParse(Configuration["zoom:quota:due"], out int parsedDue))
+        {
+            if (!int.TryParse(Configuration["quota:due"], out parsedDue))
+            {
+                quotaDue = 0;
+                return false;
+            }
+        }
+        quotaDue = parsedDue;
+        return true;
     }
 
     private string GenerateAlias(string accountId)

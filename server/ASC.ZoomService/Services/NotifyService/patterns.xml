@@ -1,0 +1,8 @@
+<patterns>
+	<formatter type="ASC.Notify.Patterns.NVelocityPatternFormatter, ASC.Core.Common" />
+
+	<pattern id="ZoomWelcome" sender="email.sender">
+		<subject resource="|subject_ZoomWelcome|ASC.ZoomService.Services.NotifyService.ZoomPatternResource,ASC.ZoomService" />
+		<body styler="ASC.Notify.Textile.TextileStyler,ASC.Notify.Textile" resource="|pattern_ZoomWelcome|ASC.ZoomService.Services.NotifyService.ZoomPatternResource,ASC.ZoomService" />
+	</pattern>
+</patterns>
