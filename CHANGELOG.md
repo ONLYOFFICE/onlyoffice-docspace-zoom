@@ -1,12 +1,15 @@
 # Change Log
 
-##
+## 1.2.0
 ## Added
+- special docspace tariff
+- welcome email
 - added fonts
 - cancel button on creation page
 
 ## Changed
 - fix check csp on loader page
+- fix username with unsupported letters
 
 ## 1.1.0
 - support DocSpace v2.0
