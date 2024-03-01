@@ -382,6 +382,18 @@
                 showMessage("The quota of your DocSpace is almost reached.");
             }
 
+            async function onDownloadHandle(url) {
+                await zoomSdk.openUrl({
+                    url: `${payload["ConfirmLink"]}&referenceUrl=${encodeURIComponent(url)}`
+                });
+            }
+
+            async function onExternalLinkHandle(url) {
+                await zoomSdk.openUrl({
+                    url: url
+                });
+            }
+
             async function getCollaboration() {
                 await connection.invoke("GetCollaboration");
             }
@@ -461,11 +473,15 @@
                         checkCSP: false,
                         src: url.origin,
                         rootPath: url.href.substring(url.origin.length),
+                        downloadToEvent: true,
+                        openLinkToEvent: true,
                         frameId: "zoom-ds-auth-frame",
                         name: "zoomDsAuthFrame",
                         mode: "custom",
                         theme: "Base",
                         events: {
+                            onDownload: onDownloadHandle,
+                            onOpenLink: onExternalLinkHandle,
                             onAuthSuccess: res,
                             onAppError: rej
                         }
@@ -510,7 +526,13 @@
                     showMenu: !id,
                     showFilter: !id,
                     id: id,
-                    width: "100vw"
+                    width: "100vw",
+                    downloadToEvent: true,
+                    openLinkToEvent: true,
+                    events: {
+                        onDownload: onDownloadHandle,
+                        onOpenLink: onExternalLinkHandle,
+                    }
                 };
                 console.debug("Opening DocSpace Manager");
                 docSpaceFrame = window.DocSpace.SDK.initFrame(docSpaceInitConfig);
@@ -535,7 +557,13 @@
                     showMenu: !id,
                     showFilter: !id,
                     id: id,
-                    width: "100vw"
+                    width: "100vw",
+                    downloadToEvent: true,
+                    openLinkToEvent: true,
+                    events: {
+                        onDownload: onDownloadHandle,
+                        onOpenLink: onExternalLinkHandle,
+                    }
                 };
 
                 if (goBack) {
@@ -589,8 +617,12 @@
                     showTitle: true,
                     showMenu: false,
                     showFilter: false,
+                    downloadToEvent: true,
+                    openLinkToEvent: true,
                     events: {
-                        onSelectCallback: OnFileSelected
+                        onDownload: onDownloadHandle,
+                        onOpenLink: onExternalLinkHandle,
+                        onSelectCallback: OnFileSelected,
                     }
                 };
                 console.debug("Opening DocSpace File Picker");
