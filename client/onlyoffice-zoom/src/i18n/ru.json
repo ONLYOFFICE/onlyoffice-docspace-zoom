@@ -1,0 +1,21 @@
+﻿{
+  "Title": "Название",
+  "New Document": "Новый документ",
+  "Document": "Документ",
+  "Spreadsheet": "Электронная таблица",
+  "Presentation": "Презентация",
+  "Please set access rights of Zoom participants:": "Пожалуйста, установите права доступа для участников Zoom:",
+  "Edit": "Редактировать",
+  "All participants will edit the document with you": "Все участники будут редактировать документ совместно с вами",
+  "LiveView": "LiveView",
+  "All participants will see your screen": "Все участники будут видеть ваш экран",
+  "Open": "Открыть",
+  "Cancel": "Отменить",
+  "Collaboration host is changing a document, please wait": "Организатор совместной работы изменяет документ, пожалуйста, подождите",
+  "Sorry, you cannot create new rooms and files. Please wait until Owner or Power User start the collaboration session.": "К сожалению, вы не можете создавать новые комнаты и файлы. Пожалуйста, подождите, когда Владелец или Опытный пользователь начнет сеанс совместной работы.",
+  "<0>Choose file</0> from DocSpace to collaborate with other Zoom meeting participants": "<0>Выберите файл</0> из DocSpace для совместной работы с другими участниками собрания Zoom",
+  "You're not host or coHost, please press 'Collaborate' button manually": "Вы не являетесь организатором или соорганизатором. Пожалуйста, нажмите кнопку 'Коллективная работа'",
+  "Meeting participant started editing session": "Участник собрания начал сеанс редактирования",
+  "The quota of your DocSpace is almost reached.": "Квота вашего DocSpace почти достигнута.",
+  "Please authorize using browser.": "Пожалуйста, разрешите использование браузера."
+}

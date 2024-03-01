@@ -1,0 +1,21 @@
+{
+  "Title": "Title",
+  "New Document": "New Document",
+  "Document": "Document",
+  "Spreadsheet": "Spreadsheet",
+  "Presentation": "Presentation",
+  "Please set access rights of Zoom participants:": "Please set access rights of Zoom participants:",
+  "Edit": "Edit",
+  "All participants will edit the document with you": "All participants will edit the document with you",
+  "LiveView": "LiveView",
+  "All participants will see your screen": "All participants will see your screen",
+  "Open": "Open",
+  "Cancel": "Cancel",
+  "Collaboration host is changing a document, please wait": "Collaboration host is changing a document, please wait",
+  "Sorry, you cannot create new rooms and files. Please wait until Owner or Power User start the collaboration session.": "Sorry, you cannot create new rooms and files. Please wait until Owner or Power User start the collaboration session.",
+  "<0>Choose file</0> from DocSpace to collaborate with other Zoom meeting participants": "<0>Choose file</0> from DocSpace to collaborate with other Zoom meeting participants",
+  "You're not host or coHost, please press 'Collaborate' button manually": "You're not host or coHost, please press 'Collaborate' button manually",
+  "Meeting participant started editing session": "Meeting participant started editing session",
+  "The quota of your DocSpace is almost reached.": "The quota of your DocSpace is almost reached.",
+  "Please authorize using browser.": "Please authorize using browser."
+}

@@ -1,0 +1,10 @@
+{
+    "files.exclude": {
+        "**/node_modules": true,
+        "**/build": true
+    },
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+        "*.tsx": "${capture}.css, ${capture}.test.tsx"
+    }
+}

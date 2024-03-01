@@ -1,0 +1,81 @@
+.picker {
+    display: flex;
+    flex-direction: column;
+    padding: 0 16px;
+    align-items: center;
+    flex: 1;
+    max-width: 600px;
+}
+
+.picker > div {
+    align-self: stretch;
+}
+
+.helpMessage {
+    text-align: center;
+    padding: 1rem;
+    font-size: larger;
+}
+
+.filePickerHeaderBox,
+[data-theme=light] .filePickerHeaderBox {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid var(--light-border-color);
+    align-items: center;
+    padding-bottom: 6px;
+}
+
+[data-theme=dark] .filePickerHeaderBox {
+    border-bottom: 1px solid var(--dark-border-color);
+}
+
+.filePickerHeader {
+    font-weight: bold;
+    font-size: larger;
+}
+
+.filePickerButtons {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+}
+
+.filePickerButtons div,
+[data-theme=light] .filePickerButtons div {
+    border: 1px solid var(--light-border-color);
+    border-radius: 3px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    margin-left: 5px;
+    box-sizing: border-box;
+}
+
+[data-theme=dark] .filePickerButtons div {
+    border: 1px solid var(--dark-border-color);
+}
+
+.filePickerButtons div svg {
+    width: 17px;
+    height: 17px;
+}
+
+.filePickerButtons div.primary {
+    border: 1px solid transparent;
+    background: var(--default-primary-color);
+    color: var(--default-light-color);
+}
+
+.pickerHolder {
+    display: flex;
+    flex: 1;
+}
+
+.pickerHolder > div {
+    flex: 1;
+}

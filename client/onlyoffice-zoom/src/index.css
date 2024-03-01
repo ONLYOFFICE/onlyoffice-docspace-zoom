@@ -1,0 +1,117 @@
+:root {
+  --default-light-color: #ffffff;
+  --default-dark-color: #333333;
+
+  --default-primary-color: #5299e0;
+
+  --light-border-color: #d0d5da;
+  --dark-border-color: #474747;
+
+  --light-secondary-text-color: #a3a9ae;
+  --dark-secondary-text-color: #858585;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: 'Open Sans', system-ui;
+  background-image: url("../public/images/zoom.integration.background.svg");
+  background-position: center center;
+  background-size: cover;
+  font-size: 14px;
+  overflow: hidden;
+}
+
+body,
+[data-theme=light] body {
+  color: var(--default-dark-color);
+  background-color: var(--default-light-color);
+}
+
+[data-theme=dark] body {
+  background-color: var(--default-dark-color);
+  color: var(--default-light-color);
+}
+
+.backgroundBox,
+[data-theme=light] .backgroundBox {
+  background-color: var(--default-light-color);
+  box-shadow: 0px 5px 20px 0px rgba(4, 15, 27, 0.07);
+}
+
+[data-theme=dark] .backgroundBox {
+  background-color: var(--default-dark-color);
+}
+
+.help,
+[data-theme=light] .help {
+  color: var(--light-secondary-text-color);
+  font-size: 0.9rem;
+}
+
+[data-theme=dark] .help {
+  color: var(--dark-secondary-text-color);
+}
+
+.fw600 {
+  font-weight: 600;
+}
+
+input[type=text],
+[data-theme=light] input[type=text] {
+  border: 1px solid var(--light-border-color);
+}
+
+[data-theme=dark] input[type=text] {
+  border: 1px solid var(--dark-border-color);
+  background-color: var(--default-dark-color);
+  color: var(--default-light-color);
+}
+
+.button {
+  padding: 0.5rem;
+  background: var(--default-primary-color);
+  color: var(--default-light-color);
+  margin-top: 1rem;
+  border-radius: 3px;
+  cursor: pointer;
+  text-align: center;
+  font-weight: 600;
+  border: 1px solid transparent;
+  flex: 1;
+}
+.button:hover {
+  opacity: 0.85;
+}
+
+.button.secondary,
+[data-theme=light] .button.secondary {
+  background: var(--default-light-color);
+  border: 1px solid var(--light-border-color);
+  color: var(--default-dark-color);
+}
+
+[data-theme=dark] .button.secondary {
+  background: var(--default-dark-color);
+  border: 1px solid var(--dark-border-color);
+  color: var(--default-light-color);
+}
+
+.button.secondary:hover,
+[data-theme=light] .button.secondary:hover {
+  border: 1px solid var(--dark-secondary-text-color);
+}
+
+[data-theme=dark] .button.secondary:hover {
+  border: 1px solid var(--light-secondary-text-color);
+}

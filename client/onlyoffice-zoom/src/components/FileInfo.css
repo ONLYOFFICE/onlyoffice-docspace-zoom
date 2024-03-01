@@ -1,0 +1,14 @@
+.fileInfo {
+    margin: 0 10px;
+}
+
+.fileInfo > div {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+}
+
+.fileInfo > div > img {
+    height: 2rem;
+    margin-right: 0.5rem;
+}

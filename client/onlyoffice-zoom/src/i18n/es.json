@@ -1,0 +1,21 @@
+﻿{
+  "Title": "Título",
+  "New Document": "Nuevo documento",
+  "Document": "Documento",
+  "Spreadsheet": "Hoja de cálculo",
+  "Presentation": "Presentación",
+  "Please set access rights of Zoom participants:": "Por favor, establezca los permisos de acceso de los participantes de Zoom:",
+  "Edit": "Editar",
+  "All participants will edit the document with you": "Todos los participantes editarán el documento con usted",
+  "LiveView": "Visualización en directo",
+  "All participants will see your screen": "Todos los participantes verán su pantalla",
+  "Open": "Abrir",
+  "Cancel": "Cancelar",
+  "Collaboration host is changing a document, please wait": "El organizador de la colaboración está modificando un documento, por favor, espere",
+  "Sorry, you cannot create new rooms and files. Please wait until Owner or Power User start the collaboration session.": "Lo sentimos, no puede crear nuevas salas y archivos. Por favor, espere hasta que el Propietario o el Usuario Avanzado inicien la sesión de colaboración.",
+  "<0>Choose file</0> from DocSpace to collaborate with other Zoom meeting participants": "<0>Elija un archivo</0> de DocSpace para colaborar con otros participantes de la reunión de Zoom",
+  "You're not host or coHost, please press 'Collaborate' button manually": "Usted no es organizador ni coorganizador, por favor, pulse el botón 'Colaborar' manualmente.",
+  "Meeting participant started editing session": "Un participante en la reunión ha iniciado la sesión de edición",
+  "The quota of your DocSpace is almost reached.": "La cuota de su DocSpace está casi alcanzada.",
+  "Please authorize using browser.": "Por favor, autorícese usando el navegador."
+}
