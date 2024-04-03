@@ -23,6 +23,48 @@
             </div>
         </div>
 
+        <div id="authBox">
+            <div class="messageHeader">
+                <img src="/images/icon.svg" />
+                <span><b>ONLYOFFICE</b> DocSpace</span>
+            </div>
+            <div class="messageBody authBoxBody">
+                <div id="authStepButtons">
+                    <div>
+                        <b>Welcome to ONLYOFFICE DocSpace!</b>
+                        <br>
+                        <p class="mt">Choose, create or upload file to collaborate with other Zoom meeting participants</p>
+                    </div>
+                    <div class="button" id="authContinueButton">Continue</div>
+                    <div id="authSplit">
+                        <div></div>
+                        <span>OR</span>
+                        <div></div>
+                    </div>
+                    <p>Already have DocSpace account?</p>
+                    <div class="button secondary" id="authLoginButton">Log in</div>
+                </div>
+                <div id="authStepLogin">
+                    <b>Sign in DocSpace</b>
+                    <div id="loginForm">
+                        <input id="loginInput" placeholder="E-mail" />
+                        <input id="passwordInput" type="password" placeholder="Password" />
+                        <div class="button" id="authDoLoginButton">Sign in</div>
+                    </div>
+                </div>
+                <div id="authStepTenant">
+                    <b id="authStepTenantEmail">Available portals for</b>
+                    <div class="mt">
+                        <div id="tenantHolder">
+                        </div>
+                    </div>
+                    <div class="mt">
+                        <b>Don't see your portal? <a href="#" role="button">Try using a different email address</a></b>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="backgroundBox">
             <div id="messageHelp"></div>
             <div id="filePickerBox">
@@ -199,14 +241,24 @@
 
             let ownTenant = null;
 
+            let configResponse = null;
+
+            let zoomAuthCallback = null;
+
             const messageBox = document.getElementById("messageBox");
             const messageText = document.getElementById("message");
             const messageHelp = document.getElementById("messageHelp");
             const messageButton = document.getElementById("messageButton");
             const permissionBox = document.getElementById("permissionBox");
+            const authBox = document.getElementById("authBox");
             const permissionForm = document.getElementById("permissionForm");
             const fileCreateInfo = document.getElementById("fileCreateInfo");
             const additionalInfoForm = document.getElementById("additionalInfoForm");
+
+            const authContinueButton = document.getElementById("authContinueButton");
+            const authLoginButton = document.getElementById("authLoginButton");
+            const authDoLoginButton = document.getElementById("authDoLoginButton");
+
             function showMessage(msgKey, options) {
                 if (!options) options = {};
 
@@ -239,6 +291,12 @@
             function showLoader() {
                 hideAll();
                 //changeElementDisplay(document.getElementById("zoom-ds-loader-frame"), "block");
+            }
+
+            function showAuthBox(step = "Buttons") {
+                hideAll();
+                changeElementDisplay(document.getElementById("authStep" + step), "block");
+                changeElementDisplay(document.getElementById("authBox"), "block");
             }
 
             function showDocSpace() {
@@ -285,6 +343,10 @@
                 changeElementDisplay(document.getElementById("zoom-ds-frame-container"), "none");
                 //changeElementDisplay(document.getElementById("zoom-ds-loader-frame"), "none");
                 changeElementDisplay(document.getElementById("filePickerBox"), "none");
+                changeElementDisplay(document.getElementById("authBox"), "none");
+                changeElementDisplay(document.getElementById("authStepButtons"), "none");
+                changeElementDisplay(document.getElementById("authStepLogin"), "none");
+                changeElementDisplay(document.getElementById("authStepTenant"), "none");
             }
 
             async function initLoader() {
@@ -431,10 +493,17 @@
 
                 if (!res.result) {
                     console.debug(`User was not authorized. Reason: ${res.reason}`);
+                    showAuthBox();
+                    zoomAuthCallback = null;
                     return;
                 }
 
                 res.challenge = payload["Challenge"];
+
+                if (zoomAuthCallback) {
+                    zoomAuthCallback(res);
+                    return;
+                }
 
                 const homeResponse = await fetch(res.redirectUri, {
                     method: "POST",
@@ -448,6 +517,103 @@
 
                 try {
                     const link = await homeResponse.text();
+                    window.location = link;
+                } catch {
+                    // handle error
+                }
+            }
+
+            async function onAuthBoxContinue(state = null) {
+                if (configResponse.browserVersion.startsWith("applewebkit")) {
+                    await zoomSdk.openUrl({
+                        url: `${location.origin}/zoomservice/zoom/install?state=${payload["State"]}`
+                    });
+                    showMessage("Please authorize using browser.");
+                } else {
+                    hideAll();
+                    await zoomSdk.authorize({
+                        state: state ? state : payload["State"],
+                        codeChallenge: payload["Challenge"]
+                    });
+                }
+            }
+
+            async function onAuthBoxDoLogin() {
+                const email = document.getElementById("loginInput");
+                const password = document.getElementById("passwordInput");
+
+                if (!email || !password) return;
+
+                showLoader();
+
+                const response = await fetch(`/${home}/zoom/link`, {
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({login: email.value, password: password.value}),
+                    method: "POST"
+                });
+
+                if (response.ok) {
+                    email.value = "";
+                    password.value = "";
+                    const jwt = await response.text();
+                    const json = JSON.parse(atob(jwt.split(".")[1].replace("/-/g", "+").replace("/_/g", "/")));
+                    console.debug(`DocSpace login success.`, json);
+                    onTenantLink(jwt, json);
+                } else {
+                    console.debug(`DocSpace login fail. Reason: ${response.reason}`);
+                    showAuthBox("Login");
+                }
+            }
+
+            async function onTenantLink(jwt, json) {
+                document.getElementById("authStepTenantEmail").innerText = `${t("Available portals for")} ${json.login}`;
+
+                const tenantHolder = document.getElementById("tenantHolder");
+                tenantHolder.innerHTML = null;
+
+                for(let tenant of json.tenantInfo) {
+                    const tenantDiv = document.createElement("div");
+                    tenantDiv.className = "tenant";
+                    tenantDiv.title = tenant.name;
+
+                    const b = document.createElement("b");
+                    b.innerText = tenant.domain;
+
+                    tenantDiv.appendChild(b);
+                    tenantHolder.appendChild(tenantDiv);
+
+                    tenantDiv.onclick = () => onTenantDoLinkCallback(jwt, tenant.id);
+                }
+
+                showAuthBox("Tenant");
+            }
+
+            async function onTenantDoLinkCallback(jwt, id) {
+                zoomAuthCallback = (res) => onTenantDoLink(res, id);
+                onAuthBoxContinue(jwt);
+            }
+
+            async function onTenantDoLink(zoomAuth, id) {
+                zoomAuthCallback = null;
+
+                if (!zoomAuth || !id) return;
+
+                zoomAuth.chosenTenant = id;
+
+                const response = await fetch(`/${home}/zoom/link`, {
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(zoomAuth),
+                    method: "PUT"
+                });
+
+                console.debug('Api System Payload PUT Link Response', response);
+
+                try {
+                    const link = await response.text();
                     window.location = link;
                 } catch {
                     // handle error
@@ -831,6 +997,10 @@
                         destroyLoginFrameAndInitFilePicker(false, false);
                     }
                 }
+
+                authContinueButton.onclick = onAuthBoxContinue;
+                authLoginButton.onclick = () => showAuthBox("Login");
+                authDoLoginButton.onclick = onAuthBoxDoLogin;
             }
 
             hookEvents();
@@ -853,7 +1023,7 @@
                     initLoader();
                 }
 
-                const configResponse = await initZoomSdk();
+                configResponse = await initZoomSdk();
 
                 if (payload["ConfirmLink"]) {
                     openDocSpace(payload["ConfirmLink"], payload["Collaboration"]);
@@ -863,17 +1033,8 @@
                     // check if we are authorized in zoom or not
                     // authorizePrompt if we are guest
                     // else authorize
-                    if (configResponse.browserVersion.startsWith("applewebkit")) {
-                        await zoomSdk.openUrl({
-                            url: `${location.origin}/zoomservice/zoom/install?state=${payload["State"]}`
-                        });
-                        showMessage("Please authorize using browser.");
-                    } else {
-                        await zoomSdk.authorize({
-                            state: payload["State"],
-                            codeChallenge: payload["Challenge"]
-                        });
-                    }
+
+                    showAuthBox();
                 }
             } catch (e) {
                 console.error(e);
