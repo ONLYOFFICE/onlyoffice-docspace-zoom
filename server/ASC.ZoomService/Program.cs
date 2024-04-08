@@ -59,7 +59,7 @@ try
 
     builder.Host.ConfigureContainer<ContainerBuilder>((context, builder) =>
     {
-        builder.Register(context.Configuration, false, true);
+        builder.Register(context.Configuration, true);
     });
 
     var app = builder.Build();

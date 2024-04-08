@@ -532,14 +532,14 @@ public class ZoomController : ControllerBase
             await SecurityContext.AuthenticateMeWithoutCookieAsync(Core.Configuration.Constants.CoreSystem);
             Log.LogInformation($"DeauthorizationHook(): Got deauth request with zoom user id {zoomEvent.Payload.UserId}");
             // getting all linked accounts on all tenants
-            var userIds = await AccountLinker.GetLinkedObjectsAsync(zoomEvent.Payload.UserId, ProviderConstants.Zoom);
+            var userIds = await AccountLinker.GetLinkedProfilesAsync(zoomEvent.Payload.UserId, ProviderConstants.Zoom);
 
             foreach (var userId in userIds)
             {
                 try
                 {
                     Log.LogInformation($"DeauthorizationHook(): Unlinking user with zoom id {zoomEvent.Payload.UserId}, user id {userId}");
-                    await AccountLinker.RemoveLinkAsync(userId.ToString(), zoomEvent.Payload.UserId, ProviderConstants.Zoom);
+                    await AccountLinker.RemoveProviderAsync(userId.ToString(), ProviderConstants.Zoom);
                 }
                 catch (Exception ex)
                 {
@@ -664,7 +664,7 @@ public class ZoomController : ControllerBase
             if (shouldLink)
             {
                 Log.LogDebug($"CreateUserAndTenant(): Linking portal user '{userInfo.Id}' to zoom user '{profile.Id}'.");
-                await AccountLinker.AddLinkAsync(userInfo.Id.ToString(), profile);
+                await AccountLinker.AddLinkAsync(userInfo.Id, profile);
                 Log.LogInformation($"CreateUserAndTenant(): Linked portal user '{userInfo.Id}' to zoom user '{profile.Id}'.");
             }
 
@@ -699,7 +699,7 @@ public class ZoomController : ControllerBase
             }
 
             Log.LogDebug($"LinkUserToTenant(): Linking portal user '{userInfo.Id}' to zoom user '{profile.Id}'.");
-            await AccountLinker.AddLinkAsync(userInfo.Id.ToString(), profile);
+            await AccountLinker.AddLinkAsync(userInfo.Id, profile);
             Log.LogInformation($"LinkUserToTenant(): Linked portal user '{userInfo.Id}' to zoom user '{profile.Id}'.");
 
             return tenant;
@@ -830,7 +830,7 @@ public class ZoomController : ControllerBase
 
             Log.LogDebug($"CreateTenant(): Setting csp settings to allow '{$"https://{portalName}.{Configuration["zoom:zoom-domain"]}"}'.");
 
-            await CspSettingsHelper.SaveAsync(new List<string>() { $"https://{portalName}.{Configuration["zoom:zoom-domain"]}" }, false);
+            await CspSettingsHelper.SaveAsync(new List<string>() { $"https://{portalName}.{Configuration["zoom:zoom-domain"]}" });
         }
         catch (Exception ex)
         {

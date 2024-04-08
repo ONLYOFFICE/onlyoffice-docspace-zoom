@@ -177,7 +177,7 @@ public class ZoomHub : Hub
                 _log.LogError(ex, $"Failed to parse tenant TZ: {tenant.TimeZone}");
             }
 
-            var room = await _fileStorageService.CreateRoomAsync($"Zoom Collaboration {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz).ToString("g", user.GetCulture())}", RoomType.CustomRoom, false, Array.Empty<FileShareParams>(), false, string.Empty);
+            var room = await _fileStorageService.CreateRoomAsync($"Zoom Collaboration {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz).ToString("g", user.GetCulture())}", RoomType.CustomRoom, false, false, Array.Empty<FileShareParams>(), 0);
             await CheckRights();
 
             var collaboration = new ZoomCollaborationCachedRoom()
