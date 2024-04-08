@@ -26,7 +26,6 @@
     <ProjectReference Include="..\..\DocSpace\server\common\ASC.Api.Core\ASC.Api.Core.csproj" />
     <ProjectReference Include="..\..\DocSpace\server\common\ASC.Common\ASC.Common.csproj" />
     <ProjectReference Include="..\..\DocSpace\server\common\ASC.Core.Common\ASC.Core.Common.csproj" />
-    <ProjectReference Include="..\..\DocSpace\server\common\services\ASC.Notify\ASC.Notify.csproj" />
     <ProjectReference Include="..\..\DocSpace\server\products\ASC.Files\Core\ASC.Files.Core.csproj" />
     <ProjectReference Include="..\..\DocSpace\server\web\ASC.Web.Api\ASC.Web.Api.csproj" />
     <ProjectReference Include="..\..\DocSpace\server\web\ASC.Web.Core\ASC.Web.Core.csproj" />

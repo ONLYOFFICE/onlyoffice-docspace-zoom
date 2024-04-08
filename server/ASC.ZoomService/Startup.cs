@@ -34,6 +34,7 @@ using ASC.Notify.Engine;
 using ASC.Notify.Textile;
 using ASC.Web.Files;
 using ASC.Web.Studio.Core.Notify;
+using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Channels;
 
 namespace ASC.ZoomService;
@@ -54,7 +55,7 @@ public class Startup
         _corsOrigin = _configuration["core:cors"];
     }
 
-    public async void ConfigureServices(IServiceCollection services)
+    public async Task ConfigureServices(IServiceCollection services)
     {
         services.AddCustomHealthCheck(_configuration);
         services.AddHttpContextAccessor();
@@ -125,11 +126,10 @@ public class Startup
         services.AddSingleton(Channel.CreateUnbounded<NotifyRequest>());
         services.AddSingleton(svc => svc.GetRequiredService<Channel<NotifyRequest>>().Reader);
         services.AddSingleton(svc => svc.GetRequiredService<Channel<NotifyRequest>>().Writer);
-        services.AddActivePassiveHostedService<Notify.Services.NotifySenderService>(_diHelper, _configuration);
+        services.AddHostedService<NotifySenderService>();
         services.AddActivePassiveHostedService<NotifySchedulerService>(_diHelper, _configuration);
 
         services.AddSingleton<NotifyConfiguration>();
-
         _diHelper.TryAdd<FileHandlerService>();
         _diHelper.TryAdd<ASC.Web.Studio.Core.Notify.NotifyTransferRequest>();
         _diHelper.TryAdd<ASC.Web.Studio.Core.Notify.ProductSecurityInterceptor>();
@@ -157,6 +157,7 @@ public class Startup
         services.AddEventBus(_configuration);
         services.AddDistributedTaskQueue();
         services.AddCacheNotify(_configuration);
+        services.AddDistributedLock(_configuration);
 
         services.RegisterFeature();
 
