@@ -28,6 +28,7 @@ using ASC.ApiSystem.Hubs;
 using ASC.Core.Common.Notify.Engine;
 using ASC.Core.Common.Quota;
 using ASC.Core.Common.Quota.Features;
+using ASC.Core.Notify.Socket;
 using ASC.Files.Core.Core;
 using ASC.Files.Core.EF;
 using ASC.Notify.Engine;
@@ -76,6 +77,7 @@ public class Startup
         services.AddBaseDbContextPool<FeedDbContext>();
         services.AddBaseDbContextPool<MessagesContext>();
         services.AddBaseDbContextPool<WebhooksDbContext>();
+        services.AddBaseDbContextPool<UrlShortenerDbContext>();
 
 
         services.AddBaseDbContextPool<FilesDbContext>();
@@ -128,6 +130,11 @@ public class Startup
         services.AddSingleton(svc => svc.GetRequiredService<Channel<NotifyRequest>>().Writer);
         services.AddHostedService<NotifySenderService>();
         services.AddActivePassiveHostedService<NotifySchedulerService>(_diHelper, _configuration);
+
+        services.AddSingleton(Channel.CreateUnbounded<SocketData>());
+        services.AddSingleton(svc => svc.GetRequiredService<Channel<SocketData>>().Reader);
+        services.AddSingleton(svc => svc.GetRequiredService<Channel<SocketData>>().Writer);
+        services.AddHostedService<SocketService>();
 
         services.AddSingleton<NotifyConfiguration>();
         _diHelper.TryAdd<FileHandlerService>();
