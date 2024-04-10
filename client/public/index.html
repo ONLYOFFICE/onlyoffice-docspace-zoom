@@ -50,6 +50,7 @@
                         <input id="loginInput" placeholder="E-mail" />
                         <input id="passwordInput" type="password" placeholder="Password" />
                         <div class="button" id="authDoLoginButton">Sign in</div>
+                        <div class="button secondary" id="authDoReturnButton">Back</div>
                     </div>
                 </div>
                 <div id="authStepTenant">
@@ -258,6 +259,7 @@
             const authContinueButton = document.getElementById("authContinueButton");
             const authLoginButton = document.getElementById("authLoginButton");
             const authDoLoginButton = document.getElementById("authDoLoginButton");
+            const authDoReturnButton = document.getElementById("authDoReturnButton");
 
             function showMessage(msgKey, options) {
                 if (!options) options = {};
@@ -1001,6 +1003,7 @@
                 authContinueButton.onclick = () => onAuthBoxContinue();
                 authLoginButton.onclick = () => showAuthBox("Login");
                 authDoLoginButton.onclick = onAuthBoxDoLogin;
+                authDoReturnButton.onclick = () => showAuthBox();
             }
 
             hookEvents();
