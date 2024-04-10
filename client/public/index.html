@@ -60,7 +60,7 @@
                         </div>
                     </div>
                     <div class="mt">
-                        <b>Don't see your portal? <a href="#" role="button">Try using a different email address</a></b>
+                        <b>Don't see your portal? <a id="authDoTryDifferentButton" href="#" role="button">Try using a different email address</a></b>
                     </div>
                 </div>
             </div>
@@ -260,6 +260,7 @@
             const authLoginButton = document.getElementById("authLoginButton");
             const authDoLoginButton = document.getElementById("authDoLoginButton");
             const authDoReturnButton = document.getElementById("authDoReturnButton");
+            const authDoTryDifferentButton = document.getElementById("authDoTryDifferentButton");
 
             function showMessage(msgKey, options) {
                 if (!options) options = {};
@@ -1004,6 +1005,7 @@
                 authLoginButton.onclick = () => showAuthBox("Login");
                 authDoLoginButton.onclick = onAuthBoxDoLogin;
                 authDoReturnButton.onclick = () => showAuthBox();
+                authDoTryDifferentButton.onclick = () => showAuthBox("Login");
             }
 
             hookEvents();
