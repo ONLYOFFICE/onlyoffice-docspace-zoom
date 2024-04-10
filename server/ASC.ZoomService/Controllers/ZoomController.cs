@@ -398,6 +398,9 @@ public class ZoomController : ControllerBase
             Log.LogDebug("PutLink(): Creating user and/or tenant");
             var tenant = await LinkUserToTenant(profile, state.Login, model.ChosenTenant);
 
+            Log.LogDebug($"PutLink(): Setting csp settings to allow '{$"https://{tenant.Alias}.{Configuration["zoom:zoom-domain"]}"}'.");
+            await CspSettingsHelper.SaveAsync(new List<string>() { $"https://{tenant.Alias}.{Configuration["zoom:zoom-domain"]}" });
+
             response.ConfirmLink = GetTenantRedirectUri(tenant, state.Login);
             response.Collaboration = new ZoomCollaborationRoom()
             {
