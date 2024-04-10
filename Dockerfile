@@ -6,11 +6,11 @@ FROM $REPO_BUID AS build
 WORKDIR /app
 
 COPY . .
-WORKDIR /app/DocSpace
+WORKDIR /app/DocSpace/server
 RUN dotnet restore ASC.Web.slnf
 
 WORKDIR /app/server/ASC.ZoomService
-RUN dotnet publish --self-contained true -c Release -o out
+RUN dotnet publish --self-contained true -c Release -o out --version-suffix 09c34c2 
 
 FROM $REPO_RUNTIME AS api
 LABEL vendor = "ONLYOFFICE" \
@@ -20,7 +20,7 @@ COPY --from=build /app/server/ASC.ZoomService/out/. ./
 COPY --from=build /app/server/ASC.ZoomService/out/config/. /app/onlyoffice/config/
 
 ENTRYPOINT ["dotnet", "ASC.ZoomService.dll" ]
-CMD ["--pathToConf", "/app/onlyoffice/config/"]
+CMD ["--pathToConf", "/app/onlyoffice/config/", "--Urls", "http://0.0.0.0:80"]
 
 FROM $REPO_ROUTER AS router
 LABEL vendor = "ONLYOFFICE" \
