@@ -998,7 +998,7 @@
                     }
                 }
 
-                authContinueButton.onclick = onAuthBoxContinue;
+                authContinueButton.onclick = () => onAuthBoxContinue();
                 authLoginButton.onclick = () => showAuthBox("Login");
                 authDoLoginButton.onclick = onAuthBoxDoLogin;
             }
