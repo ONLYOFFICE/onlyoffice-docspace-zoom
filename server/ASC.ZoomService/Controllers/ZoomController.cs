@@ -398,7 +398,7 @@ public class ZoomController : ControllerBase
             Log.LogDebug("PutLink(): Creating user and/or tenant");
             var tenant = await LinkUserToTenant(profile, state.Login, model.ChosenTenant);
 
-            response.ConfirmLink = GetTenantRedirectUri(tenant, profile.EMail);
+            response.ConfirmLink = GetTenantRedirectUri(tenant, state.Login);
             response.Collaboration = new ZoomCollaborationRoom()
             {
                 Status = ZoomCollaborationStatus.Pending,
