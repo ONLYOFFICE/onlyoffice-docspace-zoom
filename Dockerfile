@@ -1,5 +1,5 @@
-ARG REPO_BUID="mcr.microsoft.com/dotnet/sdk:7.0"
-ARG REPO_RUNTIME="mcr.microsoft.com/dotnet/aspnet:7.0"
+ARG REPO_BUID="mcr.microsoft.com/dotnet/sdk:8.0"
+ARG REPO_RUNTIME="mcr.microsoft.com/dotnet/aspnet:8.0"
 ARG REPO_ROUTER="nginx:latest"
 ARG COUNT_WORKER_CONNECTIONS=1024
 FROM $REPO_BUID AS build
@@ -10,7 +10,7 @@ WORKDIR /app/DocSpace/server
 RUN dotnet restore ASC.Web.slnf
 
 WORKDIR /app/server/ASC.ZoomService
-RUN dotnet publish --self-contained true -c Release -o out --version-suffix 09c34c2 
+RUN dotnet publish --self-contained true -c Release -o out
 
 FROM $REPO_RUNTIME AS api
 LABEL vendor = "ONLYOFFICE" \
