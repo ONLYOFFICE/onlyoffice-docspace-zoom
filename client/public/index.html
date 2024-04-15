@@ -356,12 +356,18 @@
                 return;
             }
 
-            async function refreshState() {
+            async function refreshState(forceAuth = false) {
                 if (!ownTenant) return;
 
                 try {
                     const appContext = await zoomSdk.getAppContext();
-                    let response = await fetch(`/${home}/zoom/state?accountId=${ownTenant}&noRedirect=true`, {
+                    let url = `/${home}/zoom/state?accountId=${ownTenant}&noRedirect=true`;
+
+                    if (forceAuth) {
+                        url += "&forceAuth=true"
+                    }
+
+                    let response = await fetch(url, {
                         headers: {
                             "x-zoom-app-context": appContext.context
                         }
@@ -679,11 +685,18 @@
                     showMenu: !id,
                     showFilter: !id,
                     id: id,
-                    width: "100vw"
+                    width: "100vw",
+                    events: {
+                        onSignOut: onSignOut,
+                    }
                 };
                 console.debug("Opening DocSpace Manager");
                 docSpaceFrame = window.DocSpace.SDK.initFrame(docSpaceInitConfig);
                 showDocSpace();
+            }
+
+            async function onSignOut() {
+                await refreshState(true);
             }
 
             async function destroyLoginFrameAndInitEditor(id, checkRights = false, goBack = false) {
