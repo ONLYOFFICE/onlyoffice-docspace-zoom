@@ -31,36 +31,36 @@
             <div class="messageBody authBoxBody">
                 <div id="authStepButtons">
                     <div>
-                        <b>Welcome to ONLYOFFICE DocSpace!</b>
+                        <b data-translate="content">Welcome to ONLYOFFICE DocSpace!</b>
                         <br>
-                        <p class="mt">Choose, create or upload file to collaborate with other Zoom meeting participants</p>
+                        <p data-translate="content" class="mt">Choose, create or upload file to collaborate with other Zoom meeting participants</p>
                     </div>
-                    <div class="button" id="authContinueButton">Continue</div>
+                    <div data-translate="content" class="button" id="authContinueButton">Continue</div>
                     <div id="authSplit">
                         <div></div>
-                        <span>OR</span>
+                        <span data-translate="content">OR</span>
                         <div></div>
                     </div>
-                    <p>Already have DocSpace account?</p>
-                    <div class="button secondary" id="authLoginButton">Log in</div>
+                    <p data-translate="content">Already have DocSpace account?</p>
+                    <div class="button secondary" id="authLoginButton" data-translate="content">Log in</div>
                 </div>
                 <div id="authStepLogin">
-                    <b>Sign in DocSpace</b>
+                    <b data-translate="content">Sign in DocSpace</b>
                     <div id="loginForm">
-                        <input id="loginInput" placeholder="E-mail" />
-                        <input id="passwordInput" type="password" placeholder="Password" />
-                        <div class="button" id="authDoLoginButton">Sign in</div>
-                        <div class="button secondary" id="authDoReturnButton">Back</div>
+                        <input id="loginInput" data-translate="placeholder" placeholder="E-mail" />
+                        <input id="passwordInput" type="password" data-translate="placeholder" placeholder="Password" />
+                        <div class="button" id="authDoLoginButton" data-translate="content">Sign in</div>
+                        <div class="button secondary" id="authDoReturnButton" data-translate="content">Back</div>
                     </div>
                 </div>
                 <div id="authStepTenant">
-                    <b id="authStepTenantEmail">Available portals for</b>
+                    <b id="authStepTenantEmail" data-translate="content">Available portals for</b>
                     <div class="mt">
                         <div id="tenantHolder">
                         </div>
                     </div>
                     <div class="mt">
-                        <b>Don't see your portal? <a id="authDoTryDifferentButton" href="#" role="button">Try using a different email address</a></b>
+                        <b data-translate="content">Don't see your portal? </b><a id="authDoTryDifferentButton" href="#" role="button" data-translate="content">Try using a different email address</a>
                     </div>
                 </div>
             </div>
@@ -183,6 +183,8 @@
                             case "value":
                                 element.value = window.zi18n.translate(element.value);
                                 break;
+                            case "placeholder":
+                                element.placeholder = window.zi18n.translate(element.placeholder);
                         }
                     }
                 },
