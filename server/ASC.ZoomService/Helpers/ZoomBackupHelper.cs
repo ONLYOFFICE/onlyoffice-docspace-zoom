@@ -59,78 +59,78 @@ namespace ASC.ZoomService.Helpers
             _log = log;
         }
 
-        public async Task MoveFilesToBackup(ZoomCollaborationCachedRoom cachedCollaboration)
-        {
-            try
-            {
-                await _tenantManager.SetCurrentTenantAsync(cachedCollaboration.TenantId);
-                await _securityContext.AuthenticateMeWithoutCookieAsync((await _zoomAccountHelper.GetAdminUser()).Id);
+        //public async Task MoveFilesToBackup(ZoomCollaborationCachedRoom cachedCollaboration)
+        //{
+        //    try
+        //    {
+        //        await _tenantManager.SetCurrentTenantAsync(cachedCollaboration.TenantId);
+        //        await _securityContext.AuthenticateMeWithoutCookieAsync((await _zoomAccountHelper.GetAdminUser()).Id);
 
-                var parentId = await _globalFolderHelper.GetFolderVirtualRooms();
-                var found = await _fileStorageService.GetFolderItemsAsync(parentId, 0, 1, FilterType.CustomRooms, false, null, null, null, false, false,
-                    new OrderBy(SortedByType.DateAndTime, true), tagNames: new[] { cachedCollaboration.MeetingId });
+        //        var parentId = await _globalFolderHelper.GetFolderVirtualRooms();
+        //        var found = await _fileStorageService.GetFolderItemsAsync(parentId, 0, 1, FilterType.CustomRooms, false, null, null, null, false, false,
+        //            new OrderBy(SortedByType.DateAndTime, true), tagNames: new[] { cachedCollaboration.MeetingId });
 
-                int? roomId = null;
-                if (found.Entries.Any())
-                {
-                    roomId = (found.Entries.First() as Folder<int>).Id;
-                }
+        //        int? roomId = null;
+        //        if (found.Entries.Any())
+        //        {
+        //            roomId = (found.Entries.First() as Folder<int>).Id;
+        //        }
 
-                if (!roomId.HasValue)
-                {
-                    //await _tagsService.CreateTagAsync(cachedCollaboration.MeetingId);
-                    var room = await _fileStorageService.CreateRoomAsync($"Zoom Meeting {DateTime.Now:MM/dd/yy}", RoomType.CustomRoom, false, Array.Empty<FileShareParams>(), false, string.Empty);
-                    //await _tagsService.AddRoomTagsAsync(room.Id, new[] { cachedCollaboration.MeetingId });
-                    roomId = room.Id;
-                }
+        //        if (!roomId.HasValue)
+        //        {
+        //            //await _tagsService.CreateTagAsync(cachedCollaboration.MeetingId);
+        //            var room = await _fileStorageService.CreateRoomAsync($"Zoom Meeting {DateTime.Now:MM/dd/yy}", RoomType.CustomRoom, false, Array.Empty<FileShareParams>(), false, string.Empty);
+        //            //await _tagsService.AddRoomTagsAsync(room.Id, new[] { cachedCollaboration.MeetingId });
+        //            roomId = room.Id;
+        //        }
 
-                var collaborationRoom = await _fileStorageService.GetFolderAsync(int.Parse(cachedCollaboration.RoomId));
-                var innerRoom = await _fileStorageService.CreateNewFolderAsync(roomId.Value, collaborationRoom.Title);
+        //        var collaborationRoom = await _fileStorageService.GetFolderAsync(int.Parse(cachedCollaboration.RoomId));
+        //        var innerRoom = await _fileStorageService.CreateNewFolderAsync(roomId.Value, collaborationRoom.Title);
 
-                var itemsToMove = await _fileStorageService.GetFolderItemsAsync(collaborationRoom.Id, 0, 20, FilterType.None, false, null, null, null, false, false, new OrderBy(SortedByType.DateAndTime, true));
-                var fileIds = itemsToMove.Entries.Where(entry => entry is File<int>).Select(entry => (entry as File<int>).Id);
+        //        var itemsToMove = await _fileStorageService.GetFolderItemsAsync(collaborationRoom.Id, 0, 20, FilterType.None, false, null, null, null, false, false, new OrderBy(SortedByType.DateAndTime, true));
+        //        var fileIds = itemsToMove.Entries.Where(entry => entry is File<int>).Select(entry => (entry as File<int>).Id);
 
-                await WaitForFileOpsToComplete(await _fileStorageService.MoveOrCopyItemsAsync(
-                    new List<JsonElement>(),
-                    new List<JsonElement>(fileIds.Select(id => JsonSerializer.Deserialize<JsonElement>(id.ToString()))),
-                    JsonSerializer.Deserialize<JsonElement>(innerRoom.Id.ToString()),
-                    FileConflictResolveType.Skip,
-                true));
-                await WaitForFileOpsToComplete(await _fileStorageService.MoveOrCopyItemsAsync(
-                    new List<JsonElement>() { JsonSerializer.Deserialize<JsonElement>(collaborationRoom.Id.ToString()) },
-                    new List<JsonElement>(),
-                    JsonSerializer.Deserialize<JsonElement>((await _globalFolderHelper.FolderArchiveAsync).ToString()),
-                    FileConflictResolveType.Skip,
-                    false));
-            }
-            catch (Exception ex)
-            {
-                _log.LogError(ex, "Error while moving collaboration to backup");
-                throw;
-            }
-            finally
-            {
-                _securityContext.Logout();
-            }
-        }
+        //        await WaitForFileOpsToComplete(await _fileStorageService.MoveOrCopyItemsAsync(
+        //            new List<JsonElement>(),
+        //            new List<JsonElement>(fileIds.Select(id => JsonSerializer.Deserialize<JsonElement>(id.ToString()))),
+        //            JsonSerializer.Deserialize<JsonElement>(innerRoom.Id.ToString()),
+        //            FileConflictResolveType.Skip,
+        //        true));
+        //        await WaitForFileOpsToComplete(await _fileStorageService.MoveOrCopyItemsAsync(
+        //            new List<JsonElement>() { JsonSerializer.Deserialize<JsonElement>(collaborationRoom.Id.ToString()) },
+        //            new List<JsonElement>(),
+        //            JsonSerializer.Deserialize<JsonElement>((await _globalFolderHelper.FolderArchiveAsync).ToString()),
+        //            FileConflictResolveType.Skip,
+        //            false));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _log.LogError(ex, "Error while moving collaboration to backup");
+        //        throw;
+        //    }
+        //    finally
+        //    {
+        //        _securityContext.Logout();
+        //    }
+        //}
 
-        private async Task WaitForFileOpsToComplete(IEnumerable<FileOperationResult> fileOperationResults)
-        {
-            var idsToWait = fileOperationResults.Select(op => op.Id).ToList();
+        //private async Task WaitForFileOpsToComplete(IEnumerable<FileOperationResult> fileOperationResults)
+        //{
+        //    var idsToWait = fileOperationResults.Select(op => op.Id).ToList();
 
-            while (idsToWait.Count > 0)
-            {
-                await Task.Delay(TimeSpan.FromSeconds(1));
-                var newStatuses = _fileStorageService.GetTasksStatuses().ToDictionary(op => op.Id, op => op);
+        //    while (idsToWait.Count > 0)
+        //    {
+        //        await Task.Delay(TimeSpan.FromSeconds(1));
+        //        var newStatuses = _fileStorageService.GetTasksStatuses().ToDictionary(op => op.Id, op => op);
 
-                foreach (var id in idsToWait.ToList())
-                {
-                    if (!newStatuses.TryGetValue(id, out var op) || op.Finished)
-                    {
-                        idsToWait.Remove(id);
-                    }
-                }
-            }
-        }
+        //        foreach (var id in idsToWait.ToList())
+        //        {
+        //            if (!newStatuses.TryGetValue(id, out var op) || op.Finished)
+        //            {
+        //                idsToWait.Remove(id);
+        //            }
+        //        }
+        //    }
+        //}
     }
 }

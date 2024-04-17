@@ -57,13 +57,13 @@ public class CommonMethods
         Tenant tenant;
         if (_coreBaseSettings.Standalone && model != null && !string.IsNullOrWhiteSpace((model.PortalName ?? "")))
         {
-            tenant = _tenantManager.GetTenant((model.PortalName ?? "").Trim());
+            tenant = await _tenantManager.GetTenantAsync((model.PortalName ?? "").Trim());
             return (true, tenant);
         }
 
         if (model != null && model.TenantId.HasValue)
         {
-            tenant = _hostedSolution.GetTenant(model.TenantId.Value);
+            tenant = await _hostedSolution.GetTenantAsync(model.TenantId.Value);
             return (true, tenant);
         }
 

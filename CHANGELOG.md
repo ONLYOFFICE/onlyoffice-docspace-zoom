@@ -6,6 +6,8 @@
 - welcome email
 - added fonts
 - cancel button on creation page
+- support DocSpace v2.5
+- option to link to existing portal
 
 ## Changed
 - fix check csp on loader page

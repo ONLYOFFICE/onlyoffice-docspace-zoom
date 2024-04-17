@@ -1,12 +1,12 @@
-ARG REPO_BUID="mcr.microsoft.com/dotnet/sdk:7.0"
-ARG REPO_RUNTIME="mcr.microsoft.com/dotnet/aspnet:7.0"
+ARG REPO_BUID="mcr.microsoft.com/dotnet/sdk:8.0"
+ARG REPO_RUNTIME="mcr.microsoft.com/dotnet/aspnet:8.0"
 ARG REPO_ROUTER="nginx:latest"
 ARG COUNT_WORKER_CONNECTIONS=1024
 FROM $REPO_BUID AS build
 WORKDIR /app
 
 COPY . .
-WORKDIR /app/DocSpace
+WORKDIR /app/DocSpace/server
 RUN dotnet restore ASC.Web.slnf
 
 WORKDIR /app/server/ASC.ZoomService
@@ -20,7 +20,7 @@ COPY --from=build /app/server/ASC.ZoomService/out/. ./
 COPY --from=build /app/server/ASC.ZoomService/out/config/. /app/onlyoffice/config/
 
 ENTRYPOINT ["dotnet", "ASC.ZoomService.dll" ]
-CMD ["--pathToConf", "/app/onlyoffice/config/"]
+CMD ["--pathToConf", "/app/onlyoffice/config/", "--Urls", "http://0.0.0.0:80"]
 
 FROM $REPO_ROUTER AS router
 LABEL vendor = "ONLYOFFICE" \
