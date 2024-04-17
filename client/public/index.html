@@ -359,8 +359,6 @@
             }
 
             async function refreshState(forceAuth = false) {
-                if (!ownTenant) return;
-
                 try {
                     const appContext = await zoomSdk.getAppContext();
                     let url = `/${home}/zoom/state?accountId=${ownTenant}&noRedirect=true`;
