@@ -53,6 +53,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Data.Backup.Core", "Doc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.ActiveDirectory", "DocSpace\server\common\ASC.ActiveDirectory\ASC.ActiveDirectory.csproj", "{97A373E8-34B2-40F9-A8A5-81E2DEA39BF6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Migration.Core", "DocSpace\server\common\ASC.Migration\ASC.Migration.Core.csproj", "{041B12B9-F85D-45EA-9FE6-385F424528F5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Notify", "DocSpace\server\common\services\ASC.Notify\ASC.Notify.csproj", "{9B682968-C23B-4923-93E3-75ED90D5B145}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -155,6 +159,14 @@ Global
 		{97A373E8-34B2-40F9-A8A5-81E2DEA39BF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97A373E8-34B2-40F9-A8A5-81E2DEA39BF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97A373E8-34B2-40F9-A8A5-81E2DEA39BF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{041B12B9-F85D-45EA-9FE6-385F424528F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{041B12B9-F85D-45EA-9FE6-385F424528F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{041B12B9-F85D-45EA-9FE6-385F424528F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{041B12B9-F85D-45EA-9FE6-385F424528F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B682968-C23B-4923-93E3-75ED90D5B145}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B682968-C23B-4923-93E3-75ED90D5B145}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B682968-C23B-4923-93E3-75ED90D5B145}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B682968-C23B-4923-93E3-75ED90D5B145}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -183,6 +195,8 @@ Global
 		{D65E12BD-CF6C-43EA-92AE-6112F4EF9A61} = {00A132A5-9CDA-4104-9C1F-D13A9F74A3A1}
 		{2DE427FC-921A-4E94-B986-3E11EF1DA290} = {00A132A5-9CDA-4104-9C1F-D13A9F74A3A1}
 		{97A373E8-34B2-40F9-A8A5-81E2DEA39BF6} = {00A132A5-9CDA-4104-9C1F-D13A9F74A3A1}
+		{041B12B9-F85D-45EA-9FE6-385F424528F5} = {00A132A5-9CDA-4104-9C1F-D13A9F74A3A1}
+		{9B682968-C23B-4923-93E3-75ED90D5B145} = {00A132A5-9CDA-4104-9C1F-D13A9F74A3A1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3C7B881C-3799-444A-9460-09D6037FEABB}

@@ -69,6 +69,7 @@ public class ZoomController : ControllerBase
     private TenantManager TenantManager { get; }
     private CoreSettings CoreSettings { get; }
     private ZoomAccountHelper ZoomAccountHelper { get; }
+    private ZoomMultiTenantHelper ZoomMultiTenantHelper { get; }
     private TimeZonesProvider TimeZonesProvider { get; }
     private TimeZoneConverter TimeZoneConverter { get; }
     private UserManager UserManager { get; }
@@ -94,6 +95,7 @@ public class ZoomController : ControllerBase
         TenantManager tenantManager,
         CoreSettings coreSettings,
         ZoomAccountHelper zoomAccountHelper,
+        ZoomMultiTenantHelper zoomMultiTenantHelper,
         TimeZonesProvider timeZonesProvider,
         TimeZoneConverter timeZoneConverter,
         UserManager userManager,
@@ -118,6 +120,7 @@ public class ZoomController : ControllerBase
         Configuration = configuration;
         TenantManager = tenantManager;
         CoreSettings = coreSettings;
+        ZoomMultiTenantHelper = zoomMultiTenantHelper;
         ZoomAccountHelper = zoomAccountHelper;
         TimeZonesProvider = timeZonesProvider;
         TimeZoneConverter = timeZoneConverter;
@@ -159,7 +162,7 @@ public class ZoomController : ControllerBase
     [HttpGet("state")]
     [AllowCrossSiteJson]
     [Authorize(AuthenticationSchemes = ZoomAuthHandler.ZOOM_AUTH_SCHEME_HEADER)]
-    public async Task<IActionResult> GetState([FromQuery] ZoomStateModel model, [FromQuery] bool noRedirect = false)
+    public async Task<IActionResult> GetState([FromQuery] ZoomStateModel model, [FromQuery] bool noRedirect = false, [FromQuery] bool forceAuth = false)
     {
         var uid = User.Claims.FirstOrDefault(c => c.Type == ZoomAuthHandler.ZOOM_CLAIM_UID)?.Value;
         var mid = User.Claims.FirstOrDefault(c => c.Type == ZoomAuthHandler.ZOOM_CLAIM_MID)?.Value;
@@ -179,24 +182,48 @@ public class ZoomController : ControllerBase
             collaboration = Cache.GetCollaboration(mid);
         }
 
-        string confirmLink;
+        var jwtSecret = Configuration["zoom:gate-secret"];
+
+        string confirmLink = null;
         bool foreignTenant = false;
+        int tenantId = -1;
         if (collaboration != null)
         {
             Log.LogDebug($"GetState(): Collaboration is not null, getting confirm link using tenant id {collaboration.TenantId}");
             confirmLink = await GetConfirmLinkByTenantId(collaboration.TenantId, uid);
             model.TenantId = collaboration.TenantId;
+            tenantId = collaboration.TenantId;
 
             var ownTenant = GetTenantByAccountId(model.AccountId);
             foreignTenant = ownTenant.Id != collaboration.TenantId;
         }
         else
         {
-            Log.LogDebug($"GetState(): Collaboration is null, getting confirm link using account number {model.AccountId}");
-            confirmLink = await GetConfirmLinkByAccountId(model.AccountId, uid);
+            if (Request.Cookies.TryGetValue("ZoomLink", out var zoomLinkJwt))
+            {
+                try
+                {
+                    Log.LogDebug($"GetState(): ZoomLink Cookie is not null, getting confirm link using jwt");
+                    var zoomLinkJson = JsonWebToken.Decode(zoomLinkJwt, jwtSecret);
+                    var zoomLink = JsonSerializer.Deserialize<ZoomLinkCookie>(zoomLinkJson, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                    confirmLink = await GetConfirmLinkByTenantId(zoomLink.TenantId, uid);
+                    tenantId = zoomLink.TenantId;
+                }
+                catch (Exception ex)
+                {
+                    Log.LogWarning(ex, $"GetState(): ZoomLink jwt could not be parsed");
+                    Response.Cookies.Delete("ZoomLink");
+                }
+            }
+
+            if (confirmLink == null)
+            {
+                Log.LogDebug($"GetState(): Collaboration is null, getting confirm link using account number {model.AccountId}");
+                confirmLink = await GetConfirmLinkByAccountId(model.AccountId, uid);
+            }
         }
 
-        if (confirmLink != null)
+        if (!forceAuth && confirmLink != null)
         {
             Log.LogDebug($"GetState(): Got request from Zoom App; Found portal and user, redirecting with auth; AccountNumber: {model.AccountId}; UserId: {uid}");
 
@@ -225,8 +252,8 @@ public class ZoomController : ControllerBase
                 }
             }
 
-            var link = collaboration != null
-                    ? GetPayloadRedirectLinkByTenantId(collaboration.TenantId, integrationPayload)
+            var link = tenantId > -1
+                    ? await GetPayloadRedirectLinkByTenantId(tenantId, integrationPayload)
                     : await GetPayloadRedirectLinkByAccountId(model.AccountId, integrationPayload);
 
             if (noRedirect)
@@ -241,7 +268,6 @@ public class ZoomController : ControllerBase
 
         Log.LogDebug($"GetState(): ConfirmLink is null, proceeding to oauth");
 
-        var jwtSecret = Configuration["zoom:gate-secret"];
 
         var verifier = GenerateCodeVerifier();
         var challenge = GenerateCodeChallenge(verifier);
@@ -315,6 +341,87 @@ public class ZoomController : ControllerBase
         {
             Log.LogDebug(ex, $"GetHome(): Error while processing install link");
             return BadRequest();
+        }
+    }
+
+    [HttpPost("link")]
+    public async Task<IActionResult> PostLink(ZoomLinkPayload model)
+    {
+        var tenants = await ZoomMultiTenantHelper.FindTenantsAsync(model.Login, model.Password);
+
+        var response = new ZoomLinkResponse()
+        {
+            Login = model.Login,
+            TenantInfo = tenants.Select(t => new ZoomTenantInfo() { Id = t.Id, Name = t.Name, Domain = t.GetTenantDomain(CoreSettings) }).ToList()
+        };
+
+        var jwtSecret = Configuration["zoom:gate-secret"];
+
+        return Ok(JsonWebToken.Encode(response, jwtSecret));
+    }
+
+    [HttpPut("link")]
+    public async Task<IActionResult> PutLink(ZoomLinkPutPayload model)
+    {
+        var response = new ZoomIntegrationPayload()
+        {
+            Home = Configuration["zoom:home"]
+        };
+
+        try
+        {
+            var jwtSecret = Configuration["zoom:gate-secret"];
+
+            var stateJson = JsonWebToken.Decode(model.State, jwtSecret);
+            var state = JsonSerializer.Deserialize<ZoomLinkResponse>(stateJson, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+
+            var codeVerifier = Cache.GetOauthVerifier(model.Challenge);
+            if (codeVerifier == null)
+            {
+                Log.LogDebug("PutLink(): Incorrect ouath state");
+                return BadRequest("incorrect ouath state");
+            }
+
+            if (!state.TenantInfo.Any(t => t.Id == model.ChosenTenant))
+            {
+                return BadRequest("incorrect chosen tenant");
+            }
+
+            Log.LogDebug($"PutLink(): Got PUT request from Zoom App; TenantId: {model.ChosenTenant}; User: {state.Login}");
+
+            var loginProvider = ZoomAccountHelper.GetLoginProvider();
+            Log.LogDebug("PutLink(): Exchanging code for AccessToken");
+            var token = loginProvider.GetAccessToken(model.Code, model.RedirectUri, codeVerifier);
+            Log.LogDebug("PutLink(): Requesting profile info");
+            var profile = loginProvider.GetLoginProfile(token);
+
+            Log.LogDebug("PutLink(): Creating user and/or tenant");
+            var tenant = await LinkUserToTenant(profile, state.Login, model.ChosenTenant);
+
+            Log.LogDebug($"PutLink(): Setting csp settings to allow '{$"https://{tenant.Alias}.{Configuration["zoom:zoom-domain"]}"}'.");
+            await CspSettingsHelper.SaveAsync(new List<string>() { $"https://{tenant.Alias}.{Configuration["zoom:zoom-domain"]}" });
+
+            response.ConfirmLink = GetTenantRedirectUri(tenant, state.Login);
+            response.Collaboration = new ZoomCollaborationRoom()
+            {
+                Status = ZoomCollaborationStatus.Pending,
+            };
+
+            var cookie = new ZoomLinkCookie()
+            {
+                TenantId = tenant.Id,
+            };
+
+            Response.Cookies.Append("ZoomLink", JsonWebToken.Encode(cookie, jwtSecret), new CookieOptions() { Domain = Configuration["zoom:zoom-domain"], Expires = DateTimeOffset.Now.AddDays(30) });
+
+            Log.LogDebug("PutLink(): Returning user with confirmLink");
+            return Ok(GetPayloadRedirectLink(tenant, response));
+        }
+        catch (Exception ex)
+        {
+            Log.LogDebug(ex, $"PutLink(): Error while linking");
+            response.Error = ex.Message;
+            return BadRequest(response);
         }
     }
 
@@ -428,14 +535,14 @@ public class ZoomController : ControllerBase
             await SecurityContext.AuthenticateMeWithoutCookieAsync(Core.Configuration.Constants.CoreSystem);
             Log.LogInformation($"DeauthorizationHook(): Got deauth request with zoom user id {zoomEvent.Payload.UserId}");
             // getting all linked accounts on all tenants
-            var userIds = await AccountLinker.GetLinkedObjectsAsync(zoomEvent.Payload.UserId, ProviderConstants.Zoom);
+            var userIds = await AccountLinker.GetLinkedProfilesAsync(zoomEvent.Payload.UserId, ProviderConstants.Zoom);
 
             foreach (var userId in userIds)
             {
                 try
                 {
                     Log.LogInformation($"DeauthorizationHook(): Unlinking user with zoom id {zoomEvent.Payload.UserId}, user id {userId}");
-                    await AccountLinker.RemoveLinkAsync(userId.ToString(), zoomEvent.Payload.UserId, ProviderConstants.Zoom);
+                    await AccountLinker.RemoveProviderAsync(userId.ToString(), ProviderConstants.Zoom);
                 }
                 catch (Exception ex)
                 {
@@ -473,9 +580,9 @@ public class ZoomController : ControllerBase
         return 10 * 1024 * 1024;
     }
 
-    private string GetPayloadRedirectLinkByTenantId(int tenantId, ZoomIntegrationPayload payload)
+    private async Task<string> GetPayloadRedirectLinkByTenantId(int tenantId, ZoomIntegrationPayload payload)
     {
-        var tenant = HostedSolution.GetTenant(tenantId);
+        var tenant = await HostedSolution.GetTenantAsync(tenantId);
         return GetPayloadRedirectLink(tenant, payload);
     }
 
@@ -524,7 +631,7 @@ public class ZoomController : ControllerBase
             {
                 Log.LogDebug($"CreateUserAndTenant(): TenantId not equals accountNumber, adding user as a guest");
                 guest = true;
-                tenant = HostedSolution.GetTenant(tenantId.Value);
+                tenant = await HostedSolution.GetTenantAsync(tenantId.Value);
             }
         }
 
@@ -546,9 +653,9 @@ public class ZoomController : ControllerBase
             var userInfo = await UserManager.GetUserByEmailAsync(profile.EMail);
             if (!UserManager.UserExists(userInfo.Id))
             {
-                Log.LogDebug($"CreateUserAndTenant(): Creating new user for portal '{portalName}'; UserId: {profile.UniqueId}");
+                Log.LogDebug($"CreateUserAndTenant(): Creating new user for portal '{portalName}'; UserId: {profile.HashId}");
                 userInfo = await CreateUser(profile, guest);
-                Log.LogInformation($"CreateUserAndTenant(): Created new user for '{portalName}'; UserId: {profile.UniqueId}");
+                Log.LogInformation($"CreateUserAndTenant(): Created new user for '{portalName}'; UserId: {profile.HashId}");
                 shouldLink = true;
             }
             else
@@ -560,11 +667,45 @@ public class ZoomController : ControllerBase
             if (shouldLink)
             {
                 Log.LogDebug($"CreateUserAndTenant(): Linking portal user '{userInfo.Id}' to zoom user '{profile.Id}'.");
-                await AccountLinker.AddLinkAsync(userInfo.Id.ToString(), profile);
+                await AccountLinker.AddLinkAsync(userInfo.Id, profile);
                 Log.LogInformation($"CreateUserAndTenant(): Linked portal user '{userInfo.Id}' to zoom user '{profile.Id}'.");
             }
 
             return (userInfo, tenant);
+        }
+        finally
+        {
+            SecurityContext.Logout();
+        }
+    }
+
+    private async Task<Tenant> LinkUserToTenant(LoginProfile profile, string email, int tenantId)
+    {
+        var tenant = await HostedSolution.GetTenantAsync(tenantId);
+        TenantManager.SetCurrentTenant(tenant);
+        try
+        {
+            await SecurityContext.AuthenticateMeWithoutCookieAsync(Core.Configuration.Constants.CoreSystem);
+
+            var linkedUserId = await ZoomAccountHelper.GetUserIdFromZoomUid(profile.Id);
+            if (linkedUserId != null)
+            {
+                Log.LogInformation($"LinkUserToTenant(): User already linked.");
+                return tenant;
+            }
+
+            var userInfo = await UserManager.GetUserByEmailAsync(email);
+            if (!UserManager.UserExists(userInfo.Id))
+            {
+                Log.LogInformation($"LinkUserToTenant(): User not found with email '{email}', tenant '{tenantId}'");
+                throw new Exception("User not found");
+            }
+
+            Log.LogDebug($"LinkUserToTenant(): Linking portal user '{userInfo.Id}' to zoom user '{profile.Id}'.");
+            await AccountLinker.AddLinkAsync(userInfo.Id, profile);
+            Log.LogInformation($"LinkUserToTenant(): Linked portal user '{userInfo.Id}' to zoom user '{profile.Id}'.");
+
+            return tenant;
         }
         finally
         {
@@ -692,7 +833,7 @@ public class ZoomController : ControllerBase
 
             Log.LogDebug($"CreateTenant(): Setting csp settings to allow '{$"https://{portalName}.{Configuration["zoom:zoom-domain"]}"}'.");
 
-            await CspSettingsHelper.SaveAsync(new List<string>() { $"https://{portalName}.{Configuration["zoom:zoom-domain"]}" }, false);
+            await CspSettingsHelper.SaveAsync(new List<string>() { $"https://{portalName}.{Configuration["zoom:zoom-domain"]}" });
         }
         catch (Exception ex)
         {
@@ -755,7 +896,7 @@ public class ZoomController : ControllerBase
     {
         ArgumentException.ThrowIfNullOrEmpty(uid, nameof(uid));
 
-        var tenant = HostedSolution.GetTenant(tenantId);
+        var tenant = await HostedSolution.GetTenantAsync(tenantId);
 
         Log.LogDebug($"GetConfirmLinkByTenantId(): Getting confirm link with tenant {tenant?.Id}, user {uid}.");
         return await GetConfirmLink(tenant, uid);

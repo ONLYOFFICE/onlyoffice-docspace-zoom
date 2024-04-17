@@ -25,18 +25,18 @@
 // International. See the License terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
 
 using ASC.ApiSystem.Hubs;
-using ASC.Core.Common.Quota.Features;
-using ASC.Core.Common.Quota;
-using ASC.Files.Core.EF;
-using ASC.Files.Core.Core;
-using ASC.Web.Files;
-using ASC.Notify.Model;
-using ASC.Core.Notify;
 using ASC.Core.Common.Notify.Engine;
+using ASC.Core.Common.Quota;
+using ASC.Core.Common.Quota.Features;
+using ASC.Core.Notify.Socket;
+using ASC.Files.Core.Core;
+using ASC.Files.Core.EF;
 using ASC.Notify.Engine;
-using System.Threading.Channels;
-using ASC.Web.Studio.Core.Notify;
 using ASC.Notify.Textile;
+using ASC.Web.Files;
+using ASC.Web.Studio.Core.Notify;
+using Microsoft.Extensions.DependencyInjection;
+using System.Threading.Channels;
 
 namespace ASC.ZoomService;
 
@@ -56,7 +56,7 @@ public class Startup
         _corsOrigin = _configuration["core:cors"];
     }
 
-    public void ConfigureServices(IServiceCollection services)
+    public async Task ConfigureServices(IServiceCollection services)
     {
         services.AddCustomHealthCheck(_configuration);
         services.AddHttpContextAccessor();
@@ -77,6 +77,7 @@ public class Startup
         services.AddBaseDbContextPool<FeedDbContext>();
         services.AddBaseDbContextPool<MessagesContext>();
         services.AddBaseDbContextPool<WebhooksDbContext>();
+        services.AddBaseDbContextPool<UrlShortenerDbContext>();
 
 
         services.AddBaseDbContextPool<FilesDbContext>();
@@ -127,11 +128,15 @@ public class Startup
         services.AddSingleton(Channel.CreateUnbounded<NotifyRequest>());
         services.AddSingleton(svc => svc.GetRequiredService<Channel<NotifyRequest>>().Reader);
         services.AddSingleton(svc => svc.GetRequiredService<Channel<NotifyRequest>>().Writer);
-        services.AddActivePassiveHostedService<NotifySenderService>(_diHelper);
-        services.AddActivePassiveHostedService<NotifySchedulerService>(_diHelper);
+        services.AddHostedService<NotifySenderService>();
+        services.AddActivePassiveHostedService<NotifySchedulerService>(_diHelper, _configuration);
+
+        services.AddSingleton(Channel.CreateUnbounded<SocketData>());
+        services.AddSingleton(svc => svc.GetRequiredService<Channel<SocketData>>().Reader);
+        services.AddSingleton(svc => svc.GetRequiredService<Channel<SocketData>>().Writer);
+        services.AddHostedService<SocketService>();
 
         services.AddSingleton<NotifyConfiguration>();
-
         _diHelper.TryAdd<FileHandlerService>();
         _diHelper.TryAdd<ASC.Web.Studio.Core.Notify.NotifyTransferRequest>();
         _diHelper.TryAdd<ASC.Web.Studio.Core.Notify.ProductSecurityInterceptor>();
@@ -153,16 +158,17 @@ public class Startup
             });
         }
 
-        services.AddDistributedCache(_configuration);
+        var connectionMultiplexer = await services.GetRedisConnectionMultiplexerAsync(_configuration, GetType().Namespace);
+
+        services.AddDistributedCache(connectionMultiplexer);
         services.AddEventBus(_configuration);
         services.AddDistributedTaskQueue();
         services.AddCacheNotify(_configuration);
+        services.AddDistributedLock(_configuration);
 
         services.RegisterFeature();
 
         _diHelper.TryAdd(typeof(IWebhookPublisher), typeof(WebhookPublisher));
-
-        _diHelper.RegisterProducts(_configuration, _hostEnvironment.ContentRootPath);
 
         services.AddAutoMapper(BaseStartup.GetAutoMapperProfileAssemblies());
 
