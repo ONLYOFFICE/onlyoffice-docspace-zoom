@@ -347,7 +347,15 @@ public class ZoomController : ControllerBase
     [HttpPost("link")]
     public async Task<IActionResult> PostLink(ZoomLinkPayload model)
     {
-        var tenants = await ZoomMultiTenantHelper.FindTenantsAsync(model.Login, model.Password);
+        List<Tenant> tenants;
+        if (!string.IsNullOrWhiteSpace(model.Login) && !string.IsNullOrWhiteSpace(model.Password))
+        {
+            tenants = await ZoomMultiTenantHelper.FindTenantsAsync(model.Login, model.Password);
+        }
+        else
+        {
+            tenants = [];
+        }
 
         var response = new ZoomLinkResponse()
         {
