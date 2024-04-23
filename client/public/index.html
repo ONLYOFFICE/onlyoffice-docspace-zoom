@@ -382,6 +382,8 @@
                     window.location = await response.text();
                 } catch (e) {
                     console.log("Error while refreshing state", e);
+                    onGeneralError();
+                    return;
                 }
             };
 
@@ -402,6 +404,7 @@
                     await connection.start();
                 } catch (e) {
                     console.log("SignalR error", e);
+                    onGeneralError();
                 }
             }
 
@@ -510,6 +513,7 @@
                     }
                 } catch (e) {
                     console.log("SignalR error", e);
+                    onGeneralError();
                 }
             }
 
@@ -544,7 +548,7 @@
                     const link = await homeResponse.text();
                     window.location = link;
                 } catch {
-                    // handle error
+                    onGeneralError();
                 }
             }
 
@@ -645,7 +649,7 @@
                     const link = await response.text();
                     window.location = link;
                 } catch {
-                    // handle error
+                    onGeneralError();
                 }
             }
 
@@ -864,6 +868,8 @@
                     console.debug("DocSpace Authentication success");
                 } catch (e) {
                     console.debug("DocSpace Authentication fail", e);
+                    onGeneralError();
+                    return;
                 }
                 console.debug("DocSpace Authentication complete");
 
@@ -1056,6 +1062,13 @@
                 authDoTryDifferentButton.onclick = () => showAuthBox("Login");
             }
 
+            function onGeneralError() {
+                showMessage("<b>Sorry, something went wrong</b><br>Please reload the page", { button: {
+                    text: "Reload",
+                    action: refreshState
+                }});
+            }
+
             hookEvents();
 
             try {
@@ -1063,8 +1076,11 @@
                 payload = JSON.parse(decodeURIComponent(urlParams.get("payload")));
                 console.debug('Api System Payload', payload);
 
+                configResponse = await initZoomSdk();
+
                 if (!payload) {
-                    // ToDo: request did not came from api system, handle error
+                    onGeneralError();
+                    return;
                 }
 
                 ownTenant = payload["OwnAccountId"] ? payload["OwnAccountId"] : 0;
@@ -1076,7 +1092,6 @@
                     initLoader();
                 }
 
-                configResponse = await initZoomSdk();
 
                 if (payload["ConfirmLink"]) {
                     openDocSpace(payload["ConfirmLink"], payload["Collaboration"]);
