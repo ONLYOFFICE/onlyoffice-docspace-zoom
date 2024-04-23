@@ -1061,6 +1061,8 @@
                     } catch (ex) {
                         console.log("Couldn't upload a file", ex);
                         destroyLoginFrameAndInitFilePicker(false, false);
+                    } finally {
+                        input.value = "";
                     }
                 }
 
