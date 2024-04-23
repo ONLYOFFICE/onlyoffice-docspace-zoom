@@ -381,6 +381,14 @@ a {
         text-align: left;
     }
 
+    .messageHeader {
+        font-size: 1.4rem;
+    }
+
+    .messageHeader img {
+        height: 3rem;
+    }
+
     .tenant > b {
         max-width: 160px;
     }
