@@ -557,7 +557,12 @@
                     await zoomSdk.openUrl({
                         url: `${location.origin}/zoomservice/zoom/install?state=${payload["State"]}`
                     });
-                    showMessage("Please authorize using browser.");
+                    showMessage("Please authorize using browser.", { button: {
+                        text: "Try again",
+                        action: async () => {
+                            await onAuthBoxContinue(state);
+                        }
+                    }});
                 } else {
                     hideAll();
                     await zoomSdk.authorize({
