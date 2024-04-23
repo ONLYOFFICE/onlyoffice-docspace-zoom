@@ -46,12 +46,13 @@
                 </div>
                 <div id="authStepLogin">
                     <b data-translate="content">Sign in DocSpace</b>
-                    <div id="loginForm">
-                        <input id="loginInput" data-translate="placeholder" placeholder="E-mail" />
+                    <form id="loginForm">
+                        <input id="loginInput" type="text" data-translate="placeholder" placeholder="E-mail" />
                         <input id="passwordInput" type="password" data-translate="placeholder" placeholder="Password" />
-                        <div class="button" id="authDoLoginButton" data-translate="content">Sign in</div>
+                        <div class="button" id="authDoLoginButton" data-translate="value">Sign in</div>
                         <div class="button secondary" id="authDoReturnButton" data-translate="content">Back</div>
-                    </div>
+                        <input id="authDoLoginSubmit" type="submit" hidden />
+                    </form>
                 </div>
                 <div id="authStepTenant">
                     <b id="authStepTenantEmail" data-translate="content">Available portals for</b>
@@ -60,7 +61,9 @@
                         </div>
                     </div>
                     <div class="mt">
-                        <b data-translate="content">Don't see your portal? </b><a id="authDoTryDifferentButton" href="#" role="button" data-translate="content">Try using a different email address</a>
+                        <b data-translate="content">Don't see your portal?</b>
+                        <br>
+                        <a id="authDoTryDifferentButton" href="#" role="button" data-translate="content">Try using a different email address</a>
                     </div>
                 </div>
             </div>
@@ -263,6 +266,7 @@
             const authDoLoginButton = document.getElementById("authDoLoginButton");
             const authDoReturnButton = document.getElementById("authDoReturnButton");
             const authDoTryDifferentButton = document.getElementById("authDoTryDifferentButton");
+            const authDoLoginSubmit = document.getElementById("authDoLoginSubmit");
 
             function showMessage(msgKey, options) {
                 if (!options) options = {};
@@ -559,7 +563,11 @@
                 }
             }
 
-            async function onAuthBoxDoLogin() {
+            async function onAuthBoxDoLogin(e) {
+                if (e) {
+                    e.preventDefault();
+                }
+
                 const email = document.getElementById("loginInput");
                 const password = document.getElementById("passwordInput");
 
@@ -1042,6 +1050,7 @@
 
                 authContinueButton.onclick = () => onAuthBoxContinue();
                 authLoginButton.onclick = () => showAuthBox("Login");
+                authDoLoginSubmit.form.onsubmit = onAuthBoxDoLogin;
                 authDoLoginButton.onclick = onAuthBoxDoLogin;
                 authDoReturnButton.onclick = () => showAuthBox();
                 authDoTryDifferentButton.onclick = () => showAuthBox("Login");
