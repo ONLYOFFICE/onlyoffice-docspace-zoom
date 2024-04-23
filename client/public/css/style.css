@@ -117,6 +117,7 @@ a {
     overflow: hidden;
     text-overflow: ellipsis;
     text-wrap: nowrap;
+    text-align: start;
 }
 
 #zoom-ds-frame, #zoom-ds-frame-container,
@@ -378,5 +379,9 @@ a {
 
     #fileCreateInfo .formats > label > span {
         text-align: left;
+    }
+
+    .tenant > b {
+        max-width: 160px;
     }
 }
