@@ -580,7 +580,7 @@
                 const email = document.getElementById("loginInput");
                 const password = document.getElementById("passwordInput");
 
-                if (!email || !password) return;
+                if (!email.value || !password.value) return;
 
                 showLoader();
 
@@ -593,12 +593,17 @@
                 });
 
                 if (response.ok) {
-                    email.value = "";
-                    password.value = "";
                     const jwt = await response.text();
                     const json = JSON.parse(atob(jwt.split(".")[1].replace("/-/g", "+").replace("/_/g", "/")));
-                    console.debug(`DocSpace login success.`, json);
-                    onTenantLink(jwt, json);
+                    if (json.tenantInfo && json.tenantInfo.length > 0) {
+                        email.value = "";
+                        password.value = "";
+                        console.debug(`DocSpace login success.`, json);
+                        onTenantLink(jwt, json);
+                    } else {
+                        console.debug(`No tenants found for email & pass.`);
+                        showAuthBox("Login");
+                    }
                 } else {
                     console.debug(`DocSpace login fail. Reason: ${response.reason}`);
                     showAuthBox("Login");
