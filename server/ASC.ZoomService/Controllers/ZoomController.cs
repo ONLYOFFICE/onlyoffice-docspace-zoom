@@ -405,7 +405,7 @@ public class ZoomController : ControllerBase
             var tenant = await LinkUserToTenant(profile, state.Login, model.ChosenTenant);
 
             Log.LogDebug($"PutLink(): Setting csp settings to allow '{$"https://{tenant.Alias}.{Configuration["zoom:zoom-domain"]}"}'.");
-            await CspSettingsHelper.SaveAsync(new List<string>() { $"https://{tenant.Alias}.{Configuration["zoom:zoom-domain"]}" });
+            await AddDomainToCsp($"https://{tenant.Alias}.{Configuration["zoom:zoom-domain"]}");
 
             response.ConfirmLink = GetTenantRedirectUri(tenant, state.Login);
             response.Collaboration = new ZoomCollaborationRoom()
@@ -845,8 +845,7 @@ public class ZoomController : ControllerBase
             }
 
             Log.LogDebug($"CreateTenant(): Setting csp settings to allow '{$"https://{portalName}.{Configuration["zoom:zoom-domain"]}"}'.");
-
-            await CspSettingsHelper.SaveAsync(new List<string>() { $"https://{portalName}.{Configuration["zoom:zoom-domain"]}" });
+            await AddDomainToCsp($"https://{portalName}.{Configuration["zoom:zoom-domain"]}");
         }
         catch (Exception ex)
         {
@@ -870,6 +869,12 @@ public class ZoomController : ControllerBase
         {
             Log.LogError(ex, "Error while sending welcome email");
         }
+    }
+
+    private async Task AddDomainToCsp(string domain)
+    {
+        var domains = await CspSettingsHelper.LoadAsync();
+        await CspSettingsHelper.SaveAsync(new List<string>(domains.Domains) { domain });
     }
 
     private bool TryGetQuotaId(out int quotaId)
