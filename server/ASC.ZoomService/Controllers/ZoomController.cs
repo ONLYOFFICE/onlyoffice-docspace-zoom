@@ -25,7 +25,6 @@
 // International. See the License terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
 
 using ASC.ApiSystem.Helpers;
-using ASC.ApiSystem.Services.NotifyService;
 using ASC.Core.Common.Quota;
 using ASC.Core.Common.Quota.Features;
 using ASC.FederatedLogin;
@@ -36,7 +35,6 @@ using ASC.Files.Core.ApiModels.ResponseDto;
 using ASC.Files.Core.VirtualRooms;
 using ASC.Web.Api.Core;
 using ASC.Web.Core.Files;
-using ASC.Web.Core.Notify;
 using ASC.Web.Files.Classes;
 using ASC.Web.Files.Services.WCFService;
 using ASC.Web.Files.Utils;
@@ -462,10 +460,16 @@ public class ZoomController : ControllerBase
             Log.LogDebug("PostHome(): Exchanging code for AccessToken");
             var token = loginProvider.GetAccessToken(model.Code, model.RedirectUri, codeVerifier);
             Log.LogDebug("PostHome(): Requesting profile info");
-            var profile = loginProvider.GetLoginProfile(token);
+            var (profile, raw) = loginProvider.GetLoginProfileAndRaw(token.AccessToken);
+
+            if (raw.AccountId.Contains('_'))
+            {
+                // ToDo: we might have a collision
+                raw.AccountId = raw.AccountId.Replace("_", "--");
+            }
 
             Log.LogDebug("PostHome(): Creating user and/or tenant");
-            var (_, tenant) = await CreateUserAndTenant(profile, state.AccountId, state.TenantId);
+            var (_, tenant) = await CreateUserAndTenant(profile, raw.AccountId, state.TenantId);
 
             response.ConfirmLink = GetTenantRedirectUri(tenant, profile.EMail);
             if (!string.IsNullOrWhiteSpace(state.CollaborationId) && !"none".Equals(state.CollaborationId))
