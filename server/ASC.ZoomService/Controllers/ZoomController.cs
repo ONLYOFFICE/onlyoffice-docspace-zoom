@@ -482,6 +482,7 @@ public class ZoomController : ControllerBase
             }
 
             Log.LogDebug("PostHome(): Returning user with confirmLink");
+            Response.Cookies.Delete("ZoomLink", new CookieOptions() { Domain = Configuration["zoom:zoom-domain"], Expires = DateTimeOffset.MinValue });
             return Ok(GetPayloadRedirectLink(tenant, response));
         }
         catch (Exception ex)
