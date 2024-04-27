@@ -115,6 +115,11 @@ public class ZoomHub : Hub
 
             if (cachedCollaboration != null && cachedCollaboration.RoomId != null)
             {
+                if (Context.ConnectionId == cachedCollaboration.ConnectionId)
+                {
+                    return true;
+                }
+
                 try
                 {
                     await _securityContext.AuthenticateMeWithoutCookieAsync(Core.Configuration.Constants.CoreSystem);
