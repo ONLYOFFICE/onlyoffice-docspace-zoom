@@ -545,6 +545,10 @@
                 console.debug('Api System Payload Home Response', homeResponse);
 
                 try {
+                    if (!homeResponse.ok) {
+                        throw Error("Error from home endpoint");
+                    }
+
                     const link = await homeResponse.text();
                     window.location = link;
                 } catch {
