@@ -680,11 +680,24 @@ public class ZoomController : ControllerBase
             if (shouldLink)
             {
                 Log.LogDebug($"CreateUserAndTenant(): Linking portal user '{userInfo.Id}' to zoom user '{profile.Id}'.");
+
+                var links = await AccountLinker.GetLinkedProfilesAsync(userInfo.Id.ToString(), ProviderConstants.Zoom);
+                if (links.Any())
+                {
+                    Log.LogInformation($"CreateUserAndTenant(): Portal user '{userInfo.Id}' already has zoom link.");
+                    throw new Exception("User already linked");
+                }
+
                 await AccountLinker.AddLinkAsync(userInfo.Id, profile);
                 Log.LogInformation($"CreateUserAndTenant(): Linked portal user '{userInfo.Id}' to zoom user '{profile.Id}'.");
             }
 
             return (userInfo, tenant);
+        }
+        catch (Exception ex)
+        {
+            Log.LogDebug(ex, $"CreateUserAndTenant(): Error");
+            throw;
         }
         finally
         {
