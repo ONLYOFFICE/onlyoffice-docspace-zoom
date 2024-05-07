@@ -32,5 +32,6 @@
   "Don't see your portal?": "¿No ve su portal?",
   "Try using a different email address": "Intente utilizar una dirección de correo electrónico diferente",
   "E-mail": "Correo electrónico",
-  "Password": "Contraseña"
+  "Password": "Contraseña",
+  "Incorrect login or password": "Contraseña o login inválido"
 }

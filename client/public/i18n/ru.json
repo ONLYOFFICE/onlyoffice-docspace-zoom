@@ -32,5 +32,6 @@
   "Don't see your portal?": "Не видите ваш портал?",
   "Try using a different email address": "Попробуйте, используя другой адрес электронной почты",
   "E-mail": "Электронная почта",
-  "Password": "Пароль"
+  "Password": "Пароль",
+  "Incorrect login or password": "Неверный логин или пароль"
 }

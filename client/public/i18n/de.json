@@ -32,5 +32,6 @@
   "Don't see your portal?": "Sie finden Ihr Space nicht?",
   "Try using a different email address": "Versuchen Sie, eine andere E-Mail-Adresse zu verwenden",
   "E-mail": "E-Mail",
-  "Password": "Passwort"
+  "Password": "Passwort",
+  "Incorrect login or password": "Ungültiges Login oder Kennwort"
 }

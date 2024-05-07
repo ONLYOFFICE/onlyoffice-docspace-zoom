@@ -32,5 +32,6 @@
   "Don't see your portal?": "お探しのポータルが見つかりませんか？",
   "Try using a different email address": "別のメールアドレスを使用してみてください",
   "E-mail": "メールアドレス",
-  "Password": "パスワード"
+  "Password": "パスワード",
+  "Incorrect login or password": "ログインまたはパスワードが間違っているようです"
 }

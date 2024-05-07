@@ -32,5 +32,6 @@
   "Don't see your portal?": "没有找到您的门户网站？",
   "Try using a different email address": "尝试使用不同的电子邮箱地址",
   "E-mail": "电子邮箱",
-  "Password": "密码"
+  "Password": "密码",
+  "Incorrect login or password": "用户名或密码有误"
 }
