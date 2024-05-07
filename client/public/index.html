@@ -50,6 +50,7 @@
                     <b data-translate="content">Sign in DocSpace</b>
                     <form id="loginForm">
                         <input id="loginInput" type="text" data-translate="placeholder" placeholder="E-mail" />
+                        <span id="loginError"></span>
                         <input id="passwordInput" type="password" data-translate="placeholder" placeholder="Password" />
                         <div class="button" id="authDoLoginButton" data-translate="value">Sign in</div>
                         <div class="button secondary" id="authDoReturnButton" data-translate="content">Back</div>
@@ -269,6 +270,9 @@
             const authDoReturnButton = document.getElementById("authDoReturnButton");
             const authDoTryDifferentButton = document.getElementById("authDoTryDifferentButton");
             const authDoLoginSubmit = document.getElementById("authDoLoginSubmit");
+            const authLoginError = document.getElementById("loginError");
+            const authEmailInput = document.getElementById("loginInput");
+            const authPasswordInput = document.getElementById("passwordInput");
 
             function showMessage(msgKey, options) {
                 if (!options) options = {};
@@ -308,6 +312,19 @@
                 hideAll();
                 changeElementDisplay(document.getElementById("authStep" + step), "block");
                 changeElementDisplay(document.getElementById("authBox"), "block");
+            }
+
+            function showAuthBoxError() {
+                authEmailInput.classList.add("error");
+                authPasswordInput.classList.add("error");
+                authLoginError.innerText = t("Incorrect login or password");
+                authLoginError.style.display = "inline";
+            }
+
+            function hideAuthBoxError() {
+                authEmailInput.classList.remove("error");
+                authPasswordInput.classList.remove("error");
+                authLoginError.style.display = "none";
             }
 
             function showDocSpace() {
@@ -583,10 +600,7 @@
                     e.preventDefault();
                 }
 
-                const email = document.getElementById("loginInput");
-                const password = document.getElementById("passwordInput");
-
-                if (!email.value || !password.value) return;
+                if (!authEmailInput.value || !authPasswordInput.value) return;
 
                 showLoader();
 
@@ -594,7 +608,7 @@
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({login: email.value, password: password.value}),
+                    body: JSON.stringify({login: authEmailInput.value, password: authPasswordInput.value}),
                     method: "POST"
                 });
 
@@ -602,12 +616,13 @@
                     const jwt = await response.text();
                     const json = JSON.parse(atob(jwt.split(".")[1].replace("/-/g", "+").replace("/_/g", "/")));
                     if (json.tenantInfo && json.tenantInfo.length > 0) {
-                        email.value = "";
-                        password.value = "";
+                        authEmailInput.value = "";
+                        authPasswordInput.value = "";
                         console.debug(`DocSpace login success.`, json);
                         onTenantLink(jwt, json);
                     } else {
                         console.debug(`No tenants found for email & pass.`);
+                        showAuthBoxError();
                         showAuthBox("Login");
                     }
                 } else {
@@ -1078,6 +1093,9 @@
                 authDoLoginButton.onclick = onAuthBoxDoLogin;
                 authDoReturnButton.onclick = () => showAuthBox();
                 authDoTryDifferentButton.onclick = () => showAuthBox("Login");
+
+                authPasswordInput.onkeypress = hideAuthBoxError;
+                authEmailInput.onkeypress = hideAuthBoxError;
             }
 
             function onGeneralError() {

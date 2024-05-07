@@ -48,6 +48,19 @@ a {
     font-size: 1.05rem;
 }
 
+
+#authBox input.error {
+    border: 1px solid #F21C0E;
+}
+
+#loginError {
+    text-align: left;
+    color: #F21C0E;
+    font-size: small;
+    margin-bottom: 10px;
+    display: none;
+}
+
 .authBoxBody {
     font-size: 1rem !important;
     background-color: white;
