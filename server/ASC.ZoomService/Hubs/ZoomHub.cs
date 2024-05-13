@@ -288,16 +288,23 @@ public class ZoomHub : Hub
 
     public void CollaborateEnd()
     {
-        var meetingId = GetMidClaim();
-        var cachedCollaboration = _cache.GetCollaboration(meetingId);
+        try
+        {
+            var meetingId = GetMidClaim();
+            var cachedCollaboration = _cache.GetCollaboration(meetingId);
 
-        ThrowIfNotCollaborationInitiator(cachedCollaboration);
+            ThrowIfNotCollaborationInitiator(cachedCollaboration);
 
-        //_ = Task.Run(async () =>
-        //{
-        //    await _zoomBackupHelper.MoveFilesToBackup(cachedCollaboration);
-        //});
-        _cache.RemoveCollaboration(meetingId);
+            //_ = Task.Run(async () =>
+            //{
+            //    await _zoomBackupHelper.MoveFilesToBackup(cachedCollaboration);
+            //});
+            _cache.RemoveCollaboration(meetingId);
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Error while ending collaboration");
+        }
     }
 
     private async Task<int> MoveOrCreateFileIfNeeded(int roomId, ZoomCollaborationChangePayload changePayload)
