@@ -887,7 +887,15 @@ public class ZoomController : ControllerBase
     private async Task AddDomainToCsp(string domain)
     {
         var domains = await CspSettingsHelper.LoadAsync();
-        await CspSettingsHelper.SaveAsync(new List<string>(domains.Domains) { domain });
+
+        if (domains == null || domains.Domains == null || !domains.Domains.Any())
+        {
+            await CspSettingsHelper.SaveAsync(new List<string>() { domain });
+        }
+        else
+        {
+            await CspSettingsHelper.SaveAsync(new List<string>(domains.Domains) { domain });
+        }
     }
 
     private bool TryGetQuotaId(out int quotaId)
