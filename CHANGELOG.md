@@ -1,13 +1,19 @@
 # Change Log
 
+## 2.0.0
+## Added
+- downloading files in browser
+- ability to select an existing portal
+
+## Changed
+- support DocSpace v2.5
+
 ## 1.2.0
 ## Added
 - special docspace tariff
 - welcome email
 - added fonts
 - cancel button on creation page
-- support DocSpace v2.5
-- option to link to existing portal
 
 ## Changed
 - fix check csp on loader page
