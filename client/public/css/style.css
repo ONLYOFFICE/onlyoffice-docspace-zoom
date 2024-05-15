@@ -20,6 +20,10 @@ body {
     font-size: 14px;
 }
 
+a {
+    color: #316daa;
+}
+
 .container, #backgroundBox {
     display: flex;
     flex-direction: column;
@@ -30,6 +34,103 @@ body {
     height: 100%;
     background-color: white;
     box-shadow: 0px 5px 20px 0px rgba(4, 15, 27, 0.07);
+}
+
+#authBox {
+    max-width: 460px;
+}
+
+#authBox input {
+    margin: 5px 0px;
+    padding: 11px 12px;
+    border-radius: 3px;
+    border: 1px solid rgba(208, 213, 218, 1);
+    font-size: 1.05rem;
+}
+
+
+#authBox input.error {
+    border: 1px solid #F21C0E;
+}
+
+#loginError {
+    text-align: left;
+    color: #F21C0E;
+    font-size: small;
+    margin-bottom: 10px;
+    display: none;
+}
+
+.authBoxBody {
+    font-size: 1rem !important;
+    background-color: white;
+}
+
+#authSplit {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin: 1rem 0px;
+}
+
+#authSplit > div {
+    flex: 1;
+    border-top: 1px solid rgba(208, 213, 218, 1);
+}
+
+#authSplit > span {
+    color: rgba(163, 169, 174, 1);
+    font-size: 0.9rem;
+    margin: 0px 5px;
+}
+
+#loginForm {
+    display: flex;
+    flex-direction: column;
+    margin-top: 1rem;
+}
+
+#tenantHolder {
+    display: flex;
+    flex-direction: column;
+    max-height: 32vh;
+    overflow-y: auto;
+}
+
+.tenant {
+    padding: 16px 20px;
+    border: 1px solid rgba(208, 213, 218, 1);
+    border-bottom: none;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+    cursor: pointer;
+}
+
+.tenant:hover {
+    background-color: #f3f4f4;
+}
+
+#tenantHolder > .tenant:first-of-type {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+#tenantHolder > .tenant:last-of-type {
+    border: 1px solid rgba(208, 213, 218, 1);
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.tenant > b {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-wrap: nowrap;
+    text-align: start;
 }
 
 #zoom-ds-frame, #zoom-ds-frame-container,
@@ -43,7 +144,11 @@ body {
 #messageHelp,
 #messageButton,
 #permissionBox,
-#filePickerBox {
+#filePickerBox,
+#authBox,
+#authStepButtons,
+#authStepLogin,
+#authStepTenant {
     display: none;
 }
 
@@ -67,7 +172,6 @@ body {
 
 .messageBody {
     padding: 2rem;
-    font-size: 1.4rem;
     margin: 1.5rem 1.5rem 0 1.5rem;
     border-radius: 12px;
     box-shadow: 0px 5px 20px 0px rgba(4, 15, 27, 0.07);
@@ -181,6 +285,10 @@ body {
     margin-top: 8px;
 }
 
+.mt {
+    margin-top: 0.5rem;
+}
+
 .optionBox {
     margin-top: 0.5rem;
 }
@@ -283,5 +391,17 @@ body {
 
     #fileCreateInfo .formats > label > span {
         text-align: left;
+    }
+
+    .messageHeader {
+        font-size: 1.4rem;
+    }
+
+    .messageHeader img {
+        height: 3rem;
+    }
+
+    .tenant > b {
+        max-width: 160px;
     }
 }

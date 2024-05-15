@@ -42,7 +42,7 @@ namespace ASC.ZoomService.Extensions
             return $"zoom-oauth-challenge-{challenge}";
         }
 
-        private static readonly DistributedCacheEntryOptions OAuthChallengeCacheOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) };
+        private static readonly DistributedCacheEntryOptions OAuthChallengeCacheOptions = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15) };
         private static readonly DistributedCacheEntryOptions CollaborationCacheOptions = new() { SlidingExpiration = TimeSpan.FromMinutes(20) };
     }
 }

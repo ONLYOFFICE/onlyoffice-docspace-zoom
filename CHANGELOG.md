@@ -1,5 +1,13 @@
 # Change Log
 
+## 2.0.0
+## Added
+- downloading files in browser
+- ability to select an existing portal
+
+## Changed
+- support DocSpace v2.5
+
 ## 1.2.0
 ## Added
 - special docspace tariff

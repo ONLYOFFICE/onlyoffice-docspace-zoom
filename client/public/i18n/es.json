@@ -1,4 +1,4 @@
-﻿{
+{
   "Title": "Título",
   "New Document": "Nuevo documento",
   "Document": "Documento",
@@ -17,5 +17,21 @@
   "You're not host or coHost, please press 'Collaborate' button manually": "Usted no es organizador ni coorganizador, por favor, pulse el botón 'Colaborar' manualmente.",
   "Meeting participant started editing session": "Un participante en la reunión ha iniciado la sesión de edición",
   "The quota of your DocSpace is almost reached.": "La cuota de su DocSpace está casi alcanzada.",
-  "Please authorize using browser.": "Por favor, autorícese usando el navegador."
+  "Please authorize using browser.": "Por favor, autorícese usando el navegador.",
+  "Welcome to ONLYOFFICE DocSpace!": "¡Bienvenido/a a ONLYOFFICE DocSpace!",
+  "Choose, create or upload file to collaborate with other Zoom meeting participants.": "Elija, cree o cargue archivos para colaborar con otros participantes en reuniones de Zoom.",
+  "Continue with the current Zoom account?": "¿Continuar con la cuenta de Zoom actual?",
+  "Continue": "Continuar",
+  "OR": "O",
+  "Already have DocSpace account?": "¿Ya tiene una cuenta de DocSpace?",
+  "Log in": "Iniciar sesión",
+  "Sign in DocSpace": "Iniciar sesión en DocSpace",
+  "Sign in": "Iniciar sesión",
+  "Back": "Volver",
+  "Available portals for": "Portales disponibles para",
+  "Don't see your portal?": "¿No ve su portal?",
+  "Try using a different email address": "Intente utilizar una dirección de correo electrónico diferente",
+  "E-mail": "Correo electrónico",
+  "Password": "Contraseña",
+  "Incorrect login or password": "Contraseña o login inválido"
 }

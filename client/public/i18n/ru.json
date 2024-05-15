@@ -1,4 +1,4 @@
-﻿{
+{
   "Title": "Название",
   "New Document": "Новый документ",
   "Document": "Документ",
@@ -17,5 +17,21 @@
   "You're not host or coHost, please press 'Collaborate' button manually": "Вы не являетесь организатором или соорганизатором. Пожалуйста, нажмите кнопку 'Коллективная работа'",
   "Meeting participant started editing session": "Участник собрания начал сеанс редактирования",
   "The quota of your DocSpace is almost reached.": "Квота вашего DocSpace почти достигнута.",
-  "Please authorize using browser.": "Пожалуйста, разрешите использование браузера."
+  "Please authorize using browser.": "Пожалуйста, разрешите использование браузера.",
+  "Welcome to ONLYOFFICE DocSpace!": "Добро пожаловать в ONLYOFFICE DocSpace!",
+  "Choose, create or upload file to collaborate with other Zoom meeting participants.": "Выберите, создайте или загрузите файл для совместной работы с другими участниками Zoom-конференции.",
+  "Continue with the current Zoom account?": "Продолжить с текущим аккаунтом в Zoom?",
+  "Continue": "Продолжить",
+  "OR": "ИЛИ",
+  "Already have DocSpace account?": "Уже есть аккаунт в DocSpace?",
+  "Log in": "Войти",
+  "Sign in DocSpace": "Войти в DocSpace",
+  "Sign in": "Войти",
+  "Back": "Назад",
+  "Available portals for": "Доступные порталы для",
+  "Don't see your portal?": "Не видите ваш портал?",
+  "Try using a different email address": "Попробуйте, используя другой адрес электронной почты",
+  "E-mail": "Электронная почта",
+  "Password": "Пароль",
+  "Incorrect login or password": "Неверный логин или пароль"
 }

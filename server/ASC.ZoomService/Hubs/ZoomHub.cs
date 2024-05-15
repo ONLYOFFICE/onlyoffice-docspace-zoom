@@ -115,6 +115,11 @@ public class ZoomHub : Hub
 
             if (cachedCollaboration != null && cachedCollaboration.RoomId != null)
             {
+                if (Context.ConnectionId == cachedCollaboration.ConnectionId)
+                {
+                    return true;
+                }
+
                 try
                 {
                     await _securityContext.AuthenticateMeWithoutCookieAsync(Core.Configuration.Constants.CoreSystem);
@@ -177,7 +182,7 @@ public class ZoomHub : Hub
                 _log.LogError(ex, $"Failed to parse tenant TZ: {tenant.TimeZone}");
             }
 
-            var room = await _fileStorageService.CreateRoomAsync($"Zoom Collaboration {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz).ToString("g", user.GetCulture())}", RoomType.CustomRoom, false, Array.Empty<FileShareParams>(), false, string.Empty);
+            var room = await _fileStorageService.CreateRoomAsync($"Zoom Collaboration {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz).ToString("g", user.GetCulture())}", RoomType.CustomRoom, false, false, Array.Empty<FileShareParams>(), 0);
             await CheckRights();
 
             var collaboration = new ZoomCollaborationCachedRoom()
@@ -283,16 +288,23 @@ public class ZoomHub : Hub
 
     public void CollaborateEnd()
     {
-        var meetingId = GetMidClaim();
-        var cachedCollaboration = _cache.GetCollaboration(meetingId);
+        try
+        {
+            var meetingId = GetMidClaim();
+            var cachedCollaboration = _cache.GetCollaboration(meetingId);
 
-        ThrowIfNotCollaborationInitiator(cachedCollaboration);
+            ThrowIfNotCollaborationInitiator(cachedCollaboration);
 
-        //_ = Task.Run(async () =>
-        //{
-        //    await _zoomBackupHelper.MoveFilesToBackup(cachedCollaboration);
-        //});
-        _cache.RemoveCollaboration(meetingId);
+            //_ = Task.Run(async () =>
+            //{
+            //    await _zoomBackupHelper.MoveFilesToBackup(cachedCollaboration);
+            //});
+            _cache.RemoveCollaboration(meetingId);
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Error while ending collaboration");
+        }
     }
 
     private async Task<int> MoveOrCreateFileIfNeeded(int roomId, ZoomCollaborationChangePayload changePayload)

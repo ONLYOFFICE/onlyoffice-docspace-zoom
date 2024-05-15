@@ -1,4 +1,4 @@
-﻿{
+{
   "Title": "标题",
   "New Document": "新建文档",
   "Document": "文本文档",
@@ -17,5 +17,21 @@
   "You're not host or coHost, please press 'Collaborate' button manually": "您不是主持人或共同主持人，请手动按下“协作”按钮",
   "Meeting participant started editing session": "与会者已开始编辑",
   "The quota of your DocSpace is almost reached.": "您的协作空间配额即将用完。",
-  "Please authorize using browser.": "请使用浏览器进行授权。"
+  "Please authorize using browser.": "请使用浏览器进行授权。",
+  "Welcome to ONLYOFFICE DocSpace!": "欢迎来到 ONLYOFFICE 协作空间！",
+  "Choose, create or upload file to collaborate with other Zoom meeting participants.": "选择、创建或上传文件，与其他 Zoom 会议用户进行协作。",
+  "Continue with the current Zoom account?": "继续使用当前的 Zoom 账户？",
+  "Continue": "继续",
+  "OR": "或者",
+  "Already have DocSpace account?": "已经拥有协作空间账户？",
+  "Log in": "登录",
+  "Sign in DocSpace": "登录协作空间",
+  "Sign in": "登录",
+  "Back": "返回",
+  "Available portals for": "可用门户网站",
+  "Don't see your portal?": "没有找到您的门户网站？",
+  "Try using a different email address": "尝试使用不同的电子邮箱地址",
+  "E-mail": "电子邮箱",
+  "Password": "密码",
+  "Incorrect login or password": "用户名或密码有误"
 }
