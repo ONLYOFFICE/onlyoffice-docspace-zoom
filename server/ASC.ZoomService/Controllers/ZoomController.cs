@@ -1003,17 +1003,6 @@ public class ZoomController : ControllerBase
         return Base64UrlEncoder.Encode(bytes);
     }
 
-    private class ZoomIntegrationPayload
-    {
-        public string ConfirmLink { get; set; }
-        public string Error { get; set; }
-        public string Home { get; set; } = "zoomservice";
-        public string DocSpaceUrl { get; set; }
-        public string OwnAccountId { get; set; }
-
-        public ZoomCollaborationRoom Collaboration { get; set; }
-    }
-
     private class ZoomAuthPayload
     {
         public string State { get; set; }
