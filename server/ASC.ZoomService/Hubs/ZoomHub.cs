@@ -46,9 +46,10 @@ public class ZoomHub : Hub
     private readonly TenantManager _tenantManager;
     private readonly TimeZoneConverter _timeZoneConverter;
     private readonly ILogger<ZoomHub> _log;
+    private readonly IConfiguration _configuration;
 
     public ZoomHub(IDistributedCache cache, FileStorageService fileStorageService, ZoomAccountHelper zoomAccountHelper,
-        SecurityContext securityContext, UserManager userManager, TenantManager tenantManager, TimeZoneConverter timeZoneConverter, ILogger<ZoomHub> log)
+        SecurityContext securityContext, UserManager userManager, TenantManager tenantManager, TimeZoneConverter timeZoneConverter, ILogger<ZoomHub> log, IConfiguration configuration)
     {
         _cache = cache;
         _fileStorageService = fileStorageService;
@@ -58,6 +59,7 @@ public class ZoomHub : Hub
         _tenantManager = tenantManager;
         _timeZoneConverter = timeZoneConverter;
         _log = log;
+        _configuration = configuration;
     }
 
     public override async Task OnConnectedAsync()
@@ -194,8 +196,9 @@ public class ZoomHub : Hub
                 FileId = null,
                 CollaborationType = (ZoomCollaborationType)changePayload.CollaborationType,
                 Status = ZoomCollaborationStatus.Pending,
-                TenantId = user.TenantId
-            };
+                TenantId = user.TenantId,
+                TenantRegion = _configuration["zoom:aws-region"]
+        };
             _cache.SetCollaboration(meetingId, collaboration);
 
             await Clients.Group(GetGroupNameFromMeetingId(meetingId)).SendAsync("OnCollaboration", new ZoomCollaborationRoom()
