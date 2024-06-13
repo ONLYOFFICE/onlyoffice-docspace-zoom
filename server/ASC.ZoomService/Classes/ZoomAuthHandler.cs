@@ -180,6 +180,6 @@ public class ZoomAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
         public byte[] Tag { get; set; }
     }
 
-    private const string ZOOM_CONTEXT_HEADER = "x-zoom-app-context";
+    public const string ZOOM_CONTEXT_HEADER = "x-zoom-app-context";
     private const string ZOOM_CONTEXT_QUERY = "zoomAppContextToken";
 }

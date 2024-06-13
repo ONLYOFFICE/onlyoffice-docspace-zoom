@@ -32,4 +32,5 @@ public class ZoomStateModel
     public long AccountNumber { get; set; }
     public string CollaborationId { get; set; }
     public int? TenantId { get; set; }
+    public string TenantRegion { get; set; }
 }

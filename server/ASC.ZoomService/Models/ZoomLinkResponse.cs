@@ -11,5 +11,6 @@
         public string Name { get; set; }
         public string Domain { get; set; }
         public int Id { get; set; }
+        public string Region { get; set; }
     }
 }
