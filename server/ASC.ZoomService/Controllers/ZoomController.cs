@@ -185,12 +185,15 @@ public class ZoomController : ControllerBase
         string confirmLink = null;
         bool foreignTenant = false;
         int tenantId = -1;
+        string tenantRegion = null;
         if (collaboration != null)
         {
             Log.LogDebug($"GetState(): Collaboration is not null, getting confirm link using tenant id {collaboration.TenantId}");
             confirmLink = await GetConfirmLinkByTenantId(collaboration.TenantId, uid);
             model.TenantId = collaboration.TenantId;
+            model.TenantRegion = collaboration.TenantRegion;
             tenantId = collaboration.TenantId;
+            tenantRegion = collaboration.TenantRegion;
 
             var ownTenant = GetTenantByAccountId(model.AccountId);
             foreignTenant = ownTenant.Id != collaboration.TenantId;
@@ -206,6 +209,7 @@ public class ZoomController : ControllerBase
                     var zoomLink = JsonSerializer.Deserialize<ZoomLinkCookie>(zoomLinkJson, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
                     confirmLink = await GetConfirmLinkByTenantId(zoomLink.TenantId, uid);
                     tenantId = zoomLink.TenantId;
+                    tenantRegion = zoomLink.TenantRegion;
                 }
                 catch (Exception ex)
                 {
@@ -355,10 +359,11 @@ public class ZoomController : ControllerBase
             tenants = [];
         }
 
+        var region = Configuration["zoom:aws-region"];
         var response = new ZoomLinkResponse()
         {
             Login = model.Login,
-            TenantInfo = tenants.Select(t => new ZoomTenantInfo() { Id = t.Id, Name = t.Name, Domain = t.GetTenantDomain(CoreSettings) }).ToList()
+            TenantInfo = tenants.Select(t => new ZoomTenantInfo() { Id = t.Id, Name = t.Name, Domain = t.GetTenantDomain(CoreSettings), Region = region }).ToList()
         };
 
         var jwtSecret = Configuration["zoom:gate-secret"];
@@ -416,6 +421,7 @@ public class ZoomController : ControllerBase
             var cookie = new ZoomLinkCookie()
             {
                 TenantId = tenant.Id,
+                TenantRegion = Configuration["zoom:aws-region"]
             };
 
             Response.Cookies.Append("ZoomLink", JsonWebToken.Encode(cookie, jwtSecret), new CookieOptions() { Domain = Configuration["zoom:zoom-domain"], Expires = DateTimeOffset.Now.AddDays(30) });
