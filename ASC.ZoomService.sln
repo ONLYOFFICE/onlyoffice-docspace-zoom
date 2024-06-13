@@ -57,6 +57,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Migration.Core", "DocSp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.Notify", "DocSpace\server\common\services\ASC.Notify\ASC.Notify.csproj", "{9B682968-C23B-4923-93E3-75ED90D5B145}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ASC.ZoomService.Proxy", "server\ASC.ZoomService.Proxy\ASC.ZoomService.Proxy.csproj", "{5858FC25-362F-4934-9924-12263D441F5E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -167,6 +169,10 @@ Global
 		{9B682968-C23B-4923-93E3-75ED90D5B145}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9B682968-C23B-4923-93E3-75ED90D5B145}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B682968-C23B-4923-93E3-75ED90D5B145}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5858FC25-362F-4934-9924-12263D441F5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5858FC25-362F-4934-9924-12263D441F5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5858FC25-362F-4934-9924-12263D441F5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5858FC25-362F-4934-9924-12263D441F5E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
