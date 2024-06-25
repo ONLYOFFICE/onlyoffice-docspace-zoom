@@ -35,7 +35,6 @@ using ASC.Notify.Engine;
 using ASC.Notify.Textile;
 using ASC.Web.Files;
 using ASC.Web.Studio.Core.Notify;
-using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Channels;
 
 namespace ASC.ZoomService;
@@ -74,7 +73,6 @@ public class Startup
         services.AddBaseDbContextPool<WebstudioDbContext>();
         services.AddBaseDbContextPool<InstanceRegistrationContext>();
         services.AddBaseDbContextPool<IntegrationEventLogContext>();
-        services.AddBaseDbContextPool<FeedDbContext>();
         services.AddBaseDbContextPool<MessagesContext>();
         services.AddBaseDbContextPool<WebhooksDbContext>();
         services.AddBaseDbContextPool<UrlShortenerDbContext>();
@@ -97,6 +95,7 @@ public class Startup
         services.AddSession();
 
         _diHelper.Configure(services);
+        _diHelper.Scan();
 
         Action<JsonOptions> jsonOptions = options =>
         {
@@ -113,18 +112,6 @@ public class Startup
 
         services.AddSingleton(jsonOptions);
 
-        _diHelper.AddControllers();
-        _diHelper.TryAdd<IpSecurityFilter>();
-        _diHelper.TryAdd<PaymentFilter>();
-        _diHelper.TryAdd<ProductSecurityFilter>();
-        _diHelper.TryAdd<TenantStatusFilter>();
-        _diHelper.TryAdd<ConfirmAuthHandler>();
-        _diHelper.TryAdd<BasicAuthHandler>();
-        _diHelper.TryAdd<CookieAuthHandler>();
-        _diHelper.TryAdd<WebhooksGlobalFilterAttribute>();
-
-        WorkContextExtension.Register(_diHelper);
-
         services.AddSingleton(Channel.CreateUnbounded<NotifyRequest>());
         services.AddSingleton(svc => svc.GetRequiredService<Channel<NotifyRequest>>().Reader);
         services.AddSingleton(svc => svc.GetRequiredService<Channel<NotifyRequest>>().Writer);
@@ -137,10 +124,6 @@ public class Startup
         services.AddHostedService<SocketService>();
 
         services.AddSingleton<NotifyConfiguration>();
-        _diHelper.TryAdd<FileHandlerService>();
-        _diHelper.TryAdd<ASC.Web.Studio.Core.Notify.NotifyTransferRequest>();
-        _diHelper.TryAdd<ASC.Web.Studio.Core.Notify.ProductSecurityInterceptor>();
-        _diHelper.TryAdd<TextileStyler>();
 
         if (!string.IsNullOrEmpty(_corsOrigin))
         {
@@ -167,8 +150,6 @@ public class Startup
         services.AddDistributedLock(_configuration);
 
         services.RegisterFeature();
-
-        _diHelper.TryAdd(typeof(IWebhookPublisher), typeof(WebhookPublisher));
 
         services.AddAutoMapper(BaseStartup.GetAutoMapperProfileAssemblies());
 
