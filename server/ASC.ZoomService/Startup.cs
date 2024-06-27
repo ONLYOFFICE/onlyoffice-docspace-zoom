@@ -24,6 +24,7 @@
 // content are licensed under the terms of the Creative Commons Attribution-ShareAlike 4.0
 // International. See the License terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
 
+using ASC.Api.Core.Extensions;
 using ASC.ApiSystem.Hubs;
 using ASC.Core.Common.Notify.Engine;
 using ASC.Core.Common.Quota;
@@ -116,7 +117,7 @@ public class Startup
         services.AddSingleton(svc => svc.GetRequiredService<Channel<NotifyRequest>>().Reader);
         services.AddSingleton(svc => svc.GetRequiredService<Channel<NotifyRequest>>().Writer);
         services.AddHostedService<NotifySenderService>();
-        services.AddActivePassiveHostedService<NotifySchedulerService>(_diHelper, _configuration);
+        services.AddActivePassiveHostedService<NotifySchedulerService>(_configuration);
 
         services.AddSingleton(Channel.CreateUnbounded<SocketData>());
         services.AddSingleton(svc => svc.GetRequiredService<Channel<SocketData>>().Reader);
