@@ -40,13 +40,13 @@ builder.Configuration.AddDefaultConfiguration(builder.Environment)
                      .AddEnvironmentVariables()
                      .AddCommandLine(args);
 
-var logger = LogManager.Setup()
-                            .SetupExtensions(s =>
-                            {
-                                s.RegisterLayoutRenderer("application-context", (logevent) => AppName);
-                            })
-                            .LoadConfiguration(builder.Configuration, builder.Environment)
-                            .GetLogger(typeof(Startup).Namespace);
+var loggerSetup = LogManager.Setup();
+loggerSetup.SetupExtensions(s =>
+    {
+        s.RegisterLayoutRenderer("application-context", (logevent) => AppName);
+    });
+loggerSetup.LoadConfiguration(builder.Configuration, builder.Environment);
+var logger = loggerSetup.GetLogger(typeof(Startup).Namespace);
 
 try
 {
