@@ -1,5 +1,12 @@
 # Change Log
 
+## 2.1.0
+## Added
+- sr-Cyrl-RS empty files
+
+## Changed
+- support DocSpace v2.6
+
 ## 2.0.0
 ## Added
 - downloading files in browser
