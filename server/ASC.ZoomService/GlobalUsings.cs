@@ -46,7 +46,6 @@ global using ASC.Core.Common.Settings;
 global using ASC.Core.Tenants;
 global using ASC.Core.Users;
 global using ASC.EventBus.Extensions.Logger;
-global using ASC.Feed.Context;
 global using ASC.MessagingSystem.EF.Context;
 global using ASC.Web.Core.Helpers;
 global using ASC.Web.Core.PublicResources;
