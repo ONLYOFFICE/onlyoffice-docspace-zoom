@@ -24,6 +24,7 @@
 // content are licensed under the terms of the Creative Commons Attribution-ShareAlike 4.0
 // International. See the License terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
 
+using ASC.Api.Core.Extensions;
 using ASC.ApiSystem.Hubs;
 using ASC.Core.Common.Notify.Engine;
 using ASC.Core.Common.Quota;
@@ -35,7 +36,6 @@ using ASC.Notify.Engine;
 using ASC.Notify.Textile;
 using ASC.Web.Files;
 using ASC.Web.Studio.Core.Notify;
-using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Channels;
 
 namespace ASC.ZoomService;
@@ -96,6 +96,7 @@ public class Startup
         services.AddSession();
 
         _diHelper.Configure(services);
+        _diHelper.Scan();
 
         Action<JsonOptions> jsonOptions = options =>
         {

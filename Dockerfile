@@ -2,7 +2,9 @@ ARG REPO_BUID="mcr.microsoft.com/dotnet/sdk:8.0"
 ARG REPO_RUNTIME="mcr.microsoft.com/dotnet/aspnet:8.0"
 ARG REPO_ROUTER="nginx:latest"
 ARG COUNT_WORKER_CONNECTIONS=1024
+
 FROM $REPO_BUID AS build
+
 WORKDIR /app
 
 COPY . .
@@ -13,6 +15,7 @@ WORKDIR /app/server/ASC.ZoomService
 RUN dotnet publish --self-contained true -c Release -o out
 
 FROM $REPO_RUNTIME AS api
+
 LABEL vendor = "ONLYOFFICE" \
                 maintainer = scensio System SIA <support@onlyoffice.com>
 WORKDIR /app/ASC.ZoomService
@@ -20,7 +23,7 @@ COPY --from=build /app/server/ASC.ZoomService/out/. ./
 COPY --from=build /app/server/ASC.ZoomService/out/config/. /app/onlyoffice/config/
 
 ENTRYPOINT ["dotnet", "ASC.ZoomService.dll" ]
-CMD ["--pathToConf", "/app/onlyoffice/config/", "--Urls", "http://0.0.0.0:80"]
+CMD ["--pathToConf", "/app/onlyoffice/config/", "--Urls", "http://0.0.0.0:80", "--log:dir",  "/app/onlyoffice/log",   "--log:name",  "ASC.ZoomService"]
 
 FROM $REPO_ROUTER AS router
 LABEL vendor = "ONLYOFFICE" \
