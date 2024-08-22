@@ -81,7 +81,7 @@ public class ZoomHub : Hub
     public async Task<bool> CheckIfUser()
     {
         var userId = await _zoomAccountHelper.GetUserIdFromZoomUid(GetUidClaim());
-        return !userId.HasValue || _userManager.IsUser(userId.Value);
+        return !userId.HasValue || await _userManager.IsUserAsync(userId.Value);
     }
 
     public bool CheckCollaboration()
