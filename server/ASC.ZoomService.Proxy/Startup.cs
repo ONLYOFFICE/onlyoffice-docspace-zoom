@@ -66,6 +66,7 @@ public class Startup
         services.AddSession();
 
         _diHelper.Configure(services);
+        _diHelper.Scan();
 
         Action<JsonOptions> jsonOptions = options =>
         {
@@ -79,18 +80,6 @@ public class Startup
             .AddJsonOptions(jsonOptions);
 
         services.AddSingleton(jsonOptions);
-
-        _diHelper.AddControllers();
-        _diHelper.TryAdd<IpSecurityFilter>();
-        _diHelper.TryAdd<PaymentFilter>();
-        _diHelper.TryAdd<ProductSecurityFilter>();
-        _diHelper.TryAdd<TenantStatusFilter>();
-        _diHelper.TryAdd<ConfirmAuthHandler>();
-        _diHelper.TryAdd<BasicAuthHandler>();
-        _diHelper.TryAdd<CookieAuthHandler>();
-        _diHelper.TryAdd<WebhooksGlobalFilterAttribute>();
-
-        WorkContextExtension.Register(_diHelper);
 
         if (!string.IsNullOrEmpty(_corsOrigin))
         {
@@ -117,8 +106,6 @@ public class Startup
         services.AddDistributedLock(_configuration);
 
         services.RegisterFeature();
-
-        _diHelper.TryAdd(typeof(IWebhookPublisher), typeof(WebhookPublisher));
 
         services.AddAutoMapper(BaseStartup.GetAutoMapperProfileAssemblies());
 
