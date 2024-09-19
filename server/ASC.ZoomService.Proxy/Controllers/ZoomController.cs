@@ -91,6 +91,8 @@ public class ZoomController : ControllerBase
         var mid = User.Claims.FirstOrDefault(c => c.Type == ZoomAuthHandler.ZOOM_CLAIM_MID)?.Value;
         model.TenantId = null;
 
+        Log.LogDebug($"GetState(): Got state request, mid: {mid}, uid: {uid}, noRedirect: {noRedirect}, forceAuth: {forceAuth}\n model: {JsonSerializer.Serialize(model)}");
+
         if (model.AccountId.Contains('_'))
         {
             // ToDo: we might have a collision
