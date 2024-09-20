@@ -35,6 +35,7 @@ using ASC.Notify.Engine;
 using ASC.Notify.Textile;
 using ASC.Web.Files;
 using ASC.Web.Studio.Core.Notify;
+using ASC.ZoomService.Middlewares;
 using System.Threading.Channels;
 
 namespace ASC.ZoomService.Proxy;
@@ -120,6 +121,8 @@ public class Startup
             .AddScheme<AuthenticationSchemeOptions, ZoomAuthHandler>(ZoomAuthHandler.ZOOM_AUTH_SCHEME_HEADER, _ => { })
             .AddScheme<AuthenticationSchemeOptions, ZoomAuthHandler>(ZoomAuthHandler.ZOOM_AUTH_SCHEME_QUERY, _ => { })
             .AddScheme<AuthenticationSchemeOptions, ZoomHookAuthHandler>(ZoomHookAuthHandler.ZOOM_HOOK_AUTH_SCHEME, _ => { });
+
+        services.AddExceptionHandler<ZoomExceptionHandler>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
