@@ -1,20 +1,22 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
+﻿using ASC.ApiSystem.Controllers;
 
 namespace ASC.ZoomService.Middlewares
 {
-    public class ZoomExceptionHandler : IExceptionHandler
+    public static class ZoomExceptionHandlerMiddleware
     {
-        private ILogger<ZoomExceptionHandler> log;
-
-        public ZoomExceptionHandler(ILogger<ZoomExceptionHandler> log)
+        public static async Task HandleException(HttpContext context, Func<Task> next)
         {
-            this.log = log;
-        }
+            var log = context.RequestServices.GetService<ILogger<ZoomController>>();
 
-        public ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
-        {
-            log.LogError(exception, $"Got an error while processing {httpContext.Request.Method} {httpContext.Request.Method}");
-            return ValueTask.FromResult(false);
+            try
+            {
+                await next();
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, $"Got an error while processing {context.Request.Method} {context.Request.Path}");
+                throw;
+            }
         }
     }
 }
