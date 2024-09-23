@@ -52,7 +52,7 @@ var logger = loggerSetup.GetLogger(typeof(Startup).Namespace);
 try
 {
     logger.Info("Configuring web host ({applicationContext})...", AppName);
-    logger.Debug("Zoom Configuration", ZoomConfigurationHelper.ConfigurationSectionToString(builder.Configuration.GetSection("zoom")));
+    logger.Debug($"Zoom Configuration\n{ZoomConfigurationHelper.ConfigurationSectionToString(builder.Configuration.GetSection("zoom"))}");
     builder.Host.ConfigureDefault();
 
     var startup = new Startup(builder.Configuration, builder.Environment);
