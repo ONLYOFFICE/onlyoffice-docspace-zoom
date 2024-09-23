@@ -26,6 +26,7 @@
 
 using ASC.Common.DependencyInjection;
 using ASC.ZoomService;
+using ASC.ZoomService.Helpers;
 
 var options = new WebApplicationOptions
 {
@@ -51,6 +52,7 @@ var logger = LogManager.Setup()
 try
 {
     logger.Info("Configuring web host ({applicationContext})...", AppName);
+    logger.Debug("Zoom Configuration", ZoomConfigurationHelper.ConfigurationSectionToString(builder.Configuration.GetSection("zoom")));
     builder.Host.ConfigureDefault();
 
     var startup = new Startup(builder.Configuration, builder.Environment);
