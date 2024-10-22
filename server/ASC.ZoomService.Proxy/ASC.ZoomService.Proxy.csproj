@@ -17,11 +17,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.3.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="8.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <!-- Configuration -->
     <Content Include="..\..\DocSpace\buildtools\config\**">
       <Link>config\%(RecursiveDir)%(Filename)%(Extension)</Link>
