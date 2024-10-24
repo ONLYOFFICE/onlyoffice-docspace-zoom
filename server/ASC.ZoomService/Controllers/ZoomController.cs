@@ -229,7 +229,8 @@ public class ZoomController : ControllerBase
             {
                 ConfirmLink = confirmLink,
                 Home = Configuration["zoom:home"],
-                OwnAccountId = foreignTenant ? model.AccountId : null
+                OwnAccountId = model.AccountId,
+                ForeignTenant = foreignTenant
             };
 
             if (collaborationIsActive)
@@ -1001,17 +1002,6 @@ public class ZoomController : ControllerBase
     {
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(codeVerifier));
         return Base64UrlEncoder.Encode(bytes);
-    }
-
-    private class ZoomIntegrationPayload
-    {
-        public string ConfirmLink { get; set; }
-        public string Error { get; set; }
-        public string Home { get; set; } = "zoomservice";
-        public string DocSpaceUrl { get; set; }
-        public string OwnAccountId { get; set; }
-
-        public ZoomCollaborationRoom Collaboration { get; set; }
     }
 
     private class ZoomAuthPayload
