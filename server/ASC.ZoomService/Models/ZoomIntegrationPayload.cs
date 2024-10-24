@@ -7,6 +7,7 @@
         public string Home { get; set; } = "zoomservice";
         public string DocSpaceUrl { get; set; }
         public string OwnAccountId { get; set; }
+        public bool ForeignTenant { get; set; }
 
         public ZoomCollaborationRoom Collaboration { get; set; }
     }

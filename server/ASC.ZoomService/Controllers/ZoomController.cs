@@ -233,7 +233,8 @@ public class ZoomController : ControllerBase
             {
                 ConfirmLink = confirmLink,
                 Home = Configuration["zoom:home"],
-                OwnAccountId = foreignTenant ? model.AccountId : null
+                OwnAccountId = model.AccountId,
+                ForeignTenant = foreignTenant
             };
 
             if (collaborationIsActive)
