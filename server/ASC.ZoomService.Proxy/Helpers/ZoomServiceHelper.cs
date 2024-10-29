@@ -103,7 +103,7 @@ namespace ASC.ZoomService.Proxy.Services
 
             var subdomain = GetSubdomainByRegionKey(_configuration["zoom:aws-region"]);
 
-            using var req = new HttpRequestMessage(HttpMethod.Get, $"https://{subdomain}.{domain}/zoomservice/zoom/home");
+            using var req = new HttpRequestMessage(HttpMethod.Post, $"https://{subdomain}.{domain}/zoomservice/zoom/home");
             req.Headers.Add(ZoomAuthHandler.ZOOM_CONTEXT_HEADER, header);
 
             var response = await _httpClient.SendAsync(req);
