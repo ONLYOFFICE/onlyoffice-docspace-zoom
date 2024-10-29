@@ -197,7 +197,28 @@ public class ZoomController : ControllerBase
     [AllowCrossSiteJson]
     public async Task<IActionResult> PostHome(ZoomHomeModel model)
     {
-        return BadRequest();
+        var response = new ZoomIntegrationPayload()
+        {
+            Home = Configuration["zoom:home"]
+        };
+
+        try
+        {
+            Log.LogDebug($"PostHome(): Got home request\n model: {JsonSerializer.Serialize(model)}");
+            var jwtSecret = Configuration["zoom:gate-secret"];
+            var stateJson = JsonWebToken.Decode(model.State, jwtSecret);
+
+            var link = await ZoomServiceHelper.PostHome(model, Request.Headers[ZoomAuthHandler.ZOOM_CONTEXT_HEADER]);
+            if (link == null) return BadRequest(response);
+            Response.Cookies.Delete("ZoomLink", new CookieOptions() { Domain = Configuration["zoom:zoom-domain"], Expires = DateTimeOffset.MinValue });
+            return Ok(link);
+        }
+        catch (Exception ex)
+        {
+            Log.LogDebug(ex, $"PostHome(): Error while POST home");
+            response.Error = ex.Message;
+            return BadRequest(response);
+        }
     }
 
     [HttpPost("deauth")]

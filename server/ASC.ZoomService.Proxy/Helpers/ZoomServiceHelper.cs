@@ -97,6 +97,22 @@ namespace ASC.ZoomService.Proxy.Services
             }
         }
 
+        public async Task<string> PostHome(ZoomHomeModel zoomHomeModel, string header)
+        {
+            var domain = _configuration["zoom:zoom-domain"];
+
+            var subdomain = GetSubdomainByRegionKey(_configuration["zoom:aws-region"]);
+
+            using var req = new HttpRequestMessage(HttpMethod.Get, $"https://{subdomain}.{domain}/zoomservice/zoom/home");
+            req.Headers.Add(ZoomAuthHandler.ZOOM_CONTEXT_HEADER, header);
+
+            var response = await _httpClient.SendAsync(req);
+
+            if (!response.IsSuccessStatusCode) return null;
+
+            return await response.Content.ReadAsStringAsync();
+        }
+
         private async Task<ZoomLinkResponse> GetLink(ZoomLinkPayload model, string domain)
         {
             var jwtSecret = _configuration["zoom:gate-secret"];
