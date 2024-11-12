@@ -825,17 +825,17 @@ public class ZoomController : ControllerBase
 
         TenantManager.SetCurrentTenant(tenant);
 
+        var domain = tenant.GetTenantDomain(CoreSettings);
         if (ApiSystemHelper.ApiCacheEnable)
         {
             var region = Configuration["zoom:aws-region"];
-            var domain = tenant.GetTenantDomain(CoreSettings);
             Log.LogDebug($"CreateTenant(): Adding tenant to cache {domain} {region}.");
             await ApiSystemHelper.AddTenantToCacheAsync(domain, region);
         }
 
         HttpContext.Request.Scheme = "https";
-        HttpContext.Request.Host = new HostString(tenant.GetTenantDomain(CoreSettings));
-        await SendCongratulations(tenant, info.FirstName);
+        HttpContext.Request.Host = new HostString(domain);
+        await SendCongratulations(tenant, $"https://{domain}");
 
         try
         {
@@ -869,14 +869,14 @@ public class ZoomController : ControllerBase
         return tenant;
     }
 
-    private async Task SendCongratulations(Tenant tenant, string firstName)
+    private async Task SendCongratulations(Tenant tenant, string domain)
     {
         try
         {
             Log.LogInformation("Sending welcome email");
             var user = await UserManager.GetUserAsync(tenant.OwnerId, null);
 
-            await StudioNotifyService.SendZoomWelcomeAsync(user);
+            await StudioNotifyService.SendZoomWelcomeAsync(user, domain);
         }
         catch (Exception ex)
         {
