@@ -123,7 +123,7 @@ public class ZoomHub : Hub
 
                 try
                 {
-                    await _securityContext.AuthenticateMeWithoutCookieAsync(Core.Configuration.Constants.CoreSystem);
+                    await _securityContext.AuthenticateMeWithoutCookieAsync(cachedCollaboration.HostUserId);
                     var access = cachedCollaboration.CollaborationType switch
                     {
                         ZoomCollaborationType.Edit => Files.Core.Security.FileShare.Editing,
@@ -189,6 +189,7 @@ public class ZoomHub : Hub
             var collaboration = new ZoomCollaborationCachedRoom()
             {
                 ConnectionId = Context.ConnectionId,
+                HostUserId = guid,
                 CollaborationId = collaborationId,
                 MeetingId = meetingId,
                 RoomId = room.Id.ToString(),
