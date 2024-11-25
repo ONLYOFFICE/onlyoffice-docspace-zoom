@@ -36,6 +36,7 @@ using ASC.Notify.Engine;
 using ASC.Notify.Textile;
 using ASC.Web.Files;
 using ASC.Web.Studio.Core.Notify;
+using ASC.ZoomService.Middlewares;
 using System.Threading.Channels;
 
 namespace ASC.ZoomService;
@@ -176,6 +177,8 @@ public class Startup
         {
             app.UseCors(CustomCorsPolicyName);
         }
+
+        app.Use(ZoomExceptionHandlerMiddleware.HandleException);
 
         app.UseSynchronizationContextMiddleware();
 

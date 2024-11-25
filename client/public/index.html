@@ -249,6 +249,7 @@
             let collaborationHost = false;
 
             let ownTenant = null;
+            let foreignTenant = false;
 
             let configResponse = null;
 
@@ -815,7 +816,7 @@
                     }
                 }
 
-                if (ownTenant) {
+                if (foreignTenant) {
                     await refreshState();
                     return;
                 }
@@ -1121,11 +1122,12 @@
                 }
 
                 ownTenant = payload["OwnAccountId"] ? payload["OwnAccountId"] : 0;
+                foreignTenant = payload["ForeignTenant"];
 
                 home = payload["Home"] ? payload["Home"] : home;
                 if (payload["DocSpaceUrl"]) {
                     docSpaceUrl = payload["DocSpaceUrl"];
-                    await loadJS(`${payload["DocSpaceUrl"]}/static/scripts/sdk/1.0.0/api.js`);
+                    await loadJS(`${payload["DocSpaceUrl"]}/static/scripts/sdk/1.0.1/api.js`);
                     initLoader();
                 }
 

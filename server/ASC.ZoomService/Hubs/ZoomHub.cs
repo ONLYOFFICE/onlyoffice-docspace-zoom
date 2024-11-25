@@ -28,6 +28,7 @@ using ASC.ApiSystem.Helpers;
 using ASC.Common.Utils;
 using ASC.Files.Core.ApiModels;
 using ASC.Files.Core.ApiModels.RequestDto;
+using ASC.Files.Core.VirtualRooms;
 using ASC.Web.Files.Services.WCFService;
 using ASC.ZoomService.Extensions;
 using Microsoft.AspNetCore.SignalR;
@@ -122,7 +123,7 @@ public class ZoomHub : Hub
 
                 try
                 {
-                    await _securityContext.AuthenticateMeWithoutCookieAsync(Core.Configuration.Constants.CoreSystem);
+                    await _securityContext.AuthenticateMeWithoutCookieAsync(cachedCollaboration.HostUserId);
                     var access = cachedCollaboration.CollaborationType switch
                     {
                         ZoomCollaborationType.Edit => Files.Core.Security.FileShare.Editing,
@@ -182,12 +183,13 @@ public class ZoomHub : Hub
                 _log.LogError(ex, $"Failed to parse tenant TZ: {tenant.TimeZone}");
             }
 
-            var room = await _fileStorageService.CreateRoomAsync($"Zoom Collaboration {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz).ToString("g", user.GetCulture())}", RoomType.CustomRoom, false, false, Array.Empty<FileShareParams>(), 0);
+            var room = await _fileStorageService.CreateRoomAsync($"Zoom Collaboration {TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz).ToString("g", user.GetCulture())}", RoomType.CustomRoom, false, false, Array.Empty<FileShareParams>(), 0, null, false, null, null, null, null, null);
             await CheckRights();
 
             var collaboration = new ZoomCollaborationCachedRoom()
             {
                 ConnectionId = Context.ConnectionId,
+                HostUserId = guid,
                 CollaborationId = collaborationId,
                 MeetingId = meetingId,
                 RoomId = room.Id.ToString(),
