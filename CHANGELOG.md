@@ -1,9 +1,12 @@
 # Change Log
 
+## 2.2.0
+## Changed
+- support DocSpace v3.0
+
 ## 2.1.0
 ## Added
 - sr-Cyrl-RS empty files
-
 ## Changed
 - support DocSpace v2.6
 
