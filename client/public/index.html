@@ -570,6 +570,7 @@
                     }
 
                     const link = await homeResponse.text();
+                    localStorage.removeItem("signout");
                     window.location = link;
                 } catch {
                     onGeneralError();
@@ -577,6 +578,10 @@
             }
 
             async function onAuthBoxContinue(state = null) {
+                if (payload["ConfirmLink"]) {
+                    openDocSpace(payload["ConfirmLink"], payload["Collaboration"]);
+                    return;
+                }
                 if (configResponse.browserVersion.startsWith("applewebkit")) {
                     await zoomSdk.openUrl({
                         url: `${location.origin}/zoomservice/zoom/install?state=${payload["State"]}`
@@ -758,6 +763,7 @@
             }
 
             async function onSignOut() {
+                localStorage.setItem("signout", 1);
                 await refreshState(true);
             }
 
@@ -899,6 +905,7 @@
                 try {
                     await proccessConfirmLink(confirmLink);
                     console.debug("DocSpace Authentication success");
+                    localStorage.removeItem("signout");
                 } catch (e) {
                     console.debug("DocSpace Authentication fail", e);
                     onGeneralError();
@@ -1132,7 +1139,7 @@
                 }
 
 
-                if (payload["ConfirmLink"]) {
+                if (payload["ConfirmLink"] && !localStorage.getItem("signout")) {
                     openDocSpace(payload["ConfirmLink"], payload["Collaboration"]);
                 } else {
                     // we are not authorized
