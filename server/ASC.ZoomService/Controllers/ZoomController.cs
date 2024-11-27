@@ -276,7 +276,8 @@ public class ZoomController : ControllerBase
         var payload = JsonSerializer.Serialize(new ZoomAuthPayload()
         {
             State = JsonWebToken.Encode(model, jwtSecret),
-            Challenge = challenge
+            Challenge = challenge,
+            ForceContinue = model.TenantId != null && model.TenantId > -1
         });
 
         Log.LogDebug("GetState(): New user, returning OAuth challenge");
@@ -1008,6 +1009,7 @@ public class ZoomController : ControllerBase
     {
         public string State { get; set; }
         public string Challenge { get; set; }
+        public bool ForceContinue { get; set; }
     }
 
     #endregion
