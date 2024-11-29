@@ -896,7 +896,7 @@ public class ZoomController : ControllerBase
         }
         else
         {
-            await CspSettingsHelper.SaveAsync(new List<string>(domains.Domains) { domain });
+            await CspSettingsHelper.SaveAsync(new List<string>(domains.Domains) { domain }.Distinct());
         }
     }
 
