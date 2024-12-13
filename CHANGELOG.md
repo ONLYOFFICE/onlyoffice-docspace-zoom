@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.2.1
+## Changed
+- minor fix
+
 ## 2.2.0
 ## Changed
 - support DocSpace v3.0
