@@ -1140,8 +1140,11 @@
                     // check if we are authorized in zoom or not
                     // authorizePrompt if we are guest
                     // else authorize
-
-                    showAuthBox();
+                    if (payload["ForceContinue"]) {
+                        onAuthBoxContinue();
+                    } else {
+                        showAuthBox();
+                    }
                 }
             } catch (e) {
                 console.error(e);
