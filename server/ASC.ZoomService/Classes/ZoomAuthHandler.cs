@@ -1,4 +1,4 @@
-﻿// (c) Copyright Ascensio System SIA 2010-2022
+﻿// (c) Copyright Ascensio System SIA 2025
 //
 // This program is a free software product.
 // You can redistribute it and/or modify it under the terms
@@ -93,6 +93,14 @@ public class ZoomAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
             var contextJson = GetContext(zoomContextString);
             var context = JsonSerializer.Deserialize<ZoomHeaderContextModel>(contextJson, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
             _log.LogDebug($"Zoom security context validated; Scheme {Scheme.Name}; Context {contextJson};");
+
+            var expiryDate = DateTimeOffset.FromUnixTimeMilliseconds(context.Exp);
+            var now = DateTimeOffset.UtcNow;
+            if (now >= expiryDate)
+            {
+                _log.LogDebug($"Zoom security context is expired; Issued at {DateTimeOffset.FromUnixTimeMilliseconds(context.Ts)}, Expired at {expiryDate}, Now {now}");
+                throw new Exception("Zoom security context is expired");
+            }
 
             return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(GetClaimsPrincipal(context), new AuthenticationProperties(), Scheme.Name)));
         }
