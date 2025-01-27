@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.2.2
+## Changed
+- check if zoom security context is expired
+
 ## 2.2.1
 ## Changed
 - minor fix
