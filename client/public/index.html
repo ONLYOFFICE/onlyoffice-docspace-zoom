@@ -897,8 +897,13 @@
             async function openDocSpace(confirmLink, collaboration) {
                 console.debug("Authenticating user in DocSpace");
                 try {
-                    await proccessConfirmLink(confirmLink);
-                    console.debug("DocSpace Authentication success");
+                    if (new URLSearchParams(window.location.search).get("confirmUsed") === "true") {
+                        console.debug("Page refresh, dont executing confirm link");
+                    } else {
+                        await proccessConfirmLink(confirmLink);
+                        history.pushState(null, null, location.toString() + "&confirmUsed=true")
+                        console.debug("DocSpace Authentication success");
+                    }
                 } catch (e) {
                     console.debug("DocSpace Authentication fail", e);
                     onGeneralError();
