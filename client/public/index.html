@@ -481,8 +481,9 @@
             }
 
             async function onDownloadHandle(url) {
+                var confirm = await createNewConfirm();
                 await zoomSdk.openUrl({
-                    url: `${payload["ConfirmLink"]}&referenceUrl=${encodeURIComponent(url)}`
+                    url: `${confirm}&referenceUrl=${encodeURIComponent(url)}`
                 });
             }
 
@@ -1038,6 +1039,23 @@
                         input.parentElement.classList.remove("active");
                     }
                 }
+            }
+
+            async function createNewConfirm() {
+                const appContext = await zoomSdk.getAppContext();
+                    try {
+                        const response = await fetch(`/${home}/zoom/confirm`, {
+                            method: 'GET',
+                            headers: {
+                                "x-zoom-app-context": appContext.context
+                            }
+                        });
+                        const confirm = await response.text();
+                        console.log("Got new confirm", confirm);
+                        return confirm;
+                    } catch (ex) {
+                        console.log("Couldn't get a new confirm link", ex);
+                    }
             }
 
             function hookEvents() {
