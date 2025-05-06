@@ -495,6 +495,24 @@ public class ZoomController : ControllerBase
         }
     }
 
+    [HttpGet("confirm")]
+    [Authorize(AuthenticationSchemes = ZoomAuthHandler.ZOOM_AUTH_SCHEME_HEADER)]
+    public async Task<IActionResult> CreateConfirm()
+    {
+        var uid = User.Claims.FirstOrDefault(c => c.Type == ZoomAuthHandler.ZOOM_CLAIM_UID)?.Value;
+        var mid = User.Claims.FirstOrDefault(c => c.Type == ZoomAuthHandler.ZOOM_CLAIM_MID)?.Value;
+
+        var userId = await ZoomAccountHelper.GetUserIdFromZoomUid(uid);
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var confirmLink = await GetConfirmLinkByTenantId(TenantManager.GetCurrentTenant().Id, uid);
+
+        return Ok(confirmLink);
+    }
+
     [HttpPost("upload")]
     [Authorize(AuthenticationSchemes = ZoomAuthHandler.ZOOM_AUTH_SCHEME_HEADER)]
     public async Task<IActionResult> UploadFile(IFormFile file)
