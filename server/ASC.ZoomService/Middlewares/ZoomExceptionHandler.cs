@@ -36,7 +36,6 @@ namespace ASC.ZoomService.Middlewares
 
             try
             {
-                log.LogDebug($"Processing {context.Request.Method} {context.Request.Path}");
                 log.LogDebug(string.Join(", ", context.Request.Headers));
                 await next();
             }

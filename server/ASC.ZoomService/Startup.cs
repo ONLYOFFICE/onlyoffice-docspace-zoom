@@ -178,6 +178,7 @@ public class Startup
             app.UseCors(CustomCorsPolicyName);
         }
 
+        app.Use(ParseTenantMiddleware.ParseMiddleware);
         app.Use(ZoomExceptionHandlerMiddleware.HandleException);
 
         app.UseSynchronizationContextMiddleware();
