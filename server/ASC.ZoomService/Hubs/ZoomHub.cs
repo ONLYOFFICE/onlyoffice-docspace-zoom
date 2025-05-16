@@ -25,10 +25,8 @@
 // International. See the License terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
 
 using ASC.ApiSystem.Helpers;
-using ASC.Common.Utils;
 using ASC.Files.Core.ApiModels;
 using ASC.Files.Core.ApiModels.RequestDto;
-using ASC.Files.Core.VirtualRooms;
 using ASC.Web.Files.Services.WCFService;
 using ASC.ZoomService.Extensions;
 using Microsoft.AspNetCore.SignalR;
@@ -79,31 +77,54 @@ public class ZoomHub : Hub
 
     public async Task<bool> CheckIfUser()
     {
-        var userId = await _zoomAccountHelper.GetUserIdFromZoomUid(GetUidClaim());
-        return !userId.HasValue || await _userManager.IsUserAsync(userId.Value);
+        try
+        {
+            var userId = await _zoomAccountHelper.GetUserIdFromZoomUid(GetUidClaim());
+            return !userId.HasValue || await _userManager.IsUserAsync(userId.Value);
+        }
+        catch (Exception ex)
+        {
+            _log.LogWarning(ex, $"CheckIfUser");
+            return true;
+        }
     }
 
     public bool CheckCollaboration()
     {
-        var meetingId = GetMidClaim();
+        try
+        {
+            var meetingId = GetMidClaim();
 
-        var cachedCollaboration = _cache.GetCollaboration(meetingId);
+            var cachedCollaboration = _cache.GetCollaboration(meetingId);
 
-        return cachedCollaboration != null;
+            return cachedCollaboration != null;
+        }
+        catch (Exception ex)
+        {
+            _log.LogWarning(ex, $"CheckCollaboration");
+            return false;
+        }
     }
 
     public async Task GetCollaboration()
     {
-        var meetingId = GetMidClaim();
-
-        var cachedCollaboration = _cache.GetCollaboration(meetingId);
-
-        await Clients.Caller.SendAsync("OnCollaboration", new ZoomCollaborationRoom()
+        try
         {
-            RoomId = cachedCollaboration.RoomId,
-            FileId = cachedCollaboration.FileId,
-            Status = cachedCollaboration.Status,
-        });
+            var meetingId = GetMidClaim();
+
+            var cachedCollaboration = _cache.GetCollaboration(meetingId);
+
+            await Clients.Caller.SendAsync("OnCollaboration", new ZoomCollaborationRoom()
+            {
+                RoomId = cachedCollaboration.RoomId,
+                FileId = cachedCollaboration.FileId,
+                Status = cachedCollaboration.Status,
+            });
+        }
+        catch (Exception ex)
+        {
+            _log.LogWarning(ex, $"GetCollaboration");
+        }
     }
 
     public async Task<bool> CheckRights()
@@ -228,18 +249,25 @@ public class ZoomHub : Hub
 
     public async Task CollaborateChanging()
     {
-        var meetingId = GetMidClaim();
+        try
+        {
+            var meetingId = GetMidClaim();
 
-        var cachedCollaboration = _cache.GetCollaboration(meetingId);
+            var cachedCollaboration = _cache.GetCollaboration(meetingId);
 
-        ThrowIfNotCollaborationInitiator(cachedCollaboration);
+            ThrowIfNotCollaborationInitiator(cachedCollaboration);
 
-        cachedCollaboration.Status = ZoomCollaborationStatus.Pending;
-        cachedCollaboration.FileId = null;
+            cachedCollaboration.Status = ZoomCollaborationStatus.Pending;
+            cachedCollaboration.FileId = null;
 
-        _cache.SetCollaboration(meetingId, cachedCollaboration);
+            _cache.SetCollaboration(meetingId, cachedCollaboration);
 
-        await Clients.Group(GetGroupNameFromMeetingId(meetingId)).SendAsync("OnCollaborationChanging");
+            await Clients.Group(GetGroupNameFromMeetingId(meetingId)).SendAsync("OnCollaborationChanging");
+        }
+        catch (Exception ex)
+        {
+            _log.LogWarning(ex, "CollaborateChanging");
+        }
     }
 
     public async Task CollaborateChange(ZoomCollaborationChangePayload changePayload)
