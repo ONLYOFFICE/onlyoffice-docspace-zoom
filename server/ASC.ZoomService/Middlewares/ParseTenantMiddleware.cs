@@ -1,10 +1,17 @@
-﻿using System.Text.RegularExpressions;
+﻿using Microsoft.AspNetCore.SignalR;
+using System.Text.RegularExpressions;
 
 namespace ASC.ZoomService.Middlewares
 {
     public static class ParseTenantMiddleware
     {
         public static async Task ParseMiddleware(HttpContext context, Func<Task> next)
+        {
+            await ParseTenant(context);
+            await next();
+        }
+
+        public static async Task ParseTenant(HttpContext context)
         {
             var tenantManager = context.RequestServices.GetService<TenantManager>();
 
@@ -27,8 +34,15 @@ namespace ASC.ZoomService.Middlewares
                     tenantManager.SetCurrentTenant(tenant);
                 }
             }
+        }
+    }
 
-            await next();
-        } 
+    public class ParseTenantHubFilter : IHubFilter
+    {
+        public async ValueTask<object> InvokeMethodAsync(HubInvocationContext context, Func<HubInvocationContext, ValueTask<object>> next)
+        {
+            await ParseTenantMiddleware.ParseTenant(context.Context.GetHttpContext());
+            return await next(context);
+        }
     }
 }

@@ -37,6 +37,7 @@ using ASC.Notify.Textile;
 using ASC.Web.Files;
 using ASC.Web.Studio.Core.Notify;
 using ASC.ZoomService.Middlewares;
+using Microsoft.AspNetCore.SignalR;
 using System.Threading.Channels;
 
 namespace ASC.ZoomService;
@@ -110,7 +111,10 @@ public class Startup
             .AddXmlSerializerFormatters()
             .AddJsonOptions(jsonOptions);
 
-        services.AddSignalR();
+        services.AddSignalR(hubOptions =>
+        {
+            hubOptions.AddFilter<ParseTenantHubFilter>();
+        });
 
         services.AddSingleton(jsonOptions);
 
