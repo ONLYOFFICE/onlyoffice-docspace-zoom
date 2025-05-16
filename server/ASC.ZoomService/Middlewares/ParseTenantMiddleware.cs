@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using ASC.Common.Log;
+using Microsoft.AspNetCore.SignalR;
 using System.Text.RegularExpressions;
 
 namespace ASC.ZoomService.Middlewares
@@ -14,6 +15,7 @@ namespace ASC.ZoomService.Middlewares
         public static async Task ParseTenant(HttpContext context)
         {
             var tenantManager = context.RequestServices.GetService<TenantManager>();
+            var logger = context.RequestServices.GetService<Microsoft.Extensions.Logging.ILogger>();
 
             if (tenantManager.GetCurrentTenant(false) == null)
             {
@@ -23,6 +25,7 @@ namespace ASC.ZoomService.Middlewares
 
                 var regex = new Regex($@"http[s]{{0,1}}:\/\/([a-z\-0-9]+)\.{domain}");
                 var uri = context.Request.Url().AbsoluteUri;
+                logger.LogDebug($"Current tenant is null, trying to find one from host {uri}");
 
                 Match match = regex.Match(uri);
                 if (match.Success)
@@ -31,6 +34,7 @@ namespace ASC.ZoomService.Middlewares
 
                     var hostedSolution = context.RequestServices.GetService<HostedSolution>();
                     var tenant = await hostedSolution.GetTenantAsync(tenantAlias);
+                    logger.LogDebug($"Tenant alias is '{tenantAlias}', setting current tenant to {tenant.Id}");
                     tenantManager.SetCurrentTenant(tenant);
                 }
             }
