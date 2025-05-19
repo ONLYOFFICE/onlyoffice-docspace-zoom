@@ -24,7 +24,6 @@
 // content are licensed under the terms of the Creative Commons Attribution-ShareAlike 4.0
 // International. See the License terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
 
-using ASC.Api.Core.Extensions;
 using ASC.ApiSystem.Hubs;
 using ASC.Core.Common.Notify.Engine;
 using ASC.Core.Common.Quota;
@@ -33,8 +32,6 @@ using ASC.Core.Notify.Socket;
 using ASC.Files.Core.Core;
 using ASC.Files.Core.EF;
 using ASC.Notify.Engine;
-using ASC.Notify.Textile;
-using ASC.Web.Files;
 using ASC.Web.Studio.Core.Notify;
 using ASC.ZoomService.Middlewares;
 using Microsoft.AspNetCore.SignalR;
@@ -79,6 +76,7 @@ public class Startup
         services.AddBaseDbContextPool<MessagesContext>();
         services.AddBaseDbContextPool<WebhooksDbContext>();
         services.AddBaseDbContextPool<UrlShortenerDbContext>();
+        services.AddBaseDbContextPool<ApiKeysDbContext>();
 
 
         services.AddBaseDbContextPool<FilesDbContext>();
