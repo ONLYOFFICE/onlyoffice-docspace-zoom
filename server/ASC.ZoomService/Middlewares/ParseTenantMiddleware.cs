@@ -1,5 +1,4 @@
-﻿using ASC.Common.Log;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using System.Text.RegularExpressions;
 
 namespace ASC.ZoomService.Middlewares
@@ -15,7 +14,7 @@ namespace ASC.ZoomService.Middlewares
         public static async Task ParseTenant(HttpContext context)
         {
             var tenantManager = context.RequestServices.GetService<TenantManager>();
-            var logger = context.RequestServices.GetService<Microsoft.Extensions.Logging.ILogger>();
+            var logger = context.RequestServices.GetService<ILogger<ParseTenantHubFilter>>();
 
             if (tenantManager.GetCurrentTenant(false) == null)
             {
