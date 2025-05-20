@@ -80,7 +80,7 @@ public class ZoomHub : Hub
     {
         try
         {
-            await ParseTenantMiddleware.ParseTenant(Context.GetHttpContext());
+            await ParseTenantMiddleware.ParseTenant(Context.GetHttpContext(), _tenantManager);
             var userId = await _zoomAccountHelper.GetUserIdFromZoomUid(GetUidClaim());
             return !userId.HasValue || await _userManager.IsUserAsync(userId.Value);
         }
@@ -133,7 +133,7 @@ public class ZoomHub : Hub
     {
         try
         {
-            await ParseTenantMiddleware.ParseTenant(Context.GetHttpContext());
+            await ParseTenantMiddleware.ParseTenant(Context.GetHttpContext(), _tenantManager);
 
             var userId = GetUidClaim();
             var meetingId = GetMidClaim();
@@ -188,7 +188,7 @@ public class ZoomHub : Hub
     {
         ArgumentException.ThrowIfNullOrEmpty(collaborationId, nameof(collaborationId));
 
-        await ParseTenantMiddleware.ParseTenant(Context.GetHttpContext());
+        await ParseTenantMiddleware.ParseTenant(Context.GetHttpContext(), _tenantManager);
 
         var meetingId = GetMidClaim();
         await Clients.Group(GetGroupNameFromMeetingId(meetingId)).SendAsync("OnCollaborationStarting");
@@ -257,7 +257,7 @@ public class ZoomHub : Hub
     {
         try
         {
-            await ParseTenantMiddleware.ParseTenant(Context.GetHttpContext());
+            await ParseTenantMiddleware.ParseTenant(Context.GetHttpContext(), _tenantManager);
 
             var meetingId = GetMidClaim();
 
@@ -282,7 +282,7 @@ public class ZoomHub : Hub
     {
         ArgumentException.ThrowIfNullOrEmpty(changePayload.FileId, nameof(changePayload.FileId));
 
-        await ParseTenantMiddleware.ParseTenant(Context.GetHttpContext());
+        await ParseTenantMiddleware.ParseTenant(Context.GetHttpContext(), _tenantManager);
 
         var uid = GetUidClaim();
         var guid = (await _zoomAccountHelper.GetUserIdFromZoomUid(uid)).Value;
@@ -330,7 +330,7 @@ public class ZoomHub : Hub
     {
         try
         {
-            await ParseTenantMiddleware.ParseTenant(Context.GetHttpContext());
+            await ParseTenantMiddleware.ParseTenant(Context.GetHttpContext(), _tenantManager);
 
             var meetingId = GetMidClaim();
             var cachedCollaboration = _cache.GetCollaboration(meetingId);
