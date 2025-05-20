@@ -13,30 +13,48 @@ namespace ASC.ZoomService.Middlewares
 
         public static async Task ParseTenant(HttpContext context)
         {
-            var tenantManager = context.RequestServices.GetService<TenantManager>();
             var logger = context.RequestServices.GetService<ILogger<ParseTenantHubFilter>>();
 
-            if (tenantManager.GetCurrentTenant(false) == null)
+            try
             {
-                var configuration = context.RequestServices.GetService<IConfiguration>();
-                var domain = configuration["zoom:zoom-domain"];
-                domain = domain.Replace(".", @"\.");
+                var tenantManager = context.RequestServices.GetService<TenantManager>();
 
-                var regex = new Regex($@"http[s]{{0,1}}:\/\/([a-z\-0-9]+)\.{domain}");
-                var uri = context.Request.Url().AbsoluteUri;
-                logger.LogDebug($"Current tenant is null, trying to find one from host {uri}");
-
-                Match match = regex.Match(uri);
-                if (match.Success)
+                if (tenantManager.GetCurrentTenant(false) == null)
                 {
-                    var tenantAlias = match.Groups[1].Value;
+                    var configuration = context.RequestServices.GetService<IConfiguration>();
 
-                    var hostedSolution = context.RequestServices.GetService<HostedSolution>();
-                    var tenant = await hostedSolution.GetTenantAsync(tenantAlias);
-                    logger.LogDebug($"Tenant alias is '{tenantAlias}', setting current tenant to {tenant.Id}");
-                    tenantManager.SetCurrentTenant(tenant);
+                    if (!await TryParseFromDomain(configuration["zoom:zoom-domain"], context, tenantManager, logger))
+                    {
+                        await TryParseFromDomain(configuration["core:base-domain"], context, tenantManager, logger);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Couldn't parse tenant");
+            }
+        }
+
+        private static async Task<bool> TryParseFromDomain(string domain, HttpContext httpContent, TenantManager tenantManager, ILogger<ParseTenantHubFilter> logger)
+        {
+            domain = domain.Replace(".", @"\.");
+
+            var regex = new Regex($@"http[s]{{0,1}}:\/\/([a-z\-0-9]+)\.{domain}");
+            var uri = httpContent.Request.Url().AbsoluteUri;
+            logger.LogDebug($"Current tenant is null, trying to find one from host {uri} using {domain} as base domain");
+
+            Match match = regex.Match(uri);
+            if (match.Success)
+            {
+                var tenantAlias = match.Groups[1].Value;
+
+                var hostedSolution = httpContent.RequestServices.GetService<HostedSolution>();
+                var tenant = await hostedSolution.GetTenantAsync(tenantAlias);
+                logger.LogDebug($"Tenant alias is '{tenantAlias}', setting current tenant to {tenant.Id}");
+                tenantManager.SetCurrentTenant(tenant);
+                return true;
+            }
+            return false;
         }
     }
 
