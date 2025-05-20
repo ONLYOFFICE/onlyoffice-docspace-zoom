@@ -109,10 +109,7 @@ public class Startup
             .AddXmlSerializerFormatters()
             .AddJsonOptions(jsonOptions);
 
-        services.AddSignalR(hubOptions =>
-        {
-            hubOptions.AddFilter<ParseTenantHubFilter>();
-        });
+        services.AddSignalR();
 
         services.AddSingleton(jsonOptions);
 

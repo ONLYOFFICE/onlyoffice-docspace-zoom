@@ -29,6 +29,7 @@ using ASC.Files.Core.ApiModels;
 using ASC.Files.Core.ApiModels.RequestDto;
 using ASC.Web.Files.Services.WCFService;
 using ASC.ZoomService.Extensions;
+using ASC.ZoomService.Middlewares;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Distributed;
 
@@ -79,6 +80,7 @@ public class ZoomHub : Hub
     {
         try
         {
+            await ParseTenantMiddleware.ParseTenant(Context.GetHttpContext());
             var userId = await _zoomAccountHelper.GetUserIdFromZoomUid(GetUidClaim());
             return !userId.HasValue || await _userManager.IsUserAsync(userId.Value);
         }
@@ -131,6 +133,8 @@ public class ZoomHub : Hub
     {
         try
         {
+            await ParseTenantMiddleware.ParseTenant(Context.GetHttpContext());
+
             var userId = GetUidClaim();
             var meetingId = GetMidClaim();
             var cachedCollaboration = _cache.GetCollaboration(meetingId);
@@ -183,6 +187,8 @@ public class ZoomHub : Hub
     public async Task CollaborateStart(string collaborationId, ZoomCollaborationChangePayload changePayload)
     {
         ArgumentException.ThrowIfNullOrEmpty(collaborationId, nameof(collaborationId));
+
+        await ParseTenantMiddleware.ParseTenant(Context.GetHttpContext());
 
         var meetingId = GetMidClaim();
         await Clients.Group(GetGroupNameFromMeetingId(meetingId)).SendAsync("OnCollaborationStarting");
@@ -251,6 +257,8 @@ public class ZoomHub : Hub
     {
         try
         {
+            await ParseTenantMiddleware.ParseTenant(Context.GetHttpContext());
+
             var meetingId = GetMidClaim();
 
             var cachedCollaboration = _cache.GetCollaboration(meetingId);
@@ -273,6 +281,8 @@ public class ZoomHub : Hub
     public async Task CollaborateChange(ZoomCollaborationChangePayload changePayload)
     {
         ArgumentException.ThrowIfNullOrEmpty(changePayload.FileId, nameof(changePayload.FileId));
+
+        await ParseTenantMiddleware.ParseTenant(Context.GetHttpContext());
 
         var uid = GetUidClaim();
         var guid = (await _zoomAccountHelper.GetUserIdFromZoomUid(uid)).Value;
@@ -316,10 +326,12 @@ public class ZoomHub : Hub
         }
     }
 
-    public void CollaborateEnd()
+    public async Task CollaborateEnd()
     {
         try
         {
+            await ParseTenantMiddleware.ParseTenant(Context.GetHttpContext());
+
             var meetingId = GetMidClaim();
             var cachedCollaboration = _cache.GetCollaboration(meetingId);
 

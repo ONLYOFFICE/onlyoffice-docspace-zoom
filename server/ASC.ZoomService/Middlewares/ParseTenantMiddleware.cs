@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace ASC.ZoomService.Middlewares
 {
+    public class ParseTenant { }
     public static class ParseTenantMiddleware
     {
         public static async Task ParseMiddleware(HttpContext context, Func<Task> next)
@@ -13,7 +14,7 @@ namespace ASC.ZoomService.Middlewares
 
         public static async Task ParseTenant(HttpContext context)
         {
-            var logger = context.RequestServices.GetService<ILogger<ParseTenantHubFilter>>();
+            var logger = context.RequestServices.GetService<ILogger<ParseTenant>>();
 
             try
             {
@@ -35,7 +36,7 @@ namespace ASC.ZoomService.Middlewares
             }
         }
 
-        private static async Task<bool> TryParseFromDomain(string domainIn, HttpContext httpContent, TenantManager tenantManager, ILogger<ParseTenantHubFilter> logger)
+        private static async Task<bool> TryParseFromDomain(string domainIn, HttpContext httpContent, TenantManager tenantManager, ILogger<ParseTenant> logger)
         {
             var domain = domainIn.Replace(".", @"\.");
 
@@ -51,21 +52,17 @@ namespace ASC.ZoomService.Middlewares
 
                 var hostedSolution = httpContent.RequestServices.GetService<HostedSolution>();
                 var tenant = await hostedSolution.GetTenantAsync(tenantAlias);
+                if (tenant == null)
+                {
+                    logger.LogWarning($"No tenant found with alias '{tenantAlias}'");
+                    return false;
+                }
                 logger.LogDebug($"Tenant alias is '{tenantAlias}', setting current tenant to {tenant.Id}");
                 tenantManager.SetCurrentTenant(tenant);
                 return true;
             }
             logger.LogDebug("No regex match found");
             return false;
-        }
-    }
-
-    public class ParseTenantHubFilter : IHubFilter
-    {
-        public async ValueTask<object> InvokeMethodAsync(HubInvocationContext context, Func<HubInvocationContext, ValueTask<object>> next)
-        {
-            await ParseTenantMiddleware.ParseTenant(context.Context.GetHttpContext());
-            return await next(context);
         }
     }
 }
