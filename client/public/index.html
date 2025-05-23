@@ -481,8 +481,9 @@
             }
 
             async function onDownloadHandle(url) {
+                var confirm = await createNewConfirm();
                 await zoomSdk.openUrl({
-                    url: `${payload["ConfirmLink"]}&referenceUrl=${encodeURIComponent(url)}`
+                    url: `${confirm}&referenceUrl=${encodeURIComponent(url)}`
                 });
             }
 
@@ -897,8 +898,13 @@
             async function openDocSpace(confirmLink, collaboration) {
                 console.debug("Authenticating user in DocSpace");
                 try {
-                    await proccessConfirmLink(confirmLink);
-                    console.debug("DocSpace Authentication success");
+                    if (new URLSearchParams(window.location.search).get("confirmUsed") === "true") {
+                        console.debug("Page refresh, dont executing confirm link");
+                    } else {
+                        await proccessConfirmLink(confirmLink);
+                        history.pushState(null, null, location.toString() + "&confirmUsed=true")
+                        console.debug("DocSpace Authentication success");
+                    }
                 } catch (e) {
                     console.debug("DocSpace Authentication fail", e);
                     onGeneralError();
@@ -1033,6 +1039,23 @@
                         input.parentElement.classList.remove("active");
                     }
                 }
+            }
+
+            async function createNewConfirm() {
+                const appContext = await zoomSdk.getAppContext();
+                    try {
+                        const response = await fetch(`/${home}/zoom/confirm`, {
+                            method: 'GET',
+                            headers: {
+                                "x-zoom-app-context": appContext.context
+                            }
+                        });
+                        const confirm = await response.text();
+                        console.log("Got new confirm", confirm);
+                        return confirm;
+                    } catch (ex) {
+                        console.log("Couldn't get a new confirm link", ex);
+                    }
             }
 
             function hookEvents() {

@@ -36,6 +36,7 @@ namespace ASC.ZoomService.Middlewares
 
             try
             {
+                log.LogDebug(string.Join(", ", context.Request.Headers));
                 await next();
             }
             catch (Exception ex)
