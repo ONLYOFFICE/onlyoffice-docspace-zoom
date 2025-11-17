@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.3.0
+## Changed
+- support DocSpace v3.1
+- fixed delayed dowloading
+
 ## 2.2.2
 ## Changed
 - check if zoom security context is expired
@@ -15,6 +20,7 @@
 ## 2.1.0
 ## Added
 - sr-Cyrl-RS empty files
+
 ## Changed
 - support DocSpace v2.6
 
