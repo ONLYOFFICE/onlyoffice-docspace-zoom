@@ -55,6 +55,7 @@ namespace ASC.ApiSystem.Controllers;
 [Scope]
 [ApiController]
 [Route("[controller]")]
+[AllowAnonymous]
 public class ZoomController : ControllerBase
 {
     private CommonMethods CommonMethods { get; }
@@ -277,7 +278,8 @@ public class ZoomController : ControllerBase
         {
             State = JsonWebToken.Encode(model, jwtSecret),
             Challenge = challenge,
-            ForceContinue = model.TenantId != null && model.TenantId > -1
+            ForceContinue = model.TenantId != null && model.TenantId > -1,
+            RedirectUrl = Configuration["zoom:zoom-redirect-uri"],
         });
 
         Log.LogDebug("GetState(): New user, returning OAuth challenge");
@@ -460,7 +462,7 @@ public class ZoomController : ControllerBase
 
             var loginProvider = ZoomAccountHelper.GetLoginProvider();
             Log.LogDebug("PostHome(): Exchanging code for AccessToken");
-            var token = loginProvider.GetAccessToken(model.Code, model.RedirectUri, codeVerifier);
+            var token = loginProvider.GetAccessToken(model.Code, Configuration["zoom:zoom-redirect-uri"], codeVerifier);
             Log.LogDebug("PostHome(): Requesting profile info");
             var (profile, raw) = loginProvider.GetLoginProfileAndRaw(token.AccessToken);
 
@@ -1028,6 +1030,7 @@ public class ZoomController : ControllerBase
         public string State { get; set; }
         public string Challenge { get; set; }
         public bool ForceContinue { get; set; }
+        public string RedirectUrl { get; set; }
     }
 
     #endregion
