@@ -555,12 +555,19 @@
                     return;
                 }
 
-                const homeResponse = await fetch(res.redirectUri, {
+                const homeResponse = await fetch(payload["RedirectUrl"], {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify(res)
+                    body: JSON.stringify({
+                        code: res.code,
+                        challenge: res.challenge,
+                        result: res.result,
+                        redirectUri: decodeURIComponent(res.redirectUri),
+                        timestamp: res.timestamp,
+                        state: payload["State"],
+                    })
                 });
 
                 console.debug('Api System Payload Home Response', homeResponse);
