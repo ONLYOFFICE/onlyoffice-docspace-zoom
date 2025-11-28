@@ -401,7 +401,7 @@ public class ZoomController : ControllerBase
 
             var loginProvider = ZoomAccountHelper.GetLoginProvider();
             Log.LogDebug("PutLink(): Exchanging code for AccessToken");
-            var token = loginProvider.GetAccessToken(model.Code, model.RedirectUri, codeVerifier);
+            var token = loginProvider.GetAccessToken(model.Code, Configuration["zoom:zoom-redirect-uri"], codeVerifier);
             Log.LogDebug("PutLink(): Requesting profile info");
             var profile = loginProvider.GetLoginProfile(token);
 
