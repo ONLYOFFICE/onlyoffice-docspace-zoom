@@ -1,5 +1,10 @@
 # Change Log
 
+##
+## Changed
+- fix auth method
+- support DocSpace v3.6
+
 ## 2.3.0
 ## Changed
 - support DocSpace v3.1
