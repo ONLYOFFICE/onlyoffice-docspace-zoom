@@ -126,6 +126,9 @@ public class Startup
 
         services.AddSingleton<NotifyConfiguration>();
 
+        services.AddBillingHttpClient();
+        services.AddAccountingHttpClient();
+
         if (!string.IsNullOrEmpty(_corsOrigin))
         {
             services.AddCors(options =>
@@ -136,23 +139,26 @@ public class Startup
                                       policy.WithOrigins(_corsOrigin)
                                       .SetIsOriginAllowedToAllowWildcardSubdomains()
                                       .AllowAnyHeader()
-                                      .AllowAnyMethod()
-                                      .AllowCredentials();
+                                      .AllowAnyMethod();
+
+                                      if (_corsOrigin != "*")
+                                      {
+                                          policy.AllowCredentials();
+                                      }
                                   });
             });
         }
 
         var connectionMultiplexer = await services.GetRedisConnectionMultiplexerAsync(_configuration, GetType().Namespace);
 
-        services.AddHybridCache(connectionMultiplexer);
-        services.AddEventBus(_configuration);
-        services.AddDistributedTaskQueue();
-        services.AddCacheNotify(_configuration);
-        services.AddDistributedLock(_configuration);
+        services.AddHybridCache(connectionMultiplexer)
+            .AddMemoryCache(connectionMultiplexer)
+            .AddEventBus(_configuration)
+            .AddDistributedTaskQueue()
+            .AddCacheNotify(_configuration)
+            .AddDistributedLock(_configuration);
 
         services.RegisterFeature();
-
-        services.AddAutoMapper(BaseStartup.GetAutoMapperProfileAssemblies());
 
         if (!_hostEnvironment.IsDevelopment())
         {

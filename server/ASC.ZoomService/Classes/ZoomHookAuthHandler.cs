@@ -44,10 +44,9 @@ public class ZoomHookAuthHandler : AuthenticationHandler<AuthenticationSchemeOpt
         IOptionsMonitor<AuthenticationSchemeOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder,
-        ISystemClock clock,
         ILogger<AuthHandler> log,
         IConfiguration configuration) :
-        base(options, logger, encoder, clock)
+        base(options, logger, encoder)
     {
         _log = log;
         _configuration = configuration;

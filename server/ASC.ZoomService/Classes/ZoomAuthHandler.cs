@@ -24,6 +24,7 @@
 // content are licensed under the terms of the Creative Commons Attribution-ShareAlike 4.0
 // International. See the License terms at http://creativecommons.org/licenses/by-sa/4.0/legalcode
 
+using ASC.Common.Security.Authorizing;
 using ASC.Core.Common.Configuration;
 using ASC.FederatedLogin.LoginProviders;
 using Microsoft.Extensions.Options;
@@ -52,10 +53,9 @@ public class ZoomAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
         IOptionsMonitor<AuthenticationSchemeOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder,
-        ISystemClock clock,
         ILogger<AuthHandler> log,
         ConsumerFactory consumerFactory) :
-        base(options, logger, encoder, clock)
+        base(options, logger, encoder)
     {
         _log = log;
 
@@ -115,7 +115,10 @@ public class ZoomAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
     {
         var claims = new List<Claim>
         {
-            new Claim(ZOOM_CLAIM_UID, zoomContext.Uid),
+            AuthConstants.Claim_ScopeGlobalRead,
+            AuthConstants.Claim_ScopeGlobalWrite,
+
+            new(ZOOM_CLAIM_UID, zoomContext.Uid),
         };
 
         if (!string.IsNullOrEmpty(zoomContext.Mid))
@@ -145,7 +148,7 @@ public class ZoomAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
     private string ValidatePayload(string headerValue)
     {
         var payload = Unpack(headerValue);
-        using var decryptor = new AesGcm(SHA256.HashData(Encoding.UTF8.GetBytes(_zoomLoginProvider.ClientSecret)));
+        using var decryptor = new AesGcm(SHA256.HashData(Encoding.UTF8.GetBytes(_zoomLoginProvider.ClientSecret)), 16);
         var output = new byte[payload.Cipher.Length];
         decryptor.Decrypt(payload.IV, payload.Cipher, payload.Tag, output, payload.AAD);
         var json = Encoding.UTF8.GetString(output);

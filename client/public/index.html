@@ -555,12 +555,19 @@
                     return;
                 }
 
-                const homeResponse = await fetch(res.redirectUri, {
+                const homeResponse = await fetch(payload["RedirectUrl"], {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify(res)
+                    body: JSON.stringify({
+                        code: res.code,
+                        challenge: res.challenge,
+                        result: res.result,
+                        redirectUri: decodeURIComponent(res.redirectUri),
+                        timestamp: res.timestamp,
+                        state: payload["State"],
+                    })
                 });
 
                 console.debug('Api System Payload Home Response', homeResponse);
@@ -657,22 +664,28 @@
             }
 
             async function onTenantDoLinkCallback(jwt, id) {
-                zoomAuthCallback = (res) => onTenantDoLink(res, id);
+                zoomAuthCallback = (res) => onTenantDoLink(res, jwt, id);
                 onAuthBoxContinue(jwt);
             }
 
-            async function onTenantDoLink(zoomAuth, id) {
+            async function onTenantDoLink(zoomAuth, jwt, id) {
                 zoomAuthCallback = null;
 
                 if (!zoomAuth || !id) return;
-
-                zoomAuth.chosenTenant = id;
 
                 const response = await fetch(`/${home}/zoom/link`, {
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify(zoomAuth),
+                    body: JSON.stringify({
+                        code: zoomAuth.code,
+                        challenge: zoomAuth.challenge,
+                        result: zoomAuth.result,
+                        redirectUri: decodeURIComponent(zoomAuth.redirectUri),
+                        timestamp: zoomAuth.timestamp,
+                        state: jwt,
+                        chosenTenant: id,
+                    }),
                     method: "PUT"
                 });
 
