@@ -1,6 +1,6 @@
 # Change Log
 
-##
+## 2.4.0
 ## Changed
 - fix auth method
 - support DocSpace v3.6
